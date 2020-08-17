@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "c3p0.driverClass",
+      "type": "java.lang.String",
+      "description": "Description for c3p0.driverClass."
+  }
+] }

@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign.util;
 
 import java.io.*;
+import java.util.Base64;
 
 public class IoHandler {
     /**传入txt路径读取txt文件
@@ -42,12 +43,44 @@ public class IoHandler {
                 file.createNewFile();
             }
             fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(content.getBytes("UTF-8"));
+            fileOutputStream.write(content.getBytes());
             fileOutputStream.flush();
             fileOutputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 普通的FileOutputStream写入文件没有编码问题
+     *
+     */
+    public static void fileWriteTxt(String txtPath,byte[] content) {
+        try {
+            OutputStream out = new FileOutputStream(txtPath);
+            out.write(content);
+            out.flush();
+            out.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 删除文件
+     */
+
+    public static void  deleFile(String filePath){
+        File file = new File(filePath);
+        file.delete();
+    }
+
+    /**
+     * 获取spring boot 资源路径的决定路径
+     */
+
+
+
 }
 

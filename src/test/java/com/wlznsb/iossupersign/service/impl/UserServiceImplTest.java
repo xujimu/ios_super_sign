@@ -19,32 +19,32 @@ class UserServiceImplTest {
     @Autowired
     private UserService userService;
 
-    @Test
+
     void register() {
         System.out.println(userService);
         User user = new User(null, "1231231", "119999", new Date(), 0);
         System.out.println(userService.register(user).getMessage());;
     }
 
-    @Test
+
     void login() {
         UserDto userDto =  userService.login("1231231", "11999");
         System.out.println(userDto.getMessage());
     }
 
-    @Test
+
     void dele() {
         UserDto userDto =  userService.dele("1231231");
         System.out.println(userDto.getMessage());
     }
 
-    @Test
+
     void updatePassword() {
-        UserDto userDto =  userService.updatePassword("121","123");
+        UserDto userDto =  userService.updatePassword("121","123","123");
         System.out.println(userDto.getMessage());
     }
 
-    @Test
+
     void updateType() {
         UserDto userDto =  userService.updateType("1111231231211",2);
         System.out.println(userDto.getMessage());

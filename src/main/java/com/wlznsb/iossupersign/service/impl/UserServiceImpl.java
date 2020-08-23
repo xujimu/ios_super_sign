@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -23,6 +25,8 @@ public class UserServiceImpl implements UserService {
                 throw new RuntimeException("用户已存在");
             }else {
                 if(userDao.addAccount(user) == 1){
+                    //创建个人目录
+                    new File("/sign/temp/" + user.getAccount() + "/distribute").mkdirs();
                     return new UserDto(0, "注册成功", user);
                 }else {
                     throw new RuntimeException("注册失败");
@@ -71,18 +75,23 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
     @Transactional
     @Override
-    public UserDto updatePassword(String account, String password) {
+    public UserDto updatePassword(String account,String password,String newPassword) {
         try {
             User user = userDao.queryAccount(account);
             if(user == null){
                 throw new RuntimeException("账号不存在");
             }else {
-                if(userDao.updatePassword(account,password) == 1){
-                    return new UserDto(0, "修改成功", user);
+                if(user.getPassword().equals(password)){
+                    if(userDao.updatePassword(account,newPassword) == 1){
+                        return new UserDto(0, "修改成功", user);
+                    }else {
+                        throw new RuntimeException("修改失败");
+                    }
                 }else {
-                    throw new RuntimeException("修改失败");
+                    throw new RuntimeException("密码错误");
                 }
             }
         }catch (Exception e){

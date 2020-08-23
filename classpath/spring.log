@@ -1,0 +1,6 @@
+2020-08-19 12:04:46.186  INFO 279252 --- [main] com.wlznsb.iossupersign.AppleApi         : Starting AppleApi on xjm199932 with PID 279252 (started by xujimu in C:\Users\xujimu\IdeaProjects\jimu\ios-super-sign)
+2020-08-19 12:04:46.188  INFO 279252 --- [main] com.wlznsb.iossupersign.AppleApi         : The following profiles are active: dev
+2020-08-19 12:04:48.531  INFO 279252 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2020-08-19 12:04:48.701  INFO 279252 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [public/index.html]
+2020-08-19 12:04:49.103  INFO 279252 --- [main] com.wlznsb.iossupersign.AppleApi         : Started AppleApi in 3.968 seconds (JVM running for 5.451)
+2020-08-19 12:04:54.491  INFO 279252 --- [SpringContextShutdownHook] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'

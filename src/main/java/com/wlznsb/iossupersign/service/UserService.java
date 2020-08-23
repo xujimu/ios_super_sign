@@ -38,7 +38,7 @@ public interface UserService {
      * @param password
      * @return
      */
-    UserDto updatePassword(String account,String password);
+    UserDto updatePassword(String account,String password,String newPassword);
 
 
     /**

@@ -1,6 +1,5 @@
 package com.wlznsb.iossupersign.dao;
 
-import com.sun.glass.ui.Application;
 import com.wlznsb.iossupersign.entity.User;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -24,32 +23,32 @@ class UserDaoTest {
     @Autowired
     private UserDao userDao;
 
-    @Test
+
     void queryAccount() {
         System.out.println(userDao.queryAccount("12113"));
     }
 
-    @Test
+
     void queryAll() {
         System.out.println(userDao.queryAll().get(0).getAccount());
     }
 
-    @Test
+
     void updatePassword() {
         System.out.println(userDao.updatePassword("123", "78911"));
     }
 
-    @Test
+
     void updateType() {
         System.out.println(userDao.updateType("123",999));
     }
 
-    @Test
+
     void deleteAcount() {
-        System.out.println(userDao.deleteAcount("1111"));
+        System.out.println(userDao);
     }
 
-    @Test
+
     void addAccount() {
         User user = new User(null, "1111", "119999", new Date(), 0);
         System.out.println(userDao.addAccount(user));

@@ -3,6 +3,8 @@ package com.wlznsb.iossupersign;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
+import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
+import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,27 +65,36 @@ public class AppleApi {
      */@Test
    public void test2() throws IOException {
 
-        AppleApiUtil appleApiUtil = new AppleApiUtil("70e2fe2f-cb06-49a2-9696-753ca9ca7a50","9W6Y7V67D3","C:\\Users\\xujimu\\Desktop\\1111.p8");
-        appleApiUtil.init();
-        String abc = appleApiUtil.queryProfiles();
-        int count =  new ObjectMapper().readTree(abc).get("meta").get("paging").get("total").asInt();
-        for (int i = 0; i < count; i++) {
-            String id = new ObjectMapper().readTree(abc).get("data").get(i).get("attributes").get("name").asText();
-            if(id.equals("3SFBDJAC38")){
-                System.out.println("是的");
-            }
-        }
+
+//        AppleApiUtil appleApiUtil = new AppleApiUtil("70e2fe2f-cb06-49a2-9696-753ca9ca7a50","9W6Y7V67D3","C:\\Users\\xujimu\\Desktop\\1111.p8");
+//        appleApiUtil.init();
+//        String abc = appleApiUtil.queryProfiles();
+//        int count =  new ObjectMapper().readTree(abc).get("meta").get("paging").get("total").asInt();
+//        for (int i = 0; i < count; i++) {
+//            String id = new ObjectMapper().readTree(abc).get("data").get(i).get("attributes").get("name").asText();
+//            if(id.equals("3SFBDJAC38")){
+//                System.out.println("是的");
+//            }
+//        }
        // int intIndex = abc.indexOf("02bc34e0ad3d9769de492164344b450917fc9d2");
         //System.out.println(intIndex);
 //        String keyPath = new File("/sign/mode/my.key").getAbsolutePath();
-//        String certId = appleApiUtil.createCert("C:\\Users\\xujimu\\Desktop\\kkk",keyPath,"123456").get("certId");
-//        System.out.println("证书id" + certId);
+     //   String certId = appleApiUtil.createCert("C:\\Users\\xujimu\\Desktop\\kkk",keyPath,"123456").get("certId");
+       // System.out.println("证书id" + certId);
 //        String a = appleApiUtil.addUuid("02bc34e0ad3d9769de4292154344b450917fc9d2");
 //        System.out.println("设备id" + a);
 //        String b = appleApiUtil.addIdentifiers("com.qweqe.qweq", "qqweqwe");
 //        System.out.println("包名id" + b);
 //        System.out.println(appleApiUtil.addProfiles(b,certId,a,"1qwe123qw","C:\\Users\\xujimu\\Desktop"));
+          Map<String,Object>  a = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\qqqq.ipa", "C:\\Users\\xujimu\\Desktop\\123.png");
+        System.out.println(a);
     }
 
+
+    @Test
+    public void  test5(){
+         String a = "eyJkYXRhIjogeyJpZCI6IDMsIm5hbWUiOiAi5LiH6aG65aix5LmQIiwic2l6ZSI6ICIxME0iLCJpY29uIiA6ICJodHRwczovL3NpZ24ud2x6bnNiLmNuL2lvc2lnbi8xMTIzMS9kaXN0cmlidXRlLzMvMy5wbmcifX0=";
+        System.out.println(new String(Base64.getDecoder().decode(a)));;
+    }
 
 }

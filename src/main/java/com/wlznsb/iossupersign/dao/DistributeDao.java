@@ -17,9 +17,9 @@ public interface DistributeDao {
      * @param distribute
      * @return
      */
-    @Insert("insert into distribute() values(#{distribute.id},#{distribute.account},#{distribute.name}," +
-            "#{distribute.version},#{distribute.icon}" +
-            ",#{distribute.ipa},#{distribute.apk},#{distribute.createTime})")
+    @Insert("insert into distribute() values(#{distribute.id},#{distribute.account},#{distribute.appName}," +
+            "#{distribute.pageName},#{distribute.version},#{distribute.icon}" +
+            ",#{distribute.ipa},#{distribute.apk},#{distribute.url},#{distribute.createTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int add(@Param("distribute") Distribute distribute);
 

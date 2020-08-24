@@ -36,8 +36,8 @@ public class GetIpaInfoUtil {
             try {
                 File file = new File(ipaURL);
                 InputStream is = new FileInputStream(file);
+                String size = is.available() / 1024 / 1024 +"M";
                 InputStream is2 = new FileInputStream(file);
-
                 ZipInputStream zipIns = new ZipInputStream(is);
                 ZipInputStream zipIns2 = new ZipInputStream(is2);
                 ZipEntry ze;
@@ -66,7 +66,8 @@ public class GetIpaInfoUtil {
                                     NSDictionary CFBundlePrimaryIcon = (NSDictionary) iconDict.get("CFBundlePrimaryIcon");
                                     if (CFBundlePrimaryIcon.containsKey("CFBundleIconFiles")) {
                                         NSArray CFBundleIconFiles = (NSArray) CFBundlePrimaryIcon.get("CFBundleIconFiles");
-                                        icon = CFBundleIconFiles.getArray()[0].toString();
+                                        //读取最大的图片
+                                        icon = CFBundleIconFiles.getArray()[CFBundleIconFiles.getArray().length - 1].toString();
                                         if (icon.contains(".png")) {
                                             icon = icon.replace(".png", "");
                                         }
@@ -122,6 +123,8 @@ public class GetIpaInfoUtil {
                 //应用展示的名称
                 parameters = (NSString) rootDict.objectForKey("CFBundleDisplayName");
                 map.put("displayName", parameters.toString());
+                //ipa大小
+                map.put("size", size);
                 //应用所需IOS最低版本
                 //parameters = (NSString) rootDict.objectForKey("MinimumOSVersion");
                 //map.put("minIOSVersion", parameters.toString());

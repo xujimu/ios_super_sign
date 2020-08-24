@@ -19,10 +19,15 @@ public class LoginConfig implements WebMvcConfigurer {
       //  registry.addInterceptor(new UserLoginInterceptor()).addPathPatterns("/**");
         UserLoginInterceptor userLoginInterceptor = new UserLoginInterceptor();
         //添加用户登录拦截器
-        registry.addInterceptor(userLoginInterceptor).excludePathPatterns("/user/login")
-        .excludePathPatterns("/user/register").excludePathPatterns("/user/quit").
-                excludePathPatterns("/distribute/**").excludePathPatterns("/**.mobileconfig").
-                excludePathPatterns("/**.ipa").excludePathPatterns("/**.plist");
+//        registry.addInterceptor(userLoginInterceptor).excludePathPatterns("/user/login")
+//        .excludePathPatterns("/user/register").excludePathPatterns("/user/quit").
+//                excludePathPatterns("/distribute/getUdid").excludePathPatterns("/distribute/getMobile").excludePathPatterns("/**.mobileconfig").
+//                excludePathPatterns("/**.ipa").excludePathPatterns("/**.plist").excludePathPatterns("/**.html");
+
+        registry.addInterceptor(userLoginInterceptor).addPathPatterns("/user/updatePassword")
+                .addPathPatterns("/user/updateType").addPathPatterns("/user/dele").
+                addPathPatterns("/distribute/uploadIpa").addPathPatterns("/iis/**");
+
         //添加权限拦截器
         registry.addInterceptor(new UserAuthInterceptor()).addPathPatterns("/user/dele")
                 .addPathPatterns("/user/updateType");

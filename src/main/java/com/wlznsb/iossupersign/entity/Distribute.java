@@ -11,40 +11,14 @@ public class Distribute {
 
     private Integer id;
     private String account;
-    private String name;
+    private String appName;
+    private String pageName;
     private String version;
     private String icon;
     private String ipa;
     private String apk;
+    private String url;
     private Date createTime;
-
-    public Distribute() {
-    }
-
-    @Override
-    public String toString() {
-        return "Distribute{" +
-                "id=" + id +
-                ", account='" + account + '\'' +
-                ", name='" + name + '\'' +
-                ", version='" + version + '\'' +
-                ", icon='" + icon + '\'' +
-                ", ipa='" + ipa + '\'' +
-                ", apk='" + apk + '\'' +
-                ", createTime=" + createTime +
-                '}';
-    }
-
-    public Distribute(Integer id, String account, String name, String version, String icon, String ipa, String apk, Date createTime) {
-        this.id = id;
-        this.account = account;
-        this.name = name;
-        this.version = version;
-        this.icon = icon;
-        this.ipa = ipa;
-        this.apk = apk;
-        this.createTime = createTime;
-    }
 
     public Integer getId() {
         return id;
@@ -62,12 +36,20 @@ public class Distribute {
         this.account = account;
     }
 
-    public String getName() {
-        return name;
+    public String getAppName() {
+        return appName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public String getPageName() {
+        return pageName;
+    }
+
+    public void setPageName(String pageName) {
+        this.pageName = pageName;
     }
 
     public String getVersion() {
@@ -102,11 +84,35 @@ public class Distribute {
         this.apk = apk;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
 
     public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Distribute() {
+    }
+
+    public Distribute(Integer id, String account, String appName, String pageName, String version, String icon, String ipa, String apk, String url, Date createTime) {
+        this.id = id;
+        this.account = account;
+        this.appName = appName;
+        this.pageName = pageName;
+        this.version = version;
+        this.icon = icon;
+        this.ipa = ipa;
+        this.apk = apk;
+        this.url = url;
         this.createTime = createTime;
     }
 }

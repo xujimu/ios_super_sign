@@ -3,14 +3,13 @@ package com.wlznsb.iossupersign.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wlznsb.iossupersign.dao.AppleIisDao;
 import com.wlznsb.iossupersign.dao.DistributeDao;
+import com.wlznsb.iossupersign.dao.PackStatusDao;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.Distribute;
+import com.wlznsb.iossupersign.entity.PackStatus;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.DistrbuteService;
-import com.wlznsb.iossupersign.util.AppleApiUtil;
-import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
-import com.wlznsb.iossupersign.util.IoHandler;
-import com.wlznsb.iossupersign.util.RuntimeExec;
+import com.wlznsb.iossupersign.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,9 +28,11 @@ public class DistrbuteServiceImpl implements DistrbuteService {
     private DistributeDao distributeDao;
     @Autowired
     private AppleIisDao appleIisDao;
+    @Autowired
+    private PackStatusDao packStatusDao;
 
     @Override
-    public int uploadIpa(MultipartFile ipa, HttpServletRequest request) {
+    public Distribute uploadIpa(MultipartFile ipa, HttpServletRequest request) {
         Integer id = null;
         try {
             if(ipa.getSize() != 0){
@@ -54,10 +55,20 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                 //ipa.transferTo(new File(iconPath));
                 //读取信息
                 Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA(ipaPath,iconPath);
-                Distribute distribute = new Distribute(id,user.getAccount(),mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,new Date());
+                //域名路径
+                String rootUrl = ServerUtil.getRootUrl(request);
+                String name = mapIpa.get("displayName").toString();
+                String url = "{\"data\": {\"id\": idRep,\"name\": \"nameRep\",\"size\": \"sizeRep\",\"icon\" : \"iconRep\"}};";
+                url = url.replace("idRep", id.toString());
+                url = url.replace("nameRep", name);
+                url = url.replace("sizeRep", mapIpa.get("size").toString());
+                url = url.replace("iconRep", rootUrl+ user.getAccount() + "/distribute/" + id  + "/" + id + ".png");
+                url = rootUrl + "distribute/down/" +Base64.getEncoder().encodeToString(url.getBytes());
+                Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date());
                 //写入数据库
                 distributeDao.add(distribute);
+                return distribute;
             }else {
                 throw new RuntimeException("请不要上传空包");
             }
@@ -65,18 +76,20 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             e.printStackTrace();
             throw  new RuntimeException("上传失败" + e.getMessage());
         }
-        return id;
     }
 
     @Override
-    public String getUuid(int id, HttpServletRequest request, HttpServletResponse response){
+    public String getUuid(int id,String uuidk,HttpServletRequest request, HttpServletResponse response){
         try {
+            //获取当前项目域名
+            StringBuffer url = request.getRequestURL();
+            String tempContextUrl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append(request.getSession().getServletContext().getContextPath()).append("/").toString();
+            log.info(tempContextUrl);
             //获取HTTP请求的输入流
             InputStream is = request.getInputStream();
             //已HTTP请求输入流建立一个BufferedReader对象
             BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
             StringBuilder sb = new StringBuilder();
-
             //读取HTTP请求内容
             String buffer = null;
             while ((buffer = br.readLine()) != null) {
@@ -87,6 +100,9 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             //获取到uuid
             String json =  org.json.XML.toJSONObject(content).toString();
             String uuid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
+            //创建状态
+            PackStatus packStatus = new PackStatus(null, null, null, uuidk, uuid, null, new Date(), null, null, "正在打包", 1);
+            packStatusDao.add(packStatus);
             //查询这个应用对应的账号
             Distribute distribute = distributeDao.query(id);
             //查询账号所有可用的证书
@@ -94,12 +110,14 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             //如果有证书
             if(appleIislist.size() != 0){
                 log.info("开始遍历证书");
+                packStatusDao.updateStatus("正在匹配证书", uuidk);
                 for (AppleIis appleIis1:appleIislist){
                     AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis1.getIis(),
                             appleIis1.getKid(),appleIis1.getP8());
                     //如果初始化失败就把状态设置成失效
                     log.info("开始初始化");
                     if(appleApiUtil.init()){
+                        packStatusDao.updateStatus("正在添加设备", uuidk);
                         log.info("初始化完毕");
                         //添加id后返回的唯一id
                         String addUuid = null;
@@ -123,6 +141,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                         }
                         //判断是否添加成功
                         if(addUuid != null){
+                            packStatusDao.updateStatus("正在注册配置文件", uuidk);
                             //获取pros
                             String profiles =appleApiUtil.queryProfiles();
                             String filePro = null;
@@ -143,29 +162,43 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                                     }
                                 }
                             }
-                            //包名
-                            String nameIpa = new Date().getTime() + ".ipa";
-                            //临时目录
-                            String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
-                            String cmd = "zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " " + distribute.getIpa();
-                            log.info("签名命令" + cmd);
-                            log.info("签名结果" + RuntimeExec.runtimeExec(cmd).get("status").toString());
-                            log.info("包名"+ nameIpa);
-                            //获取plist
-                            String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
-                            plist = plist.replace("urlRep", "https://sign.wlznsb.cn/iosign/" + nameIpa);
-                            plist = plist.replace("bundleRep", distribute.getName());
-                            String plistName = String.valueOf(new Date().getTime()) + ".plist";
-                            IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
-                            log.info("plist名" + plistName);
-                            return plistName;
+                            //如果pro文件创建成功
+                            if(filePro != null){
+                                //包名
+                                String nameIpa = new Date().getTime() + ".ipa";
+                                //临时目录
+                                String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
+                                String cmd = "zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 9 " + distribute.getIpa();
+                                log.info("签名命令" + cmd);
+                                packStatusDao.updateStatus("正在对ipa签名", uuidk);
+                                log.info("签名结果" + RuntimeExec.runtimeExec(cmd).get("status").toString());
+                                log.info("包名"+ nameIpa);
+                                //获取plist
+                                String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
+                                plist = plist.replace("urlRep", tempContextUrl + nameIpa);
+                                plist = plist.replace("bundleRep", distribute.getPageName());
+                                plist = plist.replace("versionRep", distribute.getVersion());
+                                String iconPath = tempContextUrl + distribute.getAccount() + "/distribute/" + id + "/" + id + ".png";
+                                plist = plist.replace("iconRep", iconPath);
+                                plist = plist.replace("appnameRep", distribute.getAppName());
+                                String plistName = new Date().getTime() + ".plist";
+                                IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
+                                String plistUrl = "itms-services://?action=download-manifest&url=" +  tempContextUrl + plistName;
+                                packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, nameIpa,plistUrl , "点击下载", null), uuidk);
+                                log.info("plist名" + plistName);
+                                return plistName;
+                            }else {
+                                log.info("创建配置文件失败");
+                                appleIisDao.updateStatus(0, appleApiUtil.getIis());
+                            }
                         }
                     }else {
-                        log.info("证书失效");
+                        log.info("添加设备失败");
                         appleIisDao.updateStatus(0, appleApiUtil.getIis());
                     }
                 }
             }else {
+                packStatusDao.updateStatus("没有可用的证书", uuidk);
                 throw  new RuntimeException("没有可用的证书");
             }
         }catch (Exception e){

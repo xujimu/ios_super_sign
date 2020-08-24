@@ -25,9 +25,9 @@ class DistributeDaoTest {
 
     @Test
     void add() {
-        Distribute distribute = new Distribute(null, "123", "123", "123", "111", "123", "123", new Date());
-        System.out.println(distributeDao.add(distribute));
-        System.out.println(distribute.getId());;
+       // Distribute distribute = new Distribute(null, "123", "123", "123", "111", "123", "123", new Date());
+      //  System.out.println(distributeDao.add(distribute));
+        //System.out.println(distribute.getId());;
     }
 
     @Test
@@ -39,7 +39,7 @@ class DistributeDaoTest {
 
     @Test
     void query() throws FileNotFoundException {
-        Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\output.ipa","C:\\Users\\xujimu\\Desktop\\1.png");
+        Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\qqqq.ipa","C:\\Users\\xujimu\\Desktop\\1.png");
         System.out.println(mapIpa.toString());
     }
 

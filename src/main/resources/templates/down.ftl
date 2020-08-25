@@ -242,6 +242,7 @@
 <script type="text/javascript" src="${path}/js/clipboard.min.js "></script>
 <script type="text/javascript">
 
+
     $(function () {
         var iosplace = 'appstore-hongtao-2',
             androidplace = 'android-hongtao-1',

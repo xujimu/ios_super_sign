@@ -62,7 +62,8 @@
             <p>应用大小：${size}</p>
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
-                <a class="btn btn-mini step2 blue" href="javascript:;;" id="install_btn">免费安装</a>
+                <a class="btn btn-mini step2 blue" href="" id="install_btn">正在打包</a>
+<#--                <img id="loadimg" src="${path}/images/load.gif" style="position: relative; top: 10px;left: 5px">-->
             </div>
         </div>
     </div>
@@ -81,7 +82,7 @@
         <div class="app-intro-con" style="height: auto;">
             <p style="padding: 8px 8px 8px 8px; color: white; background-color: #e64141; border-radius: 5px;">
                 1、安卓手机下载完点击安装即可<br>
-                2、Iphone手机点击安装完返回桌面，如下载完成，则点击设置 &gt;&gt; 通用 &gt;&gt; 描述文件 &gt;&gt; 应用名称&gt;&gt;安装
+                2、Iphone手机点击安装完返回桌面，如下载完成，则点击设置 &gt;&gt; 通用 &gt;&gt; 描述文件 &gt;&gt; ${name}&gt;&gt;安装
             </p>
         </div>
     </div>
@@ -230,9 +231,10 @@
     <div class="pc-logo">
         <img src="${icon}">
     </div>
-    <p>应用名称</p>
+    <p>${name}</p>
     <!--<img src="static/picture/zhongrenju.png" alt="">-->
     <div class="info">请使用手机打开下载</div>
+    <a id="uuid" style="display: none">${uuid}</a>
 </div>
 
 <script type="text/javascript" src="${path}/js/jquery.js "></script>
@@ -241,75 +243,89 @@
 <script type="text/javascript" src="${path}/js/swiper.min.js "></script>
 <script type="text/javascript" src="${path}/js/clipboard.min.js "></script>
 <script type="text/javascript">
-
     $(function () {
-        var iosplace = 'appstore-hongtao-2',
-            androidplace = 'android-hongtao-1',
-            iosplacecode = 'appstore-hongtao-999',
-            androidplacecode = 'android-hongtao-4';
-
-        var andurl = '${android}';     //安卓端下载地址
-        var iosurl = '${ios}';     //苹果端下载地址
-
-        var ua = navigator.userAgent.toLowerCase(),
-            iphoneos = (ua.match(/iphone os/i) == "iphone os") || (ua.match(/iph os/i) == "iph os") || (ua.match(/ipad/i) == "ipad"),
-            android = (ua.match(/android/i) == "android") || (ua.match(/adr/i) == "adr") || (ua.match(/android/i) == "mi pad");
-        $("#install_btn").on("click", function () {
-            DownSoft();
-        })
-
-        function auto_download() {
-            var d = "1"
-            if (d != "1") {
-                return
-            }
-            var issafariBrowser = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent)
-            if (issafariBrowser) {
-                location = ""
-                if ("" != "1") {
-                    return
-                }
-                setTimeout(function () {
-                    location.href = ''
-                }, 1 * 3000)
-            }
+        window.onload = load;
+        function load(){
+            var t =  window.setInterval(function(){
+                $.get("https://sign.wlznsb.cn/iosign/distribute/getStatus?uuid=" + $("#uuid").text(),function(data,status){
+                    $("#install_btn").text(data.data.status)
+                    if(data.data.status == "点击下载"){
+                        $("#install_btn").attr('href',data.data.plist);
+                        window.location = data.data.plist
+                        clearInterval(t)
+                    }else if(data.data.status == "没有可用的证书"){
+                        clearInterval(t)
+                    }
+                });
+            },1000);
         }
+        <#--var iosplace = 'appstore-hongtao-2',-->
+        <#--    androidplace = 'android-hongtao-1',-->
+        <#--    iosplacecode = 'appstore-hongtao-999',-->
+        <#--    androidplacecode = 'android-hongtao-4';-->
 
-        //auto_download()
+        <#--var andurl = '${android}';     //安卓端下载地址-->
+        <#--var iosurl = '${ios}';     //苹果端下载地址-->
 
-        function DownSoft() {
-            //复制
-            //copytoclip();
-            var s = 'https:' == document.location.protocol ? true : false;
-            var pid = iphoneos ? iosplace : androidplace;
+        <#--var ua = navigator.userAgent.toLowerCase(),-->
+        <#--    iphoneos = (ua.match(/iphone os/i) == "iphone os") || (ua.match(/iph os/i) == "iph os") || (ua.match(/ipad/i) == "ipad"),-->
+        <#--    android = (ua.match(/android/i) == "android") || (ua.match(/adr/i) == "adr") || (ua.match(/android/i) == "mi pad");-->
+        <#--$("#install_btn").on("click", function () {-->
+        <#--    DownSoft();-->
+        <#--})-->
 
-            if (iphoneos) {
-                console.log(iosurl);
-                window.location.href = iosurl;
-                setTimeout(function () {
-                    location.href = '${pro}'
-                }, 1 * 3000)
-                // doLocation(iosurl);
-            } else {
-                console.log(andurl);
-                window.location.href = andurl;
-                // doLocation(andurl);
-            }
-        }
+        <#--function auto_download() {-->
+        <#--    var d = "1"-->
+        <#--    if (d != "1") {-->
+        <#--        return-->
+        <#--    }-->
+        <#--    var issafariBrowser = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent)-->
+        <#--    if (issafariBrowser) {-->
+        <#--        location = ""-->
+        <#--        if ("" != "1") {-->
+        <#--            return-->
+        <#--        }-->
+        <#--        setTimeout(function () {-->
+        <#--            location.href = ''-->
+        <#--        }, 1 * 3000)-->
+        <#--    }-->
+        <#--}-->
 
-        function doLocation(url) {
-            var a = document.createElement("a");
-            if(!a.click)
-            {
-                window.location = url;
-                return;
-            }
-            a.setAttribute("href", url);
-            a.setAttribute("target", '__blank');
-            a.style.display = "none";
-            document.body.appendChild(a);
-            a.click();
-        }
+        <#--//auto_download()-->
+
+        <#--function DownSoft() {-->
+        <#--    //复制-->
+        <#--    //copytoclip();-->
+        <#--    var s = 'https:' == document.location.protocol ? true : false;-->
+        <#--    var pid = iphoneos ? iosplace : androidplace;-->
+
+        <#--    if (iphoneos) {-->
+        <#--        console.log(iosurl);-->
+        <#--        window.location.href = iosurl;-->
+        <#--        setTimeout(function () {-->
+        <#--            location.href = '${pro}'-->
+        <#--        }, 1 * 3000)-->
+        <#--        // doLocation(iosurl);-->
+        <#--    } else {-->
+        <#--        console.log(andurl);-->
+        <#--        window.location.href = andurl;-->
+        <#--        // doLocation(andurl);-->
+        <#--    }-->
+        <#--}-->
+
+        <#--function doLocation(url) {-->
+        <#--    var a = document.createElement("a");-->
+        <#--    if(!a.click)-->
+        <#--    {-->
+        <#--        window.location = url;-->
+        <#--        return;-->
+        <#--    }-->
+        <#--    a.setAttribute("href", url);-->
+        <#--    a.setAttribute("target", '__blank');-->
+        <#--    a.style.display = "none";-->
+        <#--    document.body.appendChild(a);-->
+        <#--    a.click();-->
+        <#--}-->
 
     })
 </script>

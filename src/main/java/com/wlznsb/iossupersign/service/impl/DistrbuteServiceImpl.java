@@ -13,6 +13,7 @@ import com.wlznsb.iossupersign.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +33,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
     private PackStatusDao packStatusDao;
 
     @Override
+    @Transactional
     public Distribute uploadIpa(MultipartFile ipa, HttpServletRequest request) {
         Integer id = null;
         try {
@@ -78,6 +80,14 @@ public class DistrbuteServiceImpl implements DistrbuteService {
         }
     }
 
+    /**
+     * 这里不能加事务否则状态无法读取
+     * @param id
+     * @param uuidk
+     * @param request
+     * @param response
+     * @return
+     */
     @Override
     public String getUuid(int id,String uuidk,HttpServletRequest request, HttpServletResponse response){
         try {
@@ -107,6 +117,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             Distribute distribute = distributeDao.query(id);
             //查询账号所有可用的证书
             List<AppleIis> appleIislist = appleIisDao.queryUsIis(distribute.getAccount());
+            System.out.println(appleIislist);
             //如果有证书
             if(appleIislist.size() != 0){
                 log.info("开始遍历证书");
@@ -185,6 +196,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                                 IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
                                 String plistUrl = "itms-services://?action=download-manifest&url=" +  tempContextUrl + plistName;
                                 packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, nameIpa,plistUrl , "点击下载", null), uuidk);
+                                log.info("打包完成");
                                 log.info("plist名" + plistName);
                                 return plistName;
                             }else {
@@ -202,6 +214,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                 throw  new RuntimeException("没有可用的证书");
             }
         }catch (Exception e){
+            log.info(e.toString());
             e.printStackTrace();
             throw  new RuntimeException("失败" + e.toString());
         }

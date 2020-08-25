@@ -3,6 +3,7 @@ package com.wlznsb.iossupersign.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wlznsb.iossupersign.dao.DistributeDao;
 import com.wlznsb.iossupersign.dao.PackStatusDao;
 import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.Distribute;
@@ -14,9 +15,11 @@ import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
 
 
+import org.apache.catalina.DistributedManager;
 import org.apache.catalina.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +46,9 @@ public class DistributeController {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private DistributeDao distributeDao;
 
     @Autowired
     private PackStatusDao packStatusDao;
@@ -75,7 +81,7 @@ public class DistributeController {
     }
 
     @RequestMapping(value = "/down/{data}",method = RequestMethod.GET)
-    public String gettest(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data) throws JsonProcessingException, UnsupportedEncodingException {
+    public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
         String tempContextUrl = ServerUtil.getRootUrl(request);
         //base64解码
@@ -93,6 +99,38 @@ public class DistributeController {
         return "down";
     }
 
+    /**
+     * 获取下载状态
+     * @param model
+     * @param request
+     * @param response
+     * @param data
+     * @param uuid
+     * @return
+     * @throws JsonProcessingException
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping(value = "/downStatus/{data}/{uuid}",method = RequestMethod.GET)
+    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data, @PathVariable String uuid) throws JsonProcessingException, UnsupportedEncodingException {
+        //域名
+        String tempContextUrl = ServerUtil.getRootUrl(request);
+        //base64解码
+        String pageData = new String(Base64.getDecoder().decode(data));
+        //转换成json
+        JsonNode jsonData =  new ObjectMapper().readTree(pageData);
+        String name = jsonData.get("data").get("name").asText();
+        String id = jsonData.get("data").get("id").asText();
+        model.addAttribute("name", name);
+        model.addAttribute("size", jsonData.get("data").get("size").asText());
+        model.addAttribute("icon", jsonData.get("data").get("icon").asText());
+        model.addAttribute("android", tempContextUrl + "distribute/" +"getMobile?id=" + id + "&name=" + name);
+        model.addAttribute("ios",tempContextUrl + "distribute/" +"getMobile?id=" + id + "&name=" + name);
+        model.addAttribute("pro", tempContextUrl + "app.mobileprovision");
+        model.addAttribute("uuid", uuid);
+        return "downStatus";
+    }
+
+
     //301回调
     @RequestMapping(value = "/getUdid")
     public void getUdid(int id,HttpServletRequest request,HttpServletResponse response) throws IOException {
@@ -101,11 +139,19 @@ public class DistributeController {
         /**
          * 这里的返回值是pist没用上
          */
-        distrbuteService.getUuid(id,uuid, request, response);
-
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                distrbuteService.getUuid(id,uuid, request, response);
+            }
+        }).start();
         //获取域名
         String url = ServerUtil.getRootUrl(request);
-        response.setHeader("Location", "https://www.baidu.com");
+        //获取原来的分发地址
+        Distribute distribute =  distributeDao.query(id);
+        String skipUrl = distribute.getUrl().replace("down", "downStatus");
+        //再次请求带上uuid
+        response.setHeader("Location", skipUrl + "/" + uuid);
         response.setStatus(301);
     }
 

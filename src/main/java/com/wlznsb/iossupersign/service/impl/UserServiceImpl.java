@@ -100,6 +100,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto updateType(String account, int type) {
         try {
             User user = userDao.queryAccount(account);

@@ -60,11 +60,12 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                 //域名路径
                 String rootUrl = ServerUtil.getRootUrl(request);
                 String name = mapIpa.get("displayName").toString();
-                String url = "{\"data\": {\"id\": idRep,\"name\": \"nameRep\",\"size\": \"sizeRep\",\"icon\" : \"iconRep\"}};";
+                String url = "{\"data\": {\"id\": idRep,\"account\": \"accountRep\",\"name\": \"nameRep\",\"size\": \"sizeRep\",\"icon\" : \"iconRep\"}};";
                 url = url.replace("idRep", id.toString());
                 url = url.replace("nameRep", name);
                 url = url.replace("sizeRep", mapIpa.get("size").toString());
                 url = url.replace("iconRep", rootUrl+ user.getAccount() + "/distribute/" + id  + "/" + id + ".png");
+                url = url.replace("accountRep", user.getAccount());
                 url = rootUrl + "distribute/down/" +Base64.getEncoder().encodeToString(url.getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
                         toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date());
@@ -75,8 +76,8 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                 throw new RuntimeException("请不要上传空包");
             }
         }catch (Exception e){
-            e.printStackTrace();
-            throw  new RuntimeException("上传失败" + e.getMessage());
+            log.info(e.toString());
+            throw  new RuntimeException("上传失败:" + e.getMessage());
         }
     }
 
@@ -105,6 +106,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             while ((buffer = br.readLine()) != null) {
                 sb.append(buffer);
             }
+
             //去除xml多余信息
             String content = sb.toString().substring(sb.toString().indexOf("<?xml"), sb.toString().indexOf("</plist>")+8);
             //获取到uuid
@@ -134,18 +136,22 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                         String addUuid = null;
                         //查询所有设备
                         String devices = appleApiUtil.queryDevices();
+                        //获取剩余设备数
+                        int deviceCount = 100 - new ObjectMapper().readTree(devices).get("meta").get("paging").get("total").asInt();
                         //判断是否有这个设备
                         int isAdd = devices.indexOf(uuid);
                         if(isAdd == -1){
                              addUuid = appleApiUtil.addUuid(uuid);
                         }else {
-                           int count = new ObjectMapper().readTree(devices).get("meta").get("paging").get("total").asInt();
+                           Integer count = new ObjectMapper().readTree(devices).get("meta").get("paging").get("total").asInt();
                            //找出id
                            for (int i = 0; i < count; i++) {
                                 String udid = new ObjectMapper().readTree(devices).get("data").get(i).get("attributes").get("udid").asText();
                                 if(udid.equals(uuid)){
                                     new ObjectMapper().readTree(devices).get("data").get(i).get("id").asText();
                                     addUuid = new ObjectMapper().readTree(devices).get("data").get(i).get("id").asText();
+                                    System.out.println(deviceCount);
+                                    appleIisDao.updateCount(deviceCount -1,appleIis1.getIis());
                                     break;
                                 }
                             }
@@ -160,7 +166,8 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                             if(profiles.indexOf(addUuid) == -1){
                                  filePro = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, addUuid,new File("/sign/mode/temp").getAbsolutePath());
                             }else {
-                                int count =  new ObjectMapper().readTree(profiles).get("meta").get("paging").get("total").asInt();
+                                Integer count =  new ObjectMapper().readTree(profiles).get("meta").get("paging").get("total").asInt();
+                                System.out.println(count);
                                 for (int i = 0; i < count; i++) {
                                     String proId = new ObjectMapper().readTree(profiles).get("data").get(i).get("attributes").get("name").asText();
                                     if(proId.equals(addUuid)){
@@ -215,8 +222,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             }
         }catch (Exception e){
             log.info(e.toString());
-            e.printStackTrace();
-            throw  new RuntimeException("失败" + e.toString());
+            throw  new RuntimeException("失败" + e.getMessage());
         }
         return null;
     }

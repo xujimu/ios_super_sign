@@ -4,6 +4,7 @@ import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
 
@@ -33,7 +35,8 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }catch (Exception e){
-            throw new RuntimeException("注册失败:" + e.getMessage().toString());
+            log.info(e.toString());
+            throw new RuntimeException("注册失败:" + e.getMessage());
         }
     }
 
@@ -52,7 +55,8 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }catch (Exception e){
-            throw new RuntimeException("登陆失败:" + e.getMessage().toString());
+            log.info(e.toString());
+            throw new RuntimeException("登陆失败:" + e.getMessage());
         }
     }
 
@@ -71,7 +75,8 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }catch (Exception e){
-            throw new RuntimeException("删除失败:" + e.getMessage().toString());
+            log.info(e.toString());
+            throw new RuntimeException("删除失败:" + e.getMessage());
         }
     }
 
@@ -95,7 +100,8 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }catch (Exception e){
-            throw new RuntimeException("修改失败:" + e.getMessage().toString());
+            log.info(e.toString());
+            throw new RuntimeException("修改失败:" + e.getMessage());
         }
     }
 
@@ -114,7 +120,8 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }catch (Exception e){
-            throw new RuntimeException("修改失败:" + e.getMessage().toString());
+            log.info(e.toString());
+            throw new RuntimeException("修改失败:" + e.getMessage());
         }
     }
 

@@ -209,6 +209,7 @@
         免责声明：<br>
         本网站仅提供下载托管，App内容相关事项由开发者负责，与本网站无关。
     </div>
+<#--    <p id="log"></p>-->
     <!-- 蒙版 -->
     <div class="mask">
         <img src="${path}/picture/go-safari.png" alt="">
@@ -243,20 +244,21 @@
 <script type="text/javascript" src="${path}/js/swiper.min.js "></script>
 <script type="text/javascript" src="${path}/js/clipboard.min.js "></script>
 <script type="text/javascript">
-    $(function () {
+
         window.onload = load;
         function load(){
             var t =  window.setInterval(function(){
-                $.get("https://sign.wlznsb.cn/iosign/distribute/getStatus?uuid=" + $("#uuid").text(),function(data,status){
-                    $("#install_btn").text(data.data.status)
-                    if(data.data.status == "点击下载"){
-                        $("#install_btn").attr('href',data.data.plist);
-                        window.location = data.data.plist
-                        clearInterval(t)
-                    }else if(data.data.status == "没有可用的证书"){
-                        clearInterval(t)
-                    }
-                });
+                $.ajax({url:"https://sign.wlznsb.cn/iosign/distribute/getStatus?uuid=" + $("#uuid").text(),success:function(result){
+                        // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
+                        $("#install_btn").text(result.data.status)
+                        if(result.data.status == "点击下载"){
+                            $("#install_btn").attr('href',result.data.plist);
+                            window.location = result.data.plist
+                            clearInterval(t)
+                        }else if(result.data.status == "没有可用的证书"){
+                            clearInterval(t)
+                        }
+                    }});
             },1000);
         }
         <#--var iosplace = 'appstore-hongtao-2',-->
@@ -326,8 +328,6 @@
         <#--    document.body.appendChild(a);-->
         <#--    a.click();-->
         <#--}-->
-
-    })
 </script>
 
 

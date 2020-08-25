@@ -3,6 +3,7 @@ package com.wlznsb.iossupersign.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import net.odyssi.asc4j.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -17,6 +18,7 @@ import java.util.*;
  * 访问苹果api的工具类
  *
  */
+@Slf4j
 public class AppleApiUtil {
 
 
@@ -64,21 +66,25 @@ public class AppleApiUtil {
 
 
     /**
-     * 删除所有证书
+     * 尝试删除所有证书
      * @throws JsonProcessingException
      */
-    public void deleCertAll() throws JsonProcessingException {
-        //查询所有证书
-        ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates",
-                HttpMethod.GET,this.httpEntity, String.class);
+    public void deleCertAll() {
+       try {
+           //查询所有证书
+           ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates",
+                   HttpMethod.GET,this.httpEntity, String.class);
 
-        //序列化返回
-        JsonNode json = new ObjectMapper().readTree(exchange.getBody()).get("data");
-        //删除所有证书
-        for (JsonNode obj:json){
-            restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates/"+ obj.get("id").asText(),
-                    HttpMethod.DELETE,this.httpEntity, String.class);
-        }
+           //序列化返回
+           JsonNode json = new ObjectMapper().readTree(exchange.getBody()).get("data");
+           //删除所有证书
+           for (JsonNode obj:json){
+               restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates/"+ obj.get("id").asText(),
+                       HttpMethod.DELETE,this.httpEntity, String.class);
+           }
+       }catch (Exception e){
+           log.info("删除证书错误" + e.toString());
+       }
     }
 
     /**

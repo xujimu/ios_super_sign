@@ -88,10 +88,10 @@ public interface AppleIisDao {
 
     /**
      * 修改次数
-     * @param conunt
+     * @param count
      * @return
      */
-    @Update("update apple_iis where set count = #{count}")
-    int updateCount(int conunt);
+    @Update("update apple_iis set count = #{count} where iis = #{iis}")
+    int updateCount(int count,String iis);
 
 }

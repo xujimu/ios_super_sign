@@ -90,11 +90,12 @@ public class DistributeController {
         JsonNode jsonData =  new ObjectMapper().readTree(pageData);
         String name = jsonData.get("data").get("name").asText();
         String id = jsonData.get("data").get("id").asText();
+        String account = jsonData.get("data").get("account").asText();
         model.addAttribute("name", name);
         model.addAttribute("size", jsonData.get("data").get("size").asText());
         model.addAttribute("icon", jsonData.get("data").get("icon").asText());
         model.addAttribute("android", tempContextUrl + "distribute/" +"getMobile?id=" + id + "&name=" + name);
-        model.addAttribute("ios",tempContextUrl + "distribute/" +"getMobile?id=" + id + "&name=" + name);
+        model.addAttribute("ios",tempContextUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + name);
         model.addAttribute("pro", tempContextUrl + "app.mobileprovision");
         return "down";
     }
@@ -120,11 +121,12 @@ public class DistributeController {
         JsonNode jsonData =  new ObjectMapper().readTree(pageData);
         String name = jsonData.get("data").get("name").asText();
         String id = jsonData.get("data").get("id").asText();
+        String account = jsonData.get("data").get("account").asText();
         model.addAttribute("name", name);
         model.addAttribute("size", jsonData.get("data").get("size").asText());
         model.addAttribute("icon", jsonData.get("data").get("icon").asText());
         model.addAttribute("android", tempContextUrl + "distribute/" +"getMobile?id=" + id + "&name=" + name);
-        model.addAttribute("ios",tempContextUrl + "distribute/" +"getMobile?id=" + id + "&name=" + name);
+        model.addAttribute("ios",tempContextUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + name);
         model.addAttribute("pro", tempContextUrl + "app.mobileprovision");
         model.addAttribute("uuid", uuid);
         return "downStatus";

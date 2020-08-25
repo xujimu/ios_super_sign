@@ -15,7 +15,7 @@ public class GlobalExection {
     public Map<String,Object> Exection(Exception e){
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("code", 3);
-        map.put("message", e.getMessage());
+        map.put("message", e.toString());
         return map;
     }
 
@@ -24,6 +24,7 @@ public class GlobalExection {
     public Map<String,Object> RuntimeException(RuntimeException e){
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("code", 3);
+        System.out.println(e.toString() + "1");
         map.put("message", e.getMessage());
         return map;
     }

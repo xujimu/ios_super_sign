@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDto updatePassword(String account,String password,String newPassword) {
+    public UserDto updatePassword(String account,String password, String newPassword) {
         try {
             User user = userDao.queryAccount(account);
             if(user == null){

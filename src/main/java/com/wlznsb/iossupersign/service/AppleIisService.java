@@ -2,6 +2,7 @@ package com.wlznsb.iossupersign.service;
 
 
 import com.wlznsb.iossupersign.entity.AppleIis;
+import com.wlznsb.iossupersign.entity.User;
 import org.springframework.http.HttpRequest;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +17,7 @@ public interface AppleIisService {
      * @param appleIis 需要添加的appleiis实体
      * @return
      */
-    int add(String iis,String kid,MultipartFile p8,HttpServletRequest request);
+    int add(String iis, String kid, MultipartFile p8, User user);
 
 
     /**
@@ -24,7 +25,7 @@ public interface AppleIisService {
      * @param iis 需要查询的iis
      * @return
      */
-    int dele(String iis,HttpServletRequest request);
+    int dele(String iis,User user);
 
 
     /**
@@ -34,21 +35,21 @@ public interface AppleIisService {
      * @param s 修改成几 0启用 1不启用
      * @return
      */
-    int updateStartOrStatus(String type,String iis,int s,HttpServletRequest request);
+    int updateStartOrStatus(String type,String iis,int s,User user);
 
 
     /**
      * 查询一个iis证书
      * @return iis 需要查询的iis
      */
-    AppleIis query(String iis,HttpServletRequest request);
+    AppleIis query(String iis,User user);
 
     /**
      *
      * 查询所有iis证书
      *
      */
-    List<AppleIis> queryAll(HttpServletRequest request);
+    List<AppleIis> queryAll();
 
 
     /**
@@ -56,7 +57,7 @@ public interface AppleIisService {
      * @param account 需要查询的账号
      * @return
      */
-    List<AppleIis> queryAccount(String account,HttpServletRequest request);
+    List<AppleIis> queryAccount(String account);
 
 
 

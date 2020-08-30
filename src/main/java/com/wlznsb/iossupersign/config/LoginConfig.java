@@ -24,16 +24,18 @@ public class LoginConfig implements WebMvcConfigurer {
 //                excludePathPatterns("/distribute/getUdid").excludePathPatterns("/distribute/getMobile").excludePathPatterns("/**.mobileconfig").
 //                excludePathPatterns("/**.ipa").excludePathPatterns("/**.plist").excludePathPatterns("/**.html");
 
+        //过滤所有未登录用户
         registry.addInterceptor(userLoginInterceptor).addPathPatterns("/user/updatePassword")
-                .addPathPatterns("/user/updateType").addPathPatterns("/user/dele").
-                addPathPatterns("/distribute/uploadIpa").addPathPatterns("/iis/**");
+                .addPathPatterns("/admin/updateType").addPathPatterns("/admin/dele").
+                addPathPatterns("/distribute/uploadIpa").addPathPatterns("/distribute/queryAccountAll")
+                .addPathPatterns("/distribute/deleIpa").addPathPatterns("/iis/**");
 
-        //添加权限拦截器
-        registry.addInterceptor(new UserAuthInterceptor()).addPathPatterns("/user/dele")
-                .addPathPatterns("/user/updateType");
+        //添加andmin拦截器
+        registry.addInterceptor(new UserAuthInterceptor()).addPathPatterns("/admin/**");
+
+
         //添加iis证书拦截器
-        registry.addInterceptor(new AppleIisInterceptor()).addPathPatterns("/iis/queryAll").
-                addPathPatterns("/iis/query");
+        //registry.addInterceptor(new AppleIisInterceptor());
     }
 
 }

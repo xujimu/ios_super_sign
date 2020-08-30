@@ -8,6 +8,7 @@ import com.wlznsb.iossupersign.dao.PackStatusDao;
 import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.Distribute;
 import com.wlznsb.iossupersign.entity.PackStatus;
+import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.DistrbuteService;
 import com.wlznsb.iossupersign.util.IoHandler;
 import com.wlznsb.iossupersign.util.RuntimeExec;
@@ -15,11 +16,8 @@ import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
 
 
-import org.apache.catalina.DistributedManager;
-import org.apache.catalina.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,11 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLDecoder;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -53,7 +47,7 @@ public class DistributeController {
     @Autowired
     private PackStatusDao packStatusDao;
 
-    //获取描述文件
+    //获取描述文件,没有使用业务层
     @GetMapping
     @RequestMapping("/getMobile")
     public void getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam String id,@RequestParam String name) throws IOException {
@@ -80,6 +74,7 @@ public class DistributeController {
         response.sendRedirect(tempContextUrl + round + ".mobileconfig");
     }
 
+    //下载页面,没有使用业务层
     @RequestMapping(value = "/down/{data}",method = RequestMethod.GET)
     public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
@@ -101,7 +96,7 @@ public class DistributeController {
     }
 
     /**
-     * 获取下载状态
+     * 获取下载状态,没有使用业务层
      * @param model
      * @param request
      * @param response
@@ -129,24 +124,21 @@ public class DistributeController {
         model.addAttribute("ios",tempContextUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + name);
         model.addAttribute("pro", tempContextUrl + "app.mobileprovision");
         model.addAttribute("uuid", uuid);
+        model.addAttribute("downUrl", tempContextUrl + "/distribute/getStatus?uuid=");
         return "downStatus";
     }
 
 
+
     //301回调
     @RequestMapping(value = "/getUdid")
-    public void getUdid(int id,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public void getUdid(@RequestParam int id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         //创建打包uuid
         String uuid = ServerUtil.getUuid();
         /**
          * 这里的返回值是pist没用上
          */
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                distrbuteService.getUuid(id,uuid, request, response);
-            }
-        }).start();
+        new Thread(() -> distrbuteService.getUuid(id,uuid, request, response)).start();
         //获取域名
         String url = ServerUtil.getRootUrl(request);
         //获取原来的分发地址
@@ -157,7 +149,7 @@ public class DistributeController {
         response.setStatus(301);
     }
 
-    //查询打包状态
+    //查询打包状态,没有使用业务层
     @RequestMapping(value = "/getStatus")
     @ResponseBody
     public Map<String,Object> getStatus(String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
@@ -181,7 +173,31 @@ public class DistributeController {
         return map;
     }
 
+    //删除ipa,没有使用业务层
+    @RequestMapping(value = "/deleIpa",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> deleIpa(@RequestParam  int id,HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        distrbuteService.dele(user.getAccount(),id);
+        map.put("code", 0);
+        map.put("message", "删除成功");
+        return map;
+    }
 
+
+    //查询ipa
+    @RequestMapping(value = "/queryAccountAll",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,Object> queryAccountAll(HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        List<Distribute> distributeList =  distrbuteService.queryAccountAll(user.getAccount());
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", distributeList);
+        return map;
+    }
 
 }
 

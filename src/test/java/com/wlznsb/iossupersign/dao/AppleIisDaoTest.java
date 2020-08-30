@@ -26,12 +26,6 @@ class AppleIisDaoTest {
 
     @Test
     void add() {
-        String a = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
-        a = a.replace("urlRep", "https://sign.wlznsb.cn/iosign/1598190727490.ipa");
-        a = a.replace("bundleRep", "com.wlznsb.ccc");
-        IoHandler.writeTxt("C:\\Users\\xujimu\\Desktop\\aaa.plist", a);
-        System.out.println(a);
-        System.out.println(a);
 
 //        System.out.println( appleIisDao.query("70e2fe2f-cb06-49a2-9696-753ca9ca7a50").toString());;
        // System.out.println(userDao.queryAccount("123").toString());
@@ -41,7 +35,7 @@ class AppleIisDaoTest {
 
 
     void dele() {
-        appleIisDao.dele("123");
+
     }
 
 
@@ -61,7 +55,7 @@ class AppleIisDaoTest {
 
 
     void query() {
-        System.out.println(appleIisDao.query("123").getAccount());
+
     }
 
 

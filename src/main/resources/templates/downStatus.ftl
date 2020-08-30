@@ -62,7 +62,7 @@
             <p>应用大小：${size}</p>
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
-                <a class="btn btn-mini step2 blue" href="" id="install_btn">正在打包</a>
+                <a class="btn btn-mini step2 blue" href="" id="install_btn">请求下载</a>
 <#--                <img id="loadimg" src="${path}/images/load.gif" style="position: relative; top: 10px;left: 5px">-->
             </div>
         </div>
@@ -236,6 +236,7 @@
     <!--<img src="static/picture/zhongrenju.png" alt="">-->
     <div class="info">请使用手机打开下载</div>
     <a id="uuid" style="display: none">${uuid}</a>
+    <a id="downUrl" style="display: none">${downUrl}</a>
 </div>
 
 <script type="text/javascript" src="${path}/js/jquery.js "></script>
@@ -246,19 +247,26 @@
 <script type="text/javascript">
 
         window.onload = load;
+        timec = 120
         function load(){
             var t =  window.setInterval(function(){
-                $.ajax({url:"https://sign.wlznsb.cn/iosign/distribute/getStatus?uuid=" + $("#uuid").text(),success:function(result){
+                $.ajax({url: $("#downUrl").text() + $("#uuid").text(),success:function(result){
                         // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
-                        $("#install_btn").text(result.data.status)
+                        $("#install_btn").text(result.data.status + " " + timec)
                         if(result.data.status == "点击下载"){
+                            $("#install_btn").text(result.data.status)
                             $("#install_btn").attr('href',result.data.plist);
                             window.location = result.data.plist
                             clearInterval(t)
                         }else if(result.data.status == "没有可用的证书"){
+                            window.location = 'https://www.86scw.com/s/yYep'
                             clearInterval(t)
                         }
                     }});
+            },1000);
+
+            var a =  window.setInterval(function(){
+                timec = timec -1;
             },1000);
         }
         <#--var iosplace = 'appstore-hongtao-2',-->

@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 public interface DistrbuteService {
 
@@ -23,5 +24,16 @@ public interface DistrbuteService {
      */
     String getUuid(int id,String uuid,HttpServletRequest request, HttpServletResponse response);
 
+
+    /**
+     * 删除ipa
+     *
+     */
+    int dele(String account,int id);
+
+    /**
+     * 查询账号所有记录
+     */
+    List<Distribute> queryAccountAll(String account);
 
 }

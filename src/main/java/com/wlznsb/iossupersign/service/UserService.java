@@ -4,6 +4,7 @@ import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.User;
 import org.apache.ibatis.annotations.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface UserService {
@@ -38,7 +39,7 @@ public interface UserService {
      * @param password
      * @return
      */
-    UserDto updatePassword(String account,String password,String newPassword);
+    UserDto updatePassword(String account,String password, String newPassword);
 
 
     /**

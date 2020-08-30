@@ -12,10 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
@@ -32,13 +30,12 @@ public class AppleIisServiceImpl implements AppleIisService {
 
     @Override
     @Transactional
-    public int add(String iis, String kid, MultipartFile p8, HttpServletRequest request) {
+    public int add(String iis, String kid, MultipartFile p8, User user ) {
         //证书目录
         String certRoot = null;
         try {
-            if(appleIisDao.query(iis) == null){
+            if(appleIisDao.query(user.getAccount(),iis) == null){
 
-                User  user = (User)request.getSession().getAttribute("user");
                 //p8路径
                 String p8Path = new File("/sign/temp/" + user.getAccount() + "/cert/" + iis + "/" + iis +  ".p8").getAbsolutePath();
                 log.info("p8路径:" + new File(p8Path).getAbsoluteFile());
@@ -88,12 +85,11 @@ public class AppleIisServiceImpl implements AppleIisService {
 
     @Override
     @Transactional
-    public int dele(String iis,HttpServletRequest request) {
+    public int dele(String iis,User user) {
         try {
-            AppleIis appleIis = appleIisDao.query(iis);
-            User user = (User) request.getSession().getAttribute("user");
-            if(appleIis != null && appleIis.getAccount().equals(user.getAccount())){
-                appleIisDao.dele(iis);
+            AppleIis appleIis = appleIisDao.query(user.getAccount(),iis);
+            if(appleIis != null){
+                appleIisDao.dele(user.getAccount(),iis);
                 File file = new File("/sign/temp/" + appleIis.getAccount() + "/cert/" + appleIis.getIis()).getAbsoluteFile();
                 System.out.println(file.getAbsolutePath());
                 FileSystemUtils.deleteRecursively(file);
@@ -111,11 +107,10 @@ public class AppleIisServiceImpl implements AppleIisService {
 
     @Override
     @Transactional
-    public int updateStartOrStatus(String type, String iis, int s,HttpServletRequest request) {
+    public int updateStartOrStatus(String type, String iis, int s,User user) {
         try {
-            AppleIis appleIis = appleIisDao.query(iis);
-            User user = (User) request.getSession().getAttribute("user");
-            if(appleIis != null && appleIis.getAccount().equals(user.getAccount())){
+            AppleIis appleIis = appleIisDao.query(user.getAccount(),iis);
+            if(appleIis != null){
                 switch (type){
                     case "status":
                         appleIisDao.updateStatus(s, iis);
@@ -141,10 +136,9 @@ public class AppleIisServiceImpl implements AppleIisService {
 
     @Override
     @Transactional
-    public AppleIis query(String iis, HttpServletRequest request) {
+    public AppleIis query(String iis, User user) {
         try {
-            User user = (User) request.getSession().getAttribute("user");
-            AppleIis appleIis = appleIisDao.query(iis);
+            AppleIis appleIis = appleIisDao.query(user.getAccount(),iis);
             return appleIis;
         }catch (Exception e){
             log.info(e.toString());
@@ -154,9 +148,8 @@ public class AppleIisServiceImpl implements AppleIisService {
 
     @Override
     @Transactional
-    public List<AppleIis> queryAll(HttpServletRequest request) {
+    public List<AppleIis> queryAll() {
         try {
-            User user = (User) request.getSession().getAttribute("user");
             List<AppleIis> appleIis = appleIisDao.queryAll();
             return appleIis;
         }catch (Exception e){
@@ -167,9 +160,8 @@ public class AppleIisServiceImpl implements AppleIisService {
 
     @Override
     @Transactional
-    public List<AppleIis> queryAccount(String account, HttpServletRequest request) {
+    public List<AppleIis> queryAccount(String account) {
         try {
-            User user = (User) request.getSession().getAttribute("user");
             List<AppleIis> appleIis = appleIisDao.queryAccount(account);
             return appleIis;
         }catch (Exception e){

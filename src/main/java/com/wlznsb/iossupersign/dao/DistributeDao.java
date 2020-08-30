@@ -4,6 +4,8 @@ import com.wlznsb.iossupersign.entity.Distribute;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  *
  * 分发引用信息和位置
@@ -29,8 +31,8 @@ public interface DistributeDao {
      * @param id
      * @return
      */
-    @Delete("delete from distribute where id = #{id}")
-    int dele(int id);
+    @Delete("delete from distribute where account = #{account} and  id = #{id}")
+    int dele(String account,int id);
 
 
     /**
@@ -41,6 +43,12 @@ public interface DistributeDao {
     @Select("select * from distribute where id = #{id}")
     Distribute query(int id);
 
+
+    /**
+     * 查询账号所有记录
+     */
+    @Select("select * from distribute where account = #{account}")
+    List<Distribute> queryAccountAll(String account);
 
     /**
      * 查询下个主键

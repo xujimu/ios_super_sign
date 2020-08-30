@@ -9,6 +9,7 @@ public class IosSuperSignApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(IosSuperSignApplication.class, args);
+
     }
 
 }

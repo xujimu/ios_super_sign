@@ -65,37 +65,14 @@ public class UserController {
     }
     //修改密码
     @RequestMapping(value = "/updatePassword",method = RequestMethod.POST)
-    public Map<String,Object> updatePassword(@RequestParam @NotEmpty String account,@RequestParam @NotEmpty String password,@RequestParam @NotEmpty String newPassword,HttpServletRequest request){
+    public Map<String,Object> updatePassword(@RequestParam @NotEmpty String password,@RequestParam @NotEmpty String newPassword,HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
-
-        userService.updatePassword(account,password,newPassword);
+        User user = (User) request.getSession().getAttribute("user");
+        userService.updatePassword(user.getAccount(),password,newPassword);
         request.getSession().removeAttribute("user");
         map.put("code", 0);
         map.put("message", "修改成功");
         return map;
     }
-
-    //修改类型
-    @RequestMapping(value = "/updateType",method = RequestMethod.POST)
-    public Map<String,Object> updateType(@RequestParam @NotEmpty String account, @RequestParam @NotNull int type, HttpServletRequest request){
-        Map<String,Object> map = new HashMap<String, Object>();
-        userService.updateType(account, type);
-        map.put("code", 0);
-        map.put("message", "修改成功");
-        return map;
-    }
-
-    //删除用户
-    @RequestMapping(value = "/dele",method = RequestMethod.POST)
-    public Map<String,Object> dele(@RequestParam @NotEmpty String account){
-        Map<String,Object> map = new HashMap<String, Object>();
-        userService.dele(account);
-        map.put("code", 0);
-        map.put("message", "删除成功");
-        return map;
-    }
-
-
-
 
 }

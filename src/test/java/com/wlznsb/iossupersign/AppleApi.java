@@ -66,9 +66,9 @@ public class AppleApi {
      */@Test
    public void test2() throws IOException {
 
-
-        AppleApiUtil appleApiUtil = new AppleApiUtil("70e2fe2f-cb06-49a2-9696-753ca9ca7a50","UHTGP44U24","C:\\Users\\xujimu\\Desktop\\AuthKey_UHTGP44U24.p8");
-        appleApiUtil.init();
+//
+//        AppleApiUtil appleApiUtil = new AppleApiUtil("70e2fe2f-cb06-49a2-9696-753ca9ca7a50","UHTGP44U24","C:\\Users\\xujimu\\Desktop\\AuthKey_UHTGP44U24.p8");
+//        appleApiUtil.init();
 //        String abc = appleApiUtil.queryProfiles();
 //        int count =  new ObjectMapper().readTree(abc).get("meta").get("paging").get("total").asInt();
 //        for (int i = 0; i < count; i++) {
@@ -80,13 +80,13 @@ public class AppleApi {
        // int intIndex = abc.indexOf("02bc34e0ad3d9769de492164344b450917fc9d2");
         //System.out.println(intIndex);
 //        String keyPath = new File("/sign/mode/my.key").getAbsolutePath();
-        String a = appleApiUtil.addUuid("02bc34e0ad3d9769de4292154344b450917fc9d2");
-        System.out.println("设备id" + a);
+//        String a = appleApiUtil.addUuid("02bc34e0ad3d9769de4292154344b450917fc9d2");
+//        System.out.println("设备id" + a);
 //        String b = appleApiUtil.addIdentifiers("com.qweqe.qweq", "qqweqwe");
 //        System.out.println("包名id" + b);
 //        System.out.println(appleApiUtil.addProfiles(b,certId,a,"1qwe123qw","C:\\Users\\xujimu\\Desktop"));
-//          Map<String,Object>  a = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\qqqq.ipa", "C:\\Users\\xujimu\\Desktop\\123.png");
-//        System.out.println(a);
+          Map<String,Object>  a = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\111.ipa", "C:\\Users\\xujimu\\Desktop\\123.png");
+        System.out.println(a);
     }
 
 

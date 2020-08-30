@@ -49,6 +49,9 @@ public class GetIpaInfoUtil {
                     if (!ze.isDirectory()) {
                         String name = ze.getName();
                         if (null != name && name.toLowerCase().contains("info.plist")) {
+                            if(name.length() -2 != name.replace("/", "").length()){
+                                continue;
+                            }
                             ByteArrayOutputStream _copy = new ByteArrayOutputStream();
                             int chunk = 0;
                             byte[] data = new byte[1024];
@@ -56,6 +59,7 @@ public class GetIpaInfoUtil {
                                 _copy.write(data, 0, chunk);
                             }
                             infoIs = new ByteArrayInputStream(_copy.toByteArray());
+
                             rootDict = (NSDictionary) PropertyListParser.parse(infoIs);
 
                             NSDictionary iconDict = (NSDictionary) rootDict.get("CFBundleIcons");
@@ -108,8 +112,10 @@ public class GetIpaInfoUtil {
 //          System.out.println(string + ":" + dictionary.get(string).toString());
 //       }
 
+
                 // 应用包名
                 NSString parameters = (NSString) rootDict.get("CFBundleIdentifier");
+
                 map.put("package", parameters.toString());
                 // 应用版本名
                 parameters = (NSString) rootDict.objectForKey("CFBundleShortVersionString");

@@ -27,8 +27,8 @@ public interface AppleIisDao {
      * 删除账号
      */
 
-    @Delete("delete from apple_iis where iis = #{iis}")
-    int dele(String iis);
+    @Delete("delete from apple_iis where account = #{account} and iis = #{iis}")
+    int dele(String account,String iis);
 
     /**
      *
@@ -68,8 +68,8 @@ public interface AppleIisDao {
      * 查询某个证书
      *
      */
-    @Select("select * from apple_iis where iis = #{iis}")
-    AppleIis query(String iis);
+    @Select("select * from apple_iis where account = #{account} and iis = #{iis}")
+    AppleIis query(String account,String iis);
 
 
     /**

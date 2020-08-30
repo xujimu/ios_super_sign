@@ -74,7 +74,6 @@ public class AppleApiUtil {
            //查询所有证书
            ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates",
                    HttpMethod.GET,this.httpEntity, String.class);
-
            //序列化返回
            JsonNode json = new ObjectMapper().readTree(exchange.getBody()).get("data");
            //删除所有证书
@@ -82,8 +81,29 @@ public class AppleApiUtil {
                restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates/"+ obj.get("id").asText(),
                        HttpMethod.DELETE,this.httpEntity, String.class);
            }
+           //查询所有配置文件
+            exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles",
+                   HttpMethod.GET,this.httpEntity, String.class);
+           //序列化返回
+            json = new ObjectMapper().readTree(exchange.getBody()).get("data");
+
+           //删除所有配置文件
+           for (JsonNode obj:json){
+               restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles/"+ obj.get("id").asText(),
+                       HttpMethod.DELETE,this.httpEntity, String.class);
+           }
+
+           //查询所有包名
+           exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/bundleIds",
+                   HttpMethod.GET,this.httpEntity, String.class);
+           json = new ObjectMapper().readTree(exchange.getBody()).get("data");
+           //删除所有包名
+           for (JsonNode obj:json){
+               restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/bundleIds/"+ obj.get("id").asText(),
+                       HttpMethod.DELETE,this.httpEntity, String.class);
+           }
        }catch (Exception e){
-           log.info("删除证书错误" + e.toString());
+           log.info("删除证书错误" + e.getMessage());
        }
     }
 
@@ -237,14 +257,18 @@ public class AppleApiUtil {
      * @return
      */
     public String queryProfiles(){
-        //设置请求头参数
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.add("Authorization", "Bearer " + token);
-        this.httpEntity = new HttpEntity(requestHeaders);
-        //执行
-        ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles",
-                HttpMethod.GET,httpEntity, String.class);
-        return exchange.getBody();
+        try {
+            //设置请求头参数
+            HttpHeaders requestHeaders = new HttpHeaders();
+            requestHeaders.add("Authorization", "Bearer " + token);
+            this.httpEntity = new HttpEntity(requestHeaders);
+            //执行
+            ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles",
+                    HttpMethod.GET,httpEntity, String.class);
+            return exchange.getBody();
+        }catch (Exception e){
+            return null;
+        }
     }
 
 

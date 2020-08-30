@@ -27,20 +27,15 @@ public class UserAuthInterceptor extends HandlerInterceptorAdapter {
         //获取路径
         String path = request.getServletPath();
         Map<String,Object> map = new HashMap<String, Object>();
-        //过滤
-        switch (path){
-            case "/user/dele":
-            case "/user/updateType":
-                if(type == 3){
-                    return true;
-                }else {
-                    map.put("code", 1);
-                    map.put("message", "权限不足");
-                    JsonCode.toJson(response,map);
-                    return false;
-                }
-            default:
-                return false;
+
+        //只有管理员允许访问这些接口
+        if(type == 1){
+            return true;
+        }else {
+            map.put("code", 1);
+            map.put("message", "权限不足");
+            JsonCode.toJson(response,map);
+            return false;
         }
 
     }

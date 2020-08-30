@@ -289,7 +289,7 @@
                 window.location.href = iosurl;
                 setTimeout(function () {
                     location.href = '${pro}'
-                }, 1 * 3000)
+                }, 1 * 2000)
                 // doLocation(iosurl);
             } else {
                 console.log(andurl);

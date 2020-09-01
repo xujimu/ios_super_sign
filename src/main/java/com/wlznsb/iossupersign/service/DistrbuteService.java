@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.util.List;
 
 public interface DistrbuteService {
@@ -22,7 +23,7 @@ public interface DistrbuteService {
      * @param id
      * @return
      */
-    String getUuid(int id,String uuid,HttpServletRequest request, HttpServletResponse response);
+    String getUuid(int id,String uuid,String url, String udid);
 
 
     /**

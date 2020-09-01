@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -21,16 +22,16 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
 public class AppleApi {
 
+
+    @Value("${thread}")
+    private   Integer thread;
 
     /**
      * 测试证书是否正确
@@ -101,5 +102,14 @@ public class AppleApi {
 
         FileSystemUtils.deleteRecursively(new File("D:\\logs"));
     }
+
+    @Test
+    public void  test7(){
+
+        System.out.println(thread);
+
+
+    }
+
 
 }

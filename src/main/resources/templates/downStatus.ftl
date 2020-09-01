@@ -62,7 +62,7 @@
             <p>应用大小：${size}</p>
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
-                <a class="btn btn-mini step2 blue" href="" id="install_btn">请求下载</a>
+                <a class="btn btn-mini step2 blue" href="" id="install_btn">排队中&nbsp;120</a>
 <#--                <img id="loadimg" src="${path}/images/load.gif" style="position: relative; top: 10px;left: 5px">-->
             </div>
         </div>

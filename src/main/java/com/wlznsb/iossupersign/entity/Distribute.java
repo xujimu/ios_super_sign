@@ -20,6 +20,7 @@ public class Distribute {
     private String url;
     private Date createTime;
 
+
     public Integer getId() {
         return id;
     }

@@ -138,15 +138,33 @@ public class DistributeController {
         /**
          * 这里的返回值是pist没用上
          */
-        new Thread(() -> distrbuteService.getUuid(id,uuid, request, response)).start();
-        //获取域名
-        String url = ServerUtil.getRootUrl(request);
+        StringBuffer url = request.getRequestURL();
+        //获取项目路径域名
+        String tempContextUrl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append(request.getSession().getServletContext().getContextPath()).append("/").toString();
+        //获取HTTP请求的输入流
+        InputStream is = request.getInputStream();
+        //已HTTP请求输入流建立一个BufferedReader对象
+        BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        //读取HTTP请求内容
+        String buffer = null;
+        while ((buffer = br.readLine()) != null) {
+            sb.append(buffer);
+        }
+        //去除xml多余信息
+        String content = sb.toString().substring(sb.toString().indexOf("<?xml"), sb.toString().indexOf("</plist>")+8);
+        String json =  org.json.XML.toJSONObject(content).toString();
+        String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
+        //创建状态
+        PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null, new Date(), null, null, "排队中", 1,id,tempContextUrl);
+        packStatusDao.add(packStatus);
         //获取原来的分发地址
         Distribute distribute =  distributeDao.query(id);
         String skipUrl = distribute.getUrl().replace("down", "downStatus");
         //再次请求带上uuid
         response.setHeader("Location", skipUrl + "/" + uuid);
         response.setStatus(301);
+
     }
 
     //查询打包状态,没有使用业务层

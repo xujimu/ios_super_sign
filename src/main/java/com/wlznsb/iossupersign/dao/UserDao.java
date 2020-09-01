@@ -18,6 +18,8 @@ public interface UserDao {
     @Select("select * from user where account = #{account}")
     User queryAccount(String account);
 
+
+
     /**
      * 查询所有用户
      * @return

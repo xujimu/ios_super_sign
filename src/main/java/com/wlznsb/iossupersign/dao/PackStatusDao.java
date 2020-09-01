@@ -4,6 +4,8 @@ import com.wlznsb.iossupersign.entity.PackStatus;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Mapper
 @Component
 public interface PackStatusDao {
@@ -16,11 +18,18 @@ public interface PackStatusDao {
 
 
     /**
+     * 查询排队中的记录
+     */
+    @Select("select * from pack_status where status = #{status}")
+    List<PackStatus> queryPage(String status);
+
+
+    /**
      * 添加一条记录
      */
     @Insert("insert into pack_status() values(#{packStatus.id},#{packStatus.account},#{packStatus.pageName},#{packStatus.uuid},#" +
             "{packStatus.udid},#{packStatus.iis},#{packStatus.createTime},#{packStatus.ipa},#{packStatus.plist}" +
-            ",#{packStatus.status},#{packStatus.signOff})")
+            ",#{packStatus.status},#{packStatus.signOff},#{packStatus.appId},#{packStatus.url})")
     int add(@Param("packStatus") PackStatus packStatus);
 
     /**
@@ -31,6 +40,10 @@ public interface PackStatusDao {
      */
     @Update("update  pack_status set status = #{status} where uuid = #{uuid}")
     int updateStatus(String status,String uuid);
+
+
+
+
 
     /**
      * 修改大部分状态

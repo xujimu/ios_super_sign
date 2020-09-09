@@ -19,7 +19,44 @@ public class Distribute {
     private String apk;
     private String url;
     private Date createTime;
+    private String introduce;
+    private String images;
 
+    @Override
+    public String toString() {
+        return "Distribute{" +
+                "id=" + id +
+                ", account='" + account + '\'' +
+                ", appName='" + appName + '\'' +
+                ", pageName='" + pageName + '\'' +
+                ", version='" + version + '\'' +
+                ", icon='" + icon + '\'' +
+                ", ipa='" + ipa + '\'' +
+                ", apk='" + apk + '\'' +
+                ", url='" + url + '\'' +
+                ", createTime=" + createTime +
+                ", introduce='" + introduce + '\'' +
+                ", images='" + images + '\'' +
+                '}';
+    }
+
+    public Distribute() {
+    }
+
+    public Distribute(Integer id, String account, String appName, String pageName, String version, String icon, String ipa, String apk, String url, Date createTime, String introduce, String images) {
+        this.id = id;
+        this.account = account;
+        this.appName = appName;
+        this.pageName = pageName;
+        this.version = version;
+        this.icon = icon;
+        this.ipa = ipa;
+        this.apk = apk;
+        this.url = url;
+        this.createTime = createTime;
+        this.introduce = introduce;
+        this.images = images;
+    }
 
     public Integer getId() {
         return id;
@@ -101,19 +138,19 @@ public class Distribute {
         this.createTime = createTime;
     }
 
-    public Distribute() {
+    public String getIntroduce() {
+        return introduce;
     }
 
-    public Distribute(Integer id, String account, String appName, String pageName, String version, String icon, String ipa, String apk, String url, Date createTime) {
-        this.id = id;
-        this.account = account;
-        this.appName = appName;
-        this.pageName = pageName;
-        this.version = version;
-        this.icon = icon;
-        this.ipa = ipa;
-        this.apk = apk;
-        this.url = url;
-        this.createTime = createTime;
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
+    }
+
+    public String getImages() {
+        return images;
+    }
+
+    public void setImages(String images) {
+        this.images = images;
     }
 }

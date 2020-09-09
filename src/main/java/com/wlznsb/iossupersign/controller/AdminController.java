@@ -2,15 +2,13 @@ package com.wlznsb.iossupersign.controller;
 
 import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.AppleIis;
+import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.AppleIisService;
 import com.wlznsb.iossupersign.service.UserService;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
@@ -23,7 +21,11 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/admin")
 @Validated
+@CrossOrigin(allowCredentials="true")
 public class AdminController {
+
+    @Autowired
+    private UserDao userDao;
 
     @Autowired
     private UserService userService;
@@ -52,13 +54,36 @@ public class AdminController {
     }
 
 
-    @RequestMapping(value = "/queryAll",method = RequestMethod.GET)
-    public Map<String,Object> queryAll(HttpServletRequest request){
+    /**
+     * 查询所有的iis证书
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/queryIisAll",method = RequestMethod.GET)
+    public Map<String,Object> queryIisAll(HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
         List<AppleIis> appleIisList = appleIisService.queryAll();
         map.put("code", 0);
         map.put("message", "查询成功");
         map.put("data", appleIisList);
+        return map;
+    }
+
+
+
+    /**
+     * 查询所有用户没用业务
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/queryAll",method = RequestMethod.GET)
+    public Map<String,Object> queryAll(HttpServletRequest request){
+        Map<String,Object> map = new HashMap<String, Object>();
+        List<User> users = userDao.queryAll();
+
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", users);
         return map;
     }
 

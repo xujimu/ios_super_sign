@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotEmpty;
 import java.io.*;
 import java.util.*;
 
@@ -33,7 +34,9 @@ import java.util.*;
 @RequestMapping(value = "/distribute")
 @Validated
 @Slf4j
+@CrossOrigin(allowCredentials="true")
 public class DistributeController {
+
 
     @Autowired
     private DistrbuteService distrbuteService;
@@ -46,6 +49,35 @@ public class DistributeController {
 
     @Autowired
     private PackStatusDao packStatusDao;
+
+    //下载页面,没有使用业务层
+    @RequestMapping(value = "/down/{data}",method = RequestMethod.GET)
+    public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data) throws JsonProcessingException, UnsupportedEncodingException {
+        //域名
+        String rootUrl = ServerUtil.getRootUrl(request);
+        //base64解码
+        Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(data)));
+        log.info("当前id" + id);
+        Distribute distribute = distributeDao.query(Integer.valueOf(id));
+        distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
+        distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
+        distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
+        model.addAttribute("distribute", distribute);
+        model.addAttribute("pro", rootUrl + "app.mobileprovision");
+        //设置轮播图
+        if(null == distribute.getImages()){
+            model.addAttribute("img1", rootUrl + "/images/" + "slideshow.png");
+            model.addAttribute("img2", rootUrl + "/images/" + "slideshow.png");
+            model.addAttribute("img3", rootUrl + "/images/" + "slideshow.png");
+            model.addAttribute("img4", rootUrl + "/images/" + "slideshow.png");
+        }else {
+            model.addAttribute("img1", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img1.png");
+            model.addAttribute("img2", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img2.png");
+            model.addAttribute("img3", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img3.png");
+            model.addAttribute("img4", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img4.png");
+        }
+        return "down";
+    }
 
     //获取描述文件,没有使用业务层
     @GetMapping
@@ -74,70 +106,14 @@ public class DistributeController {
         response.sendRedirect(tempContextUrl + round + ".mobileconfig");
     }
 
-    //下载页面,没有使用业务层
-    @RequestMapping(value = "/down/{data}",method = RequestMethod.GET)
-    public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data) throws JsonProcessingException, UnsupportedEncodingException {
-        //域名
-        String tempContextUrl = ServerUtil.getRootUrl(request);
-        //base64解码
-        String pageData = new String(Base64.getDecoder().decode(data));
-        //转换成json
-        JsonNode jsonData =  new ObjectMapper().readTree(pageData);
-        String name = jsonData.get("data").get("name").asText();
-        String id = jsonData.get("data").get("id").asText();
-        String account = jsonData.get("data").get("account").asText();
-        model.addAttribute("name", name);
-        model.addAttribute("size", jsonData.get("data").get("size").asText());
-        model.addAttribute("icon", jsonData.get("data").get("icon").asText());
-        model.addAttribute("android", tempContextUrl + "distribute/" +"getMobile?id=" + id + "&name=" + name);
-        model.addAttribute("ios",tempContextUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + name);
-        model.addAttribute("pro", tempContextUrl + "app.mobileprovision");
-        return "down";
-    }
-
-    /**
-     * 获取下载状态,没有使用业务层
-     * @param model
-     * @param request
-     * @param response
-     * @param data
-     * @param uuid
-     * @return
-     * @throws JsonProcessingException
-     * @throws UnsupportedEncodingException
-     */
-    @RequestMapping(value = "/downStatus/{data}/{uuid}",method = RequestMethod.GET)
-    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data, @PathVariable String uuid) throws JsonProcessingException, UnsupportedEncodingException {
-        //域名
-        String tempContextUrl = ServerUtil.getRootUrl(request);
-        //base64解码
-        String pageData = new String(Base64.getDecoder().decode(data));
-        //转换成json
-        JsonNode jsonData =  new ObjectMapper().readTree(pageData);
-        String name = jsonData.get("data").get("name").asText();
-        String id = jsonData.get("data").get("id").asText();
-        String account = jsonData.get("data").get("account").asText();
-        model.addAttribute("name", name);
-        model.addAttribute("size", jsonData.get("data").get("size").asText());
-        model.addAttribute("icon", jsonData.get("data").get("icon").asText());
-        model.addAttribute("android", tempContextUrl + "distribute/" +"getMobile?id=" + id + "&name=" + name);
-        model.addAttribute("ios",tempContextUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + name);
-        model.addAttribute("pro", tempContextUrl + "app.mobileprovision");
-        model.addAttribute("uuid", uuid);
-        model.addAttribute("downUrl", tempContextUrl + "/distribute/getStatus?uuid=");
-        return "downStatus";
-    }
-
-
-
     //301回调
     @RequestMapping(value = "/getUdid")
     public void getUdid(@RequestParam int id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         //创建打包uuid
         String uuid = ServerUtil.getUuid();
-        /**
-         * 这里的返回值是pist没用上
-         */
+/**
+ * 这里的返回值是pist没用上
+ */
         StringBuffer url = request.getRequestURL();
         //获取项目路径域名
         String tempContextUrl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append(request.getSession().getServletContext().getContextPath()).append("/").toString();
@@ -159,13 +135,55 @@ public class DistributeController {
         PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null, new Date(), null, null, "排队中", 1,id,tempContextUrl);
         packStatusDao.add(packStatus);
         //获取原来的分发地址
-        Distribute distribute =  distributeDao.query(id);
+        Distribute distribute = distributeDao.query(id);
         String skipUrl = distribute.getUrl().replace("down", "downStatus");
         //再次请求带上uuid
         response.setHeader("Location", skipUrl + "/" + uuid);
         response.setStatus(301);
-
     }
+
+    /**
+     * 获取下载状态,没有使用业务层
+     * @param model
+     * @param request
+     * @param response
+     * @param data
+     * @param uuid
+     * @return
+     * @throws JsonProcessingException
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping(value = "/downStatus/{data}/{uuid}",method = RequestMethod.GET)
+    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data, @PathVariable String uuid) throws JsonProcessingException, UnsupportedEncodingException {
+        //域名
+        String rootUrl = ServerUtil.getRootUrl(request);
+        //base64解码
+        Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(data)));
+        log.info("当前id" + id);
+        Distribute distribute = distributeDao.query(Integer.valueOf(id));
+        distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
+        distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
+        distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
+        model.addAttribute("distribute", distribute);
+        model.addAttribute("uuid", uuid);
+        model.addAttribute("pro", rootUrl + "app.mobileprovision");
+        model.addAttribute("downUrl", rootUrl + "/distribute/getStatus?uuid=");
+        //设置轮播图
+        if(null == distribute.getImages()){
+            model.addAttribute("img1", rootUrl + "/images/" + "slideshow.png");
+            model.addAttribute("img2", rootUrl + "/images/" + "slideshow.png");
+            model.addAttribute("img3", rootUrl + "/images/" + "slideshow.png");
+            model.addAttribute("img4", rootUrl + "/images/" + "slideshow.png");
+        }else {
+            model.addAttribute("img1", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img1.png");
+            model.addAttribute("img2", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img2.png");
+            model.addAttribute("img3", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img3.png");
+            model.addAttribute("img4", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img4.png");
+        }
+        return "downStatus";
+    }
+
+
 
     //查询打包状态,没有使用业务层
     @RequestMapping(value = "/getStatus")
@@ -182,14 +200,31 @@ public class DistributeController {
     //上传ipa
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa, HttpServletRequest request) throws IOException {
+    public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa, HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        Distribute distribute = distrbuteService.uploadIpa(ipa, request);
+//域名路径
+        String rootUrl = ServerUtil.getRootUrl(request);
+        User user = (User)request.getSession().getAttribute("user");
+        Distribute distribute = distrbuteService.uploadIpa(ipa, user,rootUrl);
         map.put("code", 0);
         map.put("message", "上传成功");
         map.put("data", distribute);
         return map;
     }
+
+
+    //上传apk
+    @RequestMapping(value = "/uploadApk",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> uploadApk(@RequestParam MultipartFile apk,@RequestParam int id,HttpServletRequest request,HttpServletResponse response) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        distrbuteService.uploadApk(apk,user,id);
+        map.put("code", 0);
+        map.put("message", "上传成功");
+        return map;
+    }
+
 
     //删除ipa,没有使用业务层
     @RequestMapping(value = "/deleIpa",method = RequestMethod.POST)
@@ -217,5 +252,36 @@ public class DistributeController {
         return map;
     }
 
+    //修改简介
+    @RequestMapping(value = "/updateIntroduce",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> updateIntroduce(@RequestParam @NotEmpty String introduce, @RequestParam Integer id, HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        distributeDao.updateIntroduce(introduce, user.getAccount(), id);
+        map.put("code", 0);
+        map.put("message", "修改成功");
+        return map;
+    }
+
+    //上传轮播图
+    @RequestMapping(value = "/uploadImg",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> updateIntroduce(@RequestParam MultipartFile img1,@RequestParam MultipartFile img2,@RequestParam MultipartFile img3,MultipartFile img4, @RequestParam Integer id, HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        String path = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/img").getAbsolutePath();
+        //这里没做非空判断
+        img1.transferTo(new File(path + "1.png"));
+        img2.transferTo(new File(path + "2.png"));
+        img3.transferTo(new File(path + "3.png"));
+        img4.transferTo(new File(path + "4.png"));
+        distributeDao.updateImages("已上传", user.getAccount(), id);
+        map.put("code", 0);
+        map.put("message", "上传成功");
+        return map;
+    }
+
 }
+
 

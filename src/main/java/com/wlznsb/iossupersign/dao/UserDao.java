@@ -19,7 +19,6 @@ public interface UserDao {
     User queryAccount(String account);
 
 
-
     /**
      * 查询所有用户
      * @return

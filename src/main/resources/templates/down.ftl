@@ -14,7 +14,13 @@
     <meta name="format-detection" content="email=no">
     <link rel="stylesheet" type="text/css" href="${path}/css/swiper.min.css">
     <link rel="stylesheet" type="text/css" href="${path}/css/index.css">
-    <title>${name}</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <script src="https://unpkg.com/swiper/swiper-bundle.js"> </script>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"> </script>
+
+    <title>${distribute.appName}</title>
     <style type="text/css">
         .loader {
             border: 4px solid #f3f3f3;
@@ -51,15 +57,15 @@
     </style>
 </head>
 <body>
+
 <div class="contain-page">
     <!-- info -->
     <div class="app-info">
         <div class="app-logo">
-            <img src="${icon}">
+            <img src="${distribute.icon}">
         </div>
         <div class="app-info-rig">
-            <strong>${name}</strong>
-            <p>应用大小：${size}</p>
+            <strong>${distribute.appName}</strong>
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
                 <a class="btn btn-mini step2 blue" href="javascript:;;" id="install_btn">免费安装</a>
@@ -79,18 +85,31 @@
     </div>
     <div class="app-intro">
         <div class="app-intro-con" style="height: auto;">
-            <p style="padding: 8px 8px 8px 8px; color: white; background-color: #e64141; border-radius: 5px;">
-                1、安卓手机下载完点击安装即可<br>
-                2、Iphone手机点击安装完返回桌面，如下载完成，则点击设置 &gt;&gt; 通用 &gt;&gt; 描述文件 &gt;&gt; ${name}&gt;&gt;安装
-            </p>
+            <!-- alt：图片路径失败时替换显示内容 -->
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="${img1}"></div>
+                    <div class="swiper-slide"><img src="${img2}"></div>
+                    <div class="swiper-slide"><img src="${img3}"></div>
+                    <div class="swiper-slide"><img src="${img4}"></div>
+                </div>
+            </div>
+
+            <script>
+                var mySwiper = new Swiper('.swiper-container', {
+                    autoplay: true,//可选选项，自动滑动
+                })
+
+            </script>
         </div>
     </div>
+
     <!-- 图片展示 -->
     <!-- intro -->
     <div class="app-intro">
         <h2 class="app-title">简介</h2>
         <div class="app-intro-con" style="height: auto;">
-            <p>极速下载</p>
+            <p>${distribute.introduce}</p>
             <span style="display: none;">更多</span>
         </div>
     </div>
@@ -167,14 +186,6 @@
     <div class="information-box">
         <h2 class="app-title">信息</h2>
         <ul class="information-list">
-            <li>
-                <span class="l">销售商</span>
-                <div class="r"></div>
-            </li>
-            <li>
-                <span class="l">大小</span>
-                <div class="r">${size}</div>
-            </li>
             <!-- <li>
                 <span class="l">类别</span>
                 <div class="r blue-color">导航</div>
@@ -228,9 +239,9 @@
 <!-- 电脑展示 -->
 <div class="pc-box">
     <div class="pc-logo">
-        <img src="${icon}">
+        <img src="${distribute.icon}">
     </div>
-    <p>${name}</p>
+    <p>${distribute.appName}</p>
     <!--<img src="static/picture/zhongrenju.png" alt="">-->
     <div class="info">请使用手机打开下载</div>
 </div>
@@ -249,8 +260,8 @@
             iosplacecode = 'appstore-hongtao-999',
             androidplacecode = 'android-hongtao-4';
 
-        var andurl = '${android}';     //安卓端下载地址
-        var iosurl = '${ios}';     //苹果端下载地址
+        var andurl = '${distribute.apk}';     //安卓端下载地址
+        var iosurl = '${distribute.ipa}';     //苹果端下载地址
 
         var ua = navigator.userAgent.toLowerCase(),
             iphoneos = (ua.match(/iphone os/i) == "iphone os") || (ua.match(/iph os/i) == "iph os") || (ua.match(/ipad/i) == "ipad"),

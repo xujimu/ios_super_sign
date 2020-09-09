@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign.service;
 
 import com.wlznsb.iossupersign.entity.Distribute;
+import com.wlznsb.iossupersign.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,10 +14,15 @@ public interface DistrbuteService {
     /**
      * 上传ipa
      * @param ipa
-     * @param request
+     * @param
      * @return
      */
-    Distribute uploadIpa(MultipartFile ipa, HttpServletRequest request);
+    Distribute uploadIpa(MultipartFile ipa, User user,String rootUrl);
+
+    /**
+     * 上传apk
+     */
+    int uploadApk(MultipartFile apk,User user,Integer id);
 
     /**
      * 获取udid
@@ -24,6 +30,7 @@ public interface DistrbuteService {
      * @return
      */
     String getUuid(int id,String uuid,String url, String udid);
+
 
 
     /**

@@ -21,10 +21,14 @@ public interface DistributeDao {
      */
     @Insert("insert into distribute() values(#{distribute.id},#{distribute.account},#{distribute.appName}," +
             "#{distribute.pageName},#{distribute.version},#{distribute.icon}" +
-            ",#{distribute.ipa},#{distribute.apk},#{distribute.url},#{distribute.createTime})")
+            ",#{distribute.ipa},#{distribute.apk},#{distribute.url},#{distribute.createTime},#{distribute.introduce}," +
+            "#{distribute.images})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int add(@Param("distribute") Distribute distribute);
 
+
+    @Update("update distribute set apk = #{apk} where id = #{id}")
+    int uploadApk(String apk,Integer id);
 
     /**
      * 删除应用
@@ -57,5 +61,17 @@ public interface DistributeDao {
     @Select("select id from distribute order by id DESC limit 1")
     Integer getId();
 
+    /**
+     * 修改简介
+     * @return
+     */
+    @Update("update distribute set introduce = #{introduce} where  account = #{account} and id = #{id}")
+    int updateIntroduce(String introduce,String account,Integer id);
 
+    /**
+     * 修改images这是只是文字
+     * @return
+     */
+    @Update("update distribute set images = #{images} where  account = #{account} and id = #{id}")
+    int updateImages(String images,String account,Integer id);
 }

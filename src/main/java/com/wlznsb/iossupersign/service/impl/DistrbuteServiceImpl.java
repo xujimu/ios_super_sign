@@ -11,10 +11,7 @@ import com.qiniu.util.Auth;
 import com.wlznsb.iossupersign.dao.AppleIisDao;
 import com.wlznsb.iossupersign.dao.DistributeDao;
 import com.wlznsb.iossupersign.dao.PackStatusDao;
-import com.wlznsb.iossupersign.entity.AppleIis;
-import com.wlznsb.iossupersign.entity.Distribute;
-import com.wlznsb.iossupersign.entity.PackStatus;
-import com.wlznsb.iossupersign.entity.User;
+import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.service.DistrbuteService;
 import com.wlznsb.iossupersign.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
-
 
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,14 +51,13 @@ public class DistrbuteServiceImpl implements DistrbuteService {
     @Autowired
     private PackStatusDao packStatusDao;
 
-
     @Override
     @Transactional
-    public Distribute uploadIpa(MultipartFile ipa, HttpServletRequest request) {
+    public Distribute uploadIpa(MultipartFile ipa, User user,String rootUrl) {
         Integer id = null;
         try {
             if(ipa.getSize() != 0){
-                User user = (User)request.getSession().getAttribute("user");
+
                 //获取下一次的主键id
                 id = distributeDao.getId();
                 if(id == null){
@@ -83,19 +79,10 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                 if(mapIpa.get("code") != null){
                     throw new RuntimeException("无法读取包信息");
                 }
-                //域名路径
-                String rootUrl = ServerUtil.getRootUrl(request);
                 String name = mapIpa.get("displayName").toString();
-                String url = "{\"data\": {\"id\": idRep,\"account\": \"accountRep\",\"name\": \"nameRep\",\"size\": \"sizeRep\",\"icon\" : \"iconRep\"}};";
-                url = url.replace("idRep", id.toString());
-                url = url.replace("nameRep", name);
-                url = url.replace("sizeRep", mapIpa.get("size").toString());
-                url = url.replace("iconRep", rootUrl+ user.getAccount() + "/distribute/" + id  + "/" + id + ".png");
-                url = url.replace("accountRep", user.getAccount());
-                url = rootUrl + "distribute/down/" +Base64.getEncoder().encodeToString(url.getBytes());
+                url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date());
-                //写入数据库
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null);
                 distributeDao.add(distribute);
                 return distribute;
             }else {
@@ -103,9 +90,37 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             }
         }catch (Exception e){
             log.info(e.toString());
+            e.printStackTrace();
             throw  new RuntimeException("上传失败:" + e.getMessage());
         }
     }
+
+    /**
+     * 合并apk
+     * @param apk
+     * @param user
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional
+    public int uploadApk(MultipartFile apk,User user, Integer id) {
+        try {
+            if(apk.getSize() != 0){
+                String aokPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" + id + ".apk").getAbsolutePath();
+                apk.transferTo(new File(aokPath));
+
+                distributeDao.uploadApk(aokPath, id);
+            }else {
+                throw new RuntimeException("请不要上传空包");
+            }
+        }catch (Exception e){
+            log.info(e.toString());
+            throw  new RuntimeException("上传失败:" + e.getMessage());
+        }
+        return 0;
+    }
+
 
 
     /**这里不能加事务否则状态无法读取
@@ -123,6 +138,8 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             Distribute distribute = distributeDao.query(id);
             //查询账号所有可用的证书
             List<AppleIis> appleIislist = appleIisDao.queryUsIis(distribute.getAccount());
+            //判断循环结束是否成功添加了设备,如果为null说明没有可用的证书了
+            int isSuccess = 1;
             //如果有证书
             if(appleIislist.size() != 0){
                 log.info("开始遍历证书");
@@ -144,13 +161,13 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                         //判断是否有这个设备
                         int isAdd = devices.indexOf(udid);
                         if(isAdd == -1){
-                             addUuid = appleApiUtil.addUuid(udid);
+                            addUuid = appleApiUtil.addUuid(udid);
                             appleIisDao.updateCount(deviceCount -1,appleIis1.getIis());
                         }else {
-                           Integer count = new ObjectMapper().readTree(devices).get("meta").get("paging").get("total").asInt();
-                           //找出id
-                           for (int i = 0; i < count; i++) {
-                                 udid = new ObjectMapper().readTree(devices).get("data").get(i).get("attributes").get("udid").asText();
+                            Integer count = new ObjectMapper().readTree(devices).get("meta").get("paging").get("total").asInt();
+                            //找出id
+                            for (int i = 0; i < count; i++) {
+                                udid = new ObjectMapper().readTree(devices).get("data").get(i).get("attributes").get("udid").asText();
                                 if(udid.equals(udid)){
                                     new ObjectMapper().readTree(devices).get("data").get(i).get("id").asText();
                                     addUuid = new ObjectMapper().readTree(devices).get("data").get(i).get("id").asText();
@@ -167,19 +184,19 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                             String filePro = null;
                             //判断有没有注册过
                             if(profiles.indexOf(addUuid) == -1){
-                                 filePro = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, addUuid,new File("/sign/mode/temp").getAbsolutePath());
+                                filePro = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, addUuid,new File("/sign/mode/temp").getAbsolutePath());
                             }else {
                                 Integer count =  new ObjectMapper().readTree(profiles).get("meta").get("paging").get("total").asInt();
                                 System.out.println(count);
                                 for (int i = 0; i < count; i++) {
                                     String proId = new ObjectMapper().readTree(profiles).get("data").get(i).get("attributes").get("name").asText();
                                     if(proId.equals(addUuid)){
-                                      String certPro = new ObjectMapper().readTree(profiles).get("data").get(i).get("attributes").get("profileContent").asText();
+                                        String certPro = new ObjectMapper().readTree(profiles).get("data").get(i).get("attributes").get("profileContent").asText();
                                         //写出路径
                                         byte[] data = Base64.getDecoder().decode(certPro);
-                                         filePro = new File("/sign/mode/temp").getAbsolutePath() + "/" + new Date().getTime() + ".mobileprovision";
-                                         IoHandler.fileWriteTxt(filePro, data);
-                                         break;
+                                        filePro = new File("/sign/mode/temp").getAbsolutePath() + "/" + new Date().getTime() + ".mobileprovision";
+                                        IoHandler.fileWriteTxt(filePro, data);
+                                        break;
                                     }
                                 }
                             }
@@ -216,16 +233,20 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                                 packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, nameIpa,plistUrl , "点击下载", null,null,null), uuid);
                                 log.info("打包完成");
                                 log.info("plist名" + plistName);
+                                isSuccess = 0;
                                 return plistName;
                             }else {
                                 log.info("创建配置文件失败");
-                                appleIisDao.updateStatus(0, appleApiUtil.getIis());
+                                //  appleIisDao.updateStatus(0, appleApiUtil.getIis());
                             }
                         }
                     }else {
-                        log.info("添加设备失败");
+                        log.info("初始化失败");
                         appleIisDao.updateStatus(0, appleApiUtil.getIis());
                     }
+                }
+                if(isSuccess == 1){
+                    packStatusDao.updateStatus("没有可用的证书", uuid);
                 }
             }else {
                 packStatusDao.updateStatus("没有可用的证书", uuid);
@@ -242,14 +263,17 @@ public class DistrbuteServiceImpl implements DistrbuteService {
     @Override
     public int dele(String account, int id) {
         try {
-           Distribute distribute = distributeDao.query(id);
-           if(distribute != null){
-               if(distributeDao.dele(account, id) == 0){
-                   throw  new RuntimeException("删除失败");
-               }
-           }else {
-               throw  new RuntimeException("该应用不存在");
-           }
+            Distribute distribute = distributeDao.query(id);
+            if(distribute != null){
+                if(distributeDao.dele(account, id) == 0){
+                    File file = new File("/sign/temp/" + account + "/distribute/" + id).getAbsoluteFile();
+                    System.out.println(file.getAbsolutePath());
+                    FileSystemUtils.deleteRecursively(file);
+                    throw  new RuntimeException("删除失败");
+                }
+            }else {
+                throw  new RuntimeException("该应用不存在");
+            }
 
         }catch (Exception e){
             throw  new RuntimeException("删除失败" + e.getMessage());
@@ -277,10 +301,6 @@ public class DistrbuteServiceImpl implements DistrbuteService {
         Configuration cfg = new Configuration(Region.region2());
         cfg.useHttpsDomains = false;
         UploadManager uploadManager = new UploadManager(cfg);
-        String accessKey = "EwSEYiKZtViB3YiqVQR8Y-Go4vijLhhY3WxIJxCz";
-        String secretKey = "ToI-iR-Dhq-udEwIrZEhauqJCpbX6vrl-yk4ZXuh";
-        //控件名
-        String bucket = "abcqweqwedq";
         String key = new Date().getTime() + ".ipa";
         Auth auth = Auth.create(accessKey, secretKey);
         String upToken = auth.uploadToken(bucket);
@@ -291,6 +311,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
             log.info("本次上传耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
             return putRet.key;
         } catch (Exception ex) {
+            log.info("上传失败" + ex.toString());
             return null;
         }
     }

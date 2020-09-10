@@ -134,6 +134,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
     @Override
     public String getUuid(int id,String uuid,String url, String udid){
         try {
+            log.info("udid:" + udid);
             //查询这个应用对应的账号
             Distribute distribute = distributeDao.query(id);
             //查询账号所有可用的证书
@@ -160,16 +161,18 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                         int deviceCount = 100 - new ObjectMapper().readTree(devices).get("meta").get("paging").get("total").asInt();
                         //判断是否有这个设备
                         int isAdd = devices.indexOf(udid);
+                        log.info("是否有这个设备" + isAdd);
                         if(isAdd == -1){
+                            log.info("没有这个设备");
                             addUuid = appleApiUtil.addUuid(udid);
                             appleIisDao.updateCount(deviceCount -1,appleIis1.getIis());
                         }else {
+                            log.info("有这个设备");
                             Integer count = new ObjectMapper().readTree(devices).get("meta").get("paging").get("total").asInt();
                             //找出id
                             for (int i = 0; i < count; i++) {
-                                udid = new ObjectMapper().readTree(devices).get("data").get(i).get("attributes").get("udid").asText();
-                                if(udid.equals(udid)){
-                                    new ObjectMapper().readTree(devices).get("data").get(i).get("id").asText();
+                                String udid1 = new ObjectMapper().readTree(devices).get("data").get(i).get("attributes").get("udid").asText();
+                                if(udid.equals(udid1)){
                                     addUuid = new ObjectMapper().readTree(devices).get("data").get(i).get("id").asText();
                                     System.out.println(deviceCount);
                                     break;
@@ -178,14 +181,17 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                         }
                         //判断是否添加成功
                         if(addUuid != null){
+                            log.info("adduuid" + addUuid);
                             packStatusDao.updateStatus("注册配置文件", uuid);
                             //获取pros
                             String profiles = appleApiUtil.queryProfiles();
                             String filePro = null;
                             //判断有没有注册过
                             if(profiles.indexOf(addUuid) == -1){
+                                log.info("配置文件没注册过");
                                 filePro = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, addUuid,new File("/sign/mode/temp").getAbsolutePath());
                             }else {
+                                log.info("配置文件有注册过");
                                 Integer count =  new ObjectMapper().readTree(profiles).get("meta").get("paging").get("total").asInt();
                                 System.out.println(count);
                                 for (int i = 0; i < count; i++) {

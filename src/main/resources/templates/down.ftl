@@ -12,13 +12,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="email=no">
-    <link rel="stylesheet" type="text/css" href="${path}/css/swiper.min.css">
-    <link rel="stylesheet" type="text/css" href="${path}/css/index.css">
 
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.css">
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
-    <script src="https://unpkg.com/swiper/swiper-bundle.js"> </script>
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"> </script>
+    <link rel="stylesheet" type="text/css" href="${path}/css/index.css">
+    <link rel="stylesheet" href="${path}/css/swiper-bundle.min.css">
+    <script src="${path}/js/swiper-bundle.min.js"> </script>
+
+
 
     <title>${distribute.appName}</title>
     <style type="text/css">

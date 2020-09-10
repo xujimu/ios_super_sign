@@ -12,16 +12,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="email=no">
-    <link rel="stylesheet" type="text/css" href="${path}/css/swiper.min.css">
+
     <link rel="stylesheet" type="text/css" href="${path}/css/index.css">
-
-
-
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.css">
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
-    <script src="https://unpkg.com/swiper/swiper-bundle.js"> </script>
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"> </script>
-
+    <link rel="stylesheet" href="${path}/css/swiper-bundle.min.css">
+    <script src="${path}/js/swiper-bundle.min.js"> </script>
 
     <title>${distribute.appName}</title>
     <style type="text/css">
@@ -71,6 +65,7 @@
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
                 <a class="btn btn-mini step2 blue" href="" id="install_btn">排队中&nbsp;120</a>
+
 <#--                <img id="loadimg" src="${path}/images/load.gif" style="position: relative; top: 10px;left: 5px">-->
             </div>
         </div>
@@ -78,7 +73,7 @@
     <!-- 评价 -->
     <div class="app-show">
         <div class="app-score">
-            <strong>4.9</strong><img src="${path}/picture/star.png" alt="">
+            <strong>5.0</strong><img src="${path}/picture/star.png" alt="">
             <p><span class="down-count">9999,999</span>个评分</p>
         </div>
         <div class="app-age">
@@ -86,6 +81,7 @@
             <p>年龄</p>
         </div>
     </div>
+    <p style="text-align: center;color: red"><span id="installSp"></span></p>
     <div class="app-intro">
         <div class="app-intro-con" style="height: auto;">
             <!-- alt：图片路径失败时替换显示内容 -->
@@ -266,6 +262,7 @@
                         // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
                         $("#install_btn").text(result.data.status + " " + timec)
                         if(result.data.status == "点击下载"){
+                            $("#installSp").text("点击install或者安装后请返回桌面查看" )
                             $("#install_btn").text(result.data.status)
                             $("#install_btn").attr('href',result.data.plist);
                             window.location = result.data.plist

@@ -13,8 +13,8 @@ public interface PackStatusDao {
     /**
      * 查询一条记录
      */
-    @Select("select * from pack_status where uuid = #{uuid}")
-    PackStatus query(String uuid);
+    @Select("select * from pack_status where id = #{id}")
+    PackStatus query(String id);
 
 
     /**

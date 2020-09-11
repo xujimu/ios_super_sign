@@ -243,7 +243,7 @@
     <p>${distribute.appName}</p>
     <!--<img src="static/picture/zhongrenju.png" alt="">-->
     <div class="info">请使用手机打开下载</div>
-    <a id="uuid" style="display: none">${uuid}</a>
+    <a id="statusId" style="display: none">${statusId}</a>
     <a id="downUrl" style="display: none">${downUrl}</a>
 </div>
 
@@ -258,7 +258,7 @@
         timec = 120
         function load(){
             var t =  window.setInterval(function(){
-                $.ajax({url: $("#downUrl").text() + $("#uuid").text(),success:function(result){
+                $.ajax({url: $("#downUrl").text() + $("#statusId").text(),success:function(result){
                         // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
                         $("#install_btn").text(result.data.status + " " + timec)
                         if(result.data.status == "点击下载"){

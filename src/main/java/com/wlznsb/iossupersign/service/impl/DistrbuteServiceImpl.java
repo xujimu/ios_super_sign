@@ -80,7 +80,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                     throw new RuntimeException("无法读取包信息");
                 }
                 String name = mapIpa.get("displayName").toString();
-                url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
+                url = rootUrl + "distribute/down/" + id;
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
                         toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null);
                 distributeDao.add(distribute);

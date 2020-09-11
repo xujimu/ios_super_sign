@@ -51,14 +51,12 @@ public class DistributeController {
     private PackStatusDao packStatusDao;
 
     //下载页面,没有使用业务层
-    @RequestMapping(value = "/down/{data}",method = RequestMethod.GET)
-    public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data) throws JsonProcessingException, UnsupportedEncodingException {
+    @RequestMapping(value = "/down/{id}",method = RequestMethod.GET)
+    public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable Integer id) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
         String rootUrl = ServerUtil.getRootUrl(request);
-        //base64解码
-        Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(data)));
         log.info("当前id" + id);
-        Distribute distribute = distributeDao.query(Integer.valueOf(id));
+        Distribute distribute = distributeDao.query(id);
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
         distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
         distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
@@ -133,12 +131,12 @@ public class DistributeController {
         String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
         //创建状态
         PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null, new Date(), null, null, "排队中", 1,id,tempContextUrl);
-        packStatusDao.add(packStatus);
+        String statusId = String.valueOf(packStatusDao.add(packStatus));
         //获取原来的分发地址
         Distribute distribute = distributeDao.query(id);
         String skipUrl = distribute.getUrl().replace("down", "downStatus");
         //再次请求带上uuid
-        response.setHeader("Location", skipUrl + "/" + uuid);
+        response.setHeader("Location", skipUrl + "/" + statusId);
         response.setStatus(301);
     }
 
@@ -147,25 +145,23 @@ public class DistributeController {
      * @param model
      * @param request
      * @param response
-     * @param data
-     * @param uuid
+     * @param id
+     * @param
      * @return
      * @throws JsonProcessingException
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping(value = "/downStatus/{data}/{uuid}",method = RequestMethod.GET)
-    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String data, @PathVariable String uuid) throws JsonProcessingException, UnsupportedEncodingException {
+    @RequestMapping(value = "/downStatus/{id}/{statusId}",method = RequestMethod.GET)
+    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String id, @PathVariable String statusId) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
         String rootUrl = ServerUtil.getRootUrl(request);
-        //base64解码
-        Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(data)));
-        log.info("当前id" + id);
+        log.info("当前id" + Integer.valueOf(id));
         Distribute distribute = distributeDao.query(Integer.valueOf(id));
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
         distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
         distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
         model.addAttribute("distribute", distribute);
-        model.addAttribute("uuid", uuid);
+        model.addAttribute("statusId", statusId);
         model.addAttribute("pro", rootUrl + "app.mobileprovision");
         model.addAttribute("downUrl", rootUrl + "/distribute/getStatus?uuid=");
         //设置轮播图
@@ -188,9 +184,9 @@ public class DistributeController {
     //查询打包状态,没有使用业务层
     @RequestMapping(value = "/getStatus")
     @ResponseBody
-    public Map<String,Object> getStatus(String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> getStatus(String statusId,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        PackStatus packStatus =  packStatusDao.query(uuid);
+        PackStatus packStatus =  packStatusDao.query(statusId);
         map.put("code", 0);
         map.put("message", "查询成功");
         map.put("data", packStatus);

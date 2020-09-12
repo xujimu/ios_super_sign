@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -233,6 +234,9 @@ public class DistributeController {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
         distrbuteService.dele(user.getAccount(),id);
+        File file = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id).getAbsoluteFile();
+        System.out.println(file.getAbsolutePath());
+        FileSystemUtils.deleteRecursively(file);
         map.put("code", 0);
         map.put("message", "删除成功");
         return map;

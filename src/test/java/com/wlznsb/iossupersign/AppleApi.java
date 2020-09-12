@@ -21,9 +21,11 @@ import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -105,7 +107,9 @@ public class AppleApi {
     }
 
     @Test
-    public void  test6(){
+    public void  test6() throws IOException {
+
+
 
     }
 

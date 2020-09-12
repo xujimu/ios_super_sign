@@ -71,6 +71,8 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                 String iconPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".png").getAbsolutePath();
                 //ipa路径
                 String ipaPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".ipa").getAbsolutePath();
+                //ipa解压路基
+                String ipaUnzipPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/Payload").getAbsolutePath();
                 //写出
                 System.out.println(ipaPath);
                 ipa.transferTo(new File(ipaPath));
@@ -80,10 +82,14 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                 if(mapIpa.get("code") != null){
                     throw new RuntimeException("无法读取包信息");
                 }
+                String cmd = "unzip -oq " + ipaPath + " -d " + "/sign/temp/" + user.getAccount() + "/distribute/" + id + "/";
+                log.info("解压命令" + cmd);
+                log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
                 String name = mapIpa.get("displayName").toString();
                 String url = rootUrl + "distribute/down/" + id;
+
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null);
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaUnzipPath,null,url,new Date(),"极速下载",null);
                 distributeDao.add(distribute);
                 return distribute;
             }else {
@@ -171,7 +177,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                             String nameIpa = new Date().getTime() + ".ipa";
                             //临时目录
                             String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
-                            String cmd = "zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 9 " + distribute.getIpa();
+                            String cmd = "zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 1 " + distribute.getIpa();
                             packStatusDao.updateStatus("正在签名", uuid);
                             log.info("签名结果" + RuntimeExec.runtimeExec(cmd).get("status").toString());
                             log.info("签名命令" + cmd);

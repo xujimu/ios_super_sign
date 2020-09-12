@@ -4,6 +4,7 @@ package com.wlznsb.iossupersign;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
+import com.wlznsb.iossupersign.util.IoHandler;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.odyssi.asc4j.util.TokenUtil;
@@ -72,10 +73,7 @@ public class AppleApi {
 
 //
         System.out.println(ServerUtil.getUuid());
-        AppleApiUtil appleApiUtil = new AppleApiUtil("da1a8314-e03a-4a39-afb3-d788e24dcc24","8R4XT9AFKL","C:\\Users\\xujimu\\Desktop\\123.p8");
-        appleApiUtil.initTocken();
 
-        System.out.println(appleApiUtil.queryDevice("c"));
 
 //        String abc = appleApiUtil.queryProfiles();
 //        int count =  new ObjectMapper().readTree(abc).get("meta").get("paging").get("total").asInt();
@@ -115,8 +113,8 @@ public class AppleApi {
 
     @Test
     public void  test7(){
-
-        System.out.println(thread);
+        AppleApiUtil appleApiUtil = new AppleApiUtil("da1a8314-e03a-4a39-afb3-d788e24dcc24","8R4XT9AFKL","C:\\Users\\xujimu\\Desktop\\da1a8314-e03a-4a39-afb3-d788e24dcc24.p8");
+        System.out.println(appleApiUtil.init());
 
 
     }

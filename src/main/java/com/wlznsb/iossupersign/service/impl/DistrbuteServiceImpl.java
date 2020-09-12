@@ -171,8 +171,6 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                         String filePro = map.get("filePath");
                         //如果pro文件创建成功
                         if(filePro != null){
-                            //删除配置文件
-                            appleApiUtil.deleProfiles(map.get("id"));
                             //包名
                             String nameIpa = new Date().getTime() + ".ipa";
                             //临时目录
@@ -204,6 +202,9 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                             IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
                             String plistUrl = "itms-services://?action=download-manifest&url=" +  url + plistName;
                             packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, nameIpa,plistUrl , "点击下载", null,null,null), uuid);
+                            //删除配置文件
+                            log.info("删除配置文件");
+                            appleApiUtil.deleProfiles(map.get("id"));
                             log.info("打包完成");
                             log.info("plist名" + plistName);
                             isSuccess = 0;

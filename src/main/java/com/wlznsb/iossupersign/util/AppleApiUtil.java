@@ -71,6 +71,7 @@ public class AppleApiUtil {
             log.info("初始化耗费时间:" + (System.currentTimeMillis() - time)/1000 + "秒");
             return true;
         }catch (Exception e){
+            log.info(e.toString());
             return false;
         }
     }
@@ -384,15 +385,18 @@ public class AppleApiUtil {
      */
     public String deleProfiles(String id){
         Long time = System.currentTimeMillis();
-        OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://api.appstoreconnect.apple.com/v1/profiles/" + id)
-                .delete()
-                .addHeader("Authorization",token)
-                .build();
+        //设置请求头参数
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Authorization", "Bearer " + token);
+        this.httpEntity = new HttpEntity(requestHeaders);
         try {
-            Response response = okHttpClient.newCall(request).execute();
-            if(response.code() == 204){
+            //执行
+            ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles/" + id,
+                    HttpMethod.DELETE,httpEntity, String.class);
+            log.info("删除配置文件耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
+            System.out.println(exchange.getStatusCode().value());
+            log.info("删除配置文件" + exchange.getStatusCode().value());
+            if(exchange.getStatusCode().value() == 204){
                 return "success";
             }
         }catch (Exception e){

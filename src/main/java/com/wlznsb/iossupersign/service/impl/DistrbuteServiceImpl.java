@@ -157,22 +157,22 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                             appleIis1.getKid(),appleIis1.getP8());
                     //手动设置token
                     appleApiUtil.initTocken();
-                    //如果初始化失败就把状态设置成失效
-                    String addUuid = appleApiUtil.queryDevice(udid);
+                    packStatusDao.updateStatus("正在添加设备", uuid);
+                    //直接添加设备,如果添加设备为null再去寻找设备
+                    String addUuid = appleApiUtil.addUuid(udid);
                     log.info("addUuid" + addUuid);
-                    log.info("开始初始化");
-                    if(null != addUuid){
-                        packStatusDao.updateStatus("正在添加设备", uuid);
-                        log.info("初始化完毕");
-                        //查询id,查不到就添加
-                        if(addUuid.equals("no")){
-                            log.info("添加设备" + addUuid);
-                            addUuid = appleApiUtil.addUuid(udid);
-                        }
+                    if(null == addUuid){
+                        addUuid = appleApiUtil.queryDevice(udid);
+                    }
+                    //查询id,查不到就添加
+                    if(addUuid != null){
                         packStatusDao.updateStatus("注册配置文件", uuid);
-                        String filePro = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, ServerUtil.getUuid(),new File("/sign/mode/temp").getAbsolutePath());
+                        Map<String,String> map = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, ServerUtil.getUuid(),new File("/sign/mode/temp").getAbsolutePath());
+                        String filePro = map.get("filePath");
                         //如果pro文件创建成功
                         if(filePro != null){
+                            //删除配置文件
+                            appleApiUtil.deleProfiles(map.get("id"));
                             //包名
                             String nameIpa = new Date().getTime() + ".ipa";
                             //临时目录
@@ -185,7 +185,6 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                             //获取plist
                             String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
                             packStatusDao.updateStatus("准备下载", uuid);
-
                             //是否使用七牛云
                             if(this.accessKey.equals("")){
                                 log.info("不使用七牛云");
@@ -214,7 +213,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                             //  appleIisDao.updateStatus(0, appleApiUtil.getIis());
                         }
                     }else {
-                        log.info("获取指定设备失败,证书失效");
+                        log.info("添加指定设备失败,证书失效");
                         appleIisDao.updateStatus(0, appleApiUtil.getIis());
                     }
                 }

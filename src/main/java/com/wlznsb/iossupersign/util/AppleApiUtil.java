@@ -85,6 +85,7 @@ public class AppleApiUtil {
         try {
             Long time = System.currentTimeMillis();
             this.token = TokenUtil.generateToken(this.iis, this.kid,this.p8);
+            log.info(this.token);
             return true;
         }catch (Exception e){
             return false;
@@ -264,8 +265,9 @@ public class AppleApiUtil {
      * @param path
      * @return 返回路径
      */
-    public String addProfiles(String bundleId,String certId,String devicesId,String name,String path){
+    public Map<String,String> addProfiles(String bundleId,String certId,String devicesId,String name,String path){
         Long time = System.currentTimeMillis();
+        Map<String,String> map = new HashMap<>();
         String json = "{\"data\":{\"type\":\"profiles\",\"relationships\":{\"bundleId\":{\"data\":{\"type\":\"bundleIds\",\"id\":\"bundleIdsRep\"}},\"devices\":{\"data\":[{\"type\":\"devices\",\"id\":\"devicesRep\"}]},\"certificates\":{\"data\":[{\"type\":\"certificates\",\"id\":\"certificatesRep\"}]}},\"attributes\":{\"profileType\":\"IOS_APP_ADHOC\",\"name\":\"nameRep\"}}}";
         json = json.replace("bundleIdsRep", bundleId);
         json = json.replace("certificatesRep", certId);
@@ -286,8 +288,10 @@ public class AppleApiUtil {
             byte[] data = Base64.getDecoder().decode(base64);
             String filePath = path + "/" + new Date().getTime() + ".mobileprovision";
             IoHandler.fileWriteTxt(filePath, data);
+            map.put("filePath",filePath);
+            map.put("id",new ObjectMapper().readTree(exchange.getBody()).get("data").get("id").asText());
             log.info("注册profiles耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
-            return filePath;
+            return map;
         }catch (Exception e){
             e.printStackTrace();
             System.out.println(e.toString());

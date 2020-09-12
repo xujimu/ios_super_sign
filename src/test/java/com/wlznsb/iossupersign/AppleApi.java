@@ -6,6 +6,7 @@ import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.odyssi.asc4j.util.TokenUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -68,8 +69,12 @@ public class AppleApi {
    public void test2() throws IOException {
 
 //
-//        AppleApiUtil appleApiUtil = new AppleApiUtil("70e2fe2f-cb06-49a2-9696-753ca9ca7a50","UHTGP44U24","C:\\Users\\xujimu\\Desktop\\AuthKey_UHTGP44U24.p8");
-//        appleApiUtil.init();
+        System.out.println(ServerUtil.getUuid());
+        AppleApiUtil appleApiUtil = new AppleApiUtil("da1a8314-e03a-4a39-afb3-d788e24dcc24","8R4XT9AFKL","C:\\Users\\xujimu\\Desktop\\123.p8");
+        appleApiUtil.initTocken();
+
+        System.out.println(appleApiUtil.queryDevice("c"));
+
 //        String abc = appleApiUtil.queryProfiles();
 //        int count =  new ObjectMapper().readTree(abc).get("meta").get("paging").get("total").asInt();
 //        for (int i = 0; i < count; i++) {
@@ -86,8 +91,10 @@ public class AppleApi {
 //        String b = appleApiUtil.addIdentifiers("com.qweqe.qweq", "qqweqwe");
 //        System.out.println("包名id" + b);
 //        System.out.println(appleApiUtil.addProfiles(b,certId,a,"1qwe123qw","C:\\Users\\xujimu\\Desktop"));
-          Map<String,Object>  a = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\111.ipa", "C:\\Users\\xujimu\\Desktop\\123.png");
-        System.out.println(a);
+         // Map<String,Object>  a = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\111.ipa", "C:\\Users\\xujimu\\Desktop\\123.png");
+        //System.out.println(appleApiUtil.queryDevice("c019313fdb835a842f98941ce0c9bd8801ddeef7"));
+       // System.out.println(appleApiUtil.deleProfiles("XKF4326P2L"));
+         // System.out.println(a);
     }
 
 
@@ -100,7 +107,6 @@ public class AppleApi {
     @Test
     public void  test6(){
 
-        FileSystemUtils.deleteRecursively(new File("D:\\logs"));
     }
 
     @Test

@@ -82,7 +82,6 @@ public class qiniuyun {
             Response response = uploadManager.put(localFilePath, key, upToken);
             //解析上传成功的结果
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-            log.info("本次上传耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
         } catch (Exception ex) {
                 ex.printStackTrace();
         }

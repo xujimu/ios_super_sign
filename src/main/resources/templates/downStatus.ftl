@@ -258,13 +258,14 @@
         timec = 120
         function load(){
             var t =  window.setInterval(function(){
-                $.ajax({url: $("#downUrl").text() + $("#statusId").text(),success:function(result){
+                $.ajax({url: $("#downUrl").text() + $("#statusId").text() ,success:function(result){
                         // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
                         $("#install_btn").text(result.data.status + " " + timec)
                         if(result.data.status == "点击下载"){
                             $("#installSp").text("点击install或者安装后请返回桌面查看" )
                             $("#install_btn").text(result.data.status)
                             $("#install_btn").attr('href',result.data.plist);
+                            //加随机时间戳,避免缓存导致没进度条
                             window.location = result.data.plist
                             clearInterval(t)
                         }else if(result.data.status == "没有可用的证书"){

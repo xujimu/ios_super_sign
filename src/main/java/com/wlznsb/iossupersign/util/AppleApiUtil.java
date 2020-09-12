@@ -3,10 +3,19 @@ package com.wlznsb.iossupersign.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
+import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.model.DefaultPutRet;
+import com.qiniu.util.Auth;
+import com.qiniu.util.Json;
 import lombok.extern.slf4j.Slf4j;
 import net.odyssi.asc4j.util.TokenUtil;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -49,6 +58,7 @@ public class AppleApiUtil {
      */
     public boolean init(){
         try {
+            Long time = System.currentTimeMillis();
             this.token = TokenUtil.generateToken(this.iis, this.kid,this.p8);
             System.out.println(this.token);
             //设置请求头参数
@@ -58,6 +68,23 @@ public class AppleApiUtil {
             //执行
             ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/apps",
                     HttpMethod.GET,httpEntity, String.class);
+            log.info("初始化耗费时间:" + (System.currentTimeMillis() - time)/1000 + "秒");
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+
+
+    /**
+     * 检验证书和信息是否正确
+     * @return
+     */
+    public boolean initTocken(){
+        try {
+            Long time = System.currentTimeMillis();
+            this.token = TokenUtil.generateToken(this.iis, this.kid,this.p8);
             return true;
         }catch (Exception e){
             return false;
@@ -154,6 +181,7 @@ public class AppleApiUtil {
      * @return 返回id
      */
     public String addUuid(String uuid){
+        Long time = System.currentTimeMillis();
         String json = "{\"data\":{\"type\":\"devices\",\"attributes\":{\"name\":\"replace\",\"platform\":\"IOS\",\"udid\":\"replace\"}}}";
         json = json.replace("replace", uuid);
         HttpHeaders headers = new HttpHeaders();
@@ -165,6 +193,7 @@ public class AppleApiUtil {
             HttpEntity<String> formEntity = new HttpEntity<String>(json, headers);
             ResponseEntity<String> exchange =
                     restTemplate.postForEntity("https://api.appstoreconnect.apple.com/v1/devices",formEntity,String.class);
+            log.info("添加设备:" + (System.currentTimeMillis() - time)/1000 + "秒");
             return  new ObjectMapper().readTree(exchange.getBody()).get("data").get("id").asText();
         }catch (Exception e){
             System.out.println(e.toString());
@@ -178,15 +207,52 @@ public class AppleApiUtil {
      * @return
      */
     public String queryDevices(){
+        Long time = System.currentTimeMillis();
         //设置请求头参数
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Authorization", "Bearer " + token);
         this.httpEntity = new HttpEntity(requestHeaders);
-        //执行
-        ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/devices",
-                HttpMethod.GET,httpEntity, String.class);
-        return exchange.getBody();
+
+        try {
+            //执行
+            ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/devices",
+                    HttpMethod.GET,httpEntity, String.class);
+            log.info("获取所有设备:" + (System.currentTimeMillis() - time)/1000 + "秒");
+            return exchange.getBody();
+        }catch (Exception e){
+            log.info(e.toString());
+            return null;
+        }
     }
+
+    /**
+     * 获取设备指定udid的id
+     * @return no不存在,null为证书可能失效
+     */
+    public String queryDevice(String udid){
+        Long time = System.currentTimeMillis();
+        //设置请求头参数
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Authorization", "Bearer " + token);
+        this.httpEntity = new HttpEntity(requestHeaders);
+        try {
+            //执行
+            ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/devices?filter[udid]=" + udid,
+                    HttpMethod.GET,httpEntity, String.class);
+            log.info("获取指定设备耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
+            JsonNode json = new ObjectMapper().readTree(exchange.getBody()).get("data");
+            if(json.size() == 0){
+                return "no";
+            }else {
+                log.info(json.get(0).get("id").asText());
+                return json.get(0).get("id").asText();
+            }
+        }catch (Exception e){
+            log.info(e.toString());
+            return null;
+        }
+    }
+
 
 
     /**
@@ -199,6 +265,7 @@ public class AppleApiUtil {
      * @return 返回路径
      */
     public String addProfiles(String bundleId,String certId,String devicesId,String name,String path){
+        Long time = System.currentTimeMillis();
         String json = "{\"data\":{\"type\":\"profiles\",\"relationships\":{\"bundleId\":{\"data\":{\"type\":\"bundleIds\",\"id\":\"bundleIdsRep\"}},\"devices\":{\"data\":[{\"type\":\"devices\",\"id\":\"devicesRep\"}]},\"certificates\":{\"data\":[{\"type\":\"certificates\",\"id\":\"certificatesRep\"}]}},\"attributes\":{\"profileType\":\"IOS_APP_ADHOC\",\"name\":\"nameRep\"}}}";
         json = json.replace("bundleIdsRep", bundleId);
         json = json.replace("certificatesRep", certId);
@@ -219,6 +286,7 @@ public class AppleApiUtil {
             byte[] data = Base64.getDecoder().decode(base64);
             String filePath = path + "/" + new Date().getTime() + ".mobileprovision";
             IoHandler.fileWriteTxt(filePath, data);
+            log.info("注册profiles耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
             return filePath;
         }catch (Exception e){
             e.printStackTrace();
@@ -232,6 +300,7 @@ public class AppleApiUtil {
      * @return
      */
     public String addIdentifiers(String identifier,String name){
+        Long time = System.currentTimeMillis();
         String json = "{\"data\":{\"type\":\"bundleIds\",\"attributes\":{\"identifier\":\"identifierRep\",\"name\":\"nameRep\",\"platform\":\"IOS\"}}}";
         json = json.replace("identifierRep",identifier);
         json = json.replace("nameRep",name);
@@ -244,6 +313,7 @@ public class AppleApiUtil {
             HttpEntity<String> formEntity = new HttpEntity<String>(json, headers);
             ResponseEntity<String> exchange =
                     restTemplate.postForEntity("https://api.appstoreconnect.apple.com/v1/bundleIds",formEntity,String.class);
+            log.info("创建包名Bundle 耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
             return  new ObjectMapper().readTree(exchange.getBody()).get("data").get("id").asText();
             //return new ObjectMapper().readTree(exchange.getBody()).asText();
         }catch (Exception e){
@@ -258,6 +328,7 @@ public class AppleApiUtil {
      */
     public String queryProfiles(){
         try {
+            Long time = System.currentTimeMillis();
             //设置请求头参数
             HttpHeaders requestHeaders = new HttpHeaders();
             requestHeaders.add("Authorization", "Bearer " + token);
@@ -265,11 +336,68 @@ public class AppleApiUtil {
             //执行
             ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles",
                     HttpMethod.GET,httpEntity, String.class);
+            log.info("查询所有Profiles:" + (System.currentTimeMillis() - time)/1000 + "秒");
             return exchange.getBody();
         }catch (Exception e){
             return null;
+
         }
     }
+
+
+    /**
+     * 修改设备状态
+     * @return 返回id
+     */
+    public String updateDeviceStatus(String id,String udid,String status){
+
+        Long time = System.currentTimeMillis();
+        String json = "{\"data\": {\"id\": \"idRep\",\"type\": \"devices\",\"attributes\": {\"name\": \"nameRep\",\"status\": \"statusRep\"}}}";
+        json = json.replace("idRep",id);
+        json = json.replace("nameRep",udid);
+        json = json.replace("statusRep",status);
+        OkHttpClient okHttpClient = new OkHttpClient();
+        okhttp3.MediaType mediaType = okhttp3.MediaType.parse("application/json; charset=utf-8");
+        Request request = new Request.Builder()
+                .url("https://api.appstoreconnect.apple.com/v1/devices/" + id)
+                .patch(RequestBody.create(mediaType, json))
+                .addHeader("Authorization",token)
+                .build();
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            if(response.code() == 200){
+                return  new ObjectMapper().readTree(response.body().string()).get("data").get("id").asText();
+            }
+        }catch (Exception e){
+            log.info(e.toString());
+        }
+        return null;
+    }
+
+    /**
+     * 删除配置文件
+     * @return 返回success
+     */
+    public String deleProfiles(String id){
+        Long time = System.currentTimeMillis();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.appstoreconnect.apple.com/v1/profiles/" + id)
+                .delete()
+                .addHeader("Authorization",token)
+                .build();
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            if(response.code() == 204){
+                return "success";
+            }
+        }catch (Exception e){
+            log.info(e.toString());
+        }
+        return null;
+    }
+
+
 
 
     public String getToken() {

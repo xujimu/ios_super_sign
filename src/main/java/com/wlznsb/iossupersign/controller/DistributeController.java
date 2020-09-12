@@ -129,15 +129,20 @@ public class DistributeController {
         String content = sb.toString().substring(sb.toString().indexOf("<?xml"), sb.toString().indexOf("</plist>")+8);
         String json =  org.json.XML.toJSONObject(content).toString();
         String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
-        //创建状态
-        PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null, new Date(), null, null, "排队中", 1,id,tempContextUrl);
-        String statusId = String.valueOf(packStatusDao.add(packStatus));
-        //获取原来的分发地址
-        Distribute distribute = distributeDao.query(id);
-        String skipUrl = distribute.getUrl().replace("down", "downStatus");
-        //再次请求带上uuid
-        response.setHeader("Location", skipUrl + "/" + statusId);
-        response.setStatus(301);
+        log.info(content);
+        if(null != udid && !udid.equals("")){
+            //创建状态
+            PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null, new Date(), null, null, "排队中", 1,id,tempContextUrl);
+            packStatusDao.add(packStatus);
+            //获取原来的分发地址
+            Distribute distribute = distributeDao.query(id);
+            String skipUrl = distribute.getUrl().replace("down", "downStatus");
+            //再次请求带上uuid
+            response.setHeader("Location", skipUrl + "/" + packStatus.getId());
+            log.info("statusid" + packStatus.getId());
+            response.setStatus(301);
+        }
+
     }
 
     /**
@@ -155,7 +160,6 @@ public class DistributeController {
     public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String id, @PathVariable String statusId) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
         String rootUrl = ServerUtil.getRootUrl(request);
-        log.info("当前id" + Integer.valueOf(id));
         Distribute distribute = distributeDao.query(Integer.valueOf(id));
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
         distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
@@ -163,7 +167,7 @@ public class DistributeController {
         model.addAttribute("distribute", distribute);
         model.addAttribute("statusId", statusId);
         model.addAttribute("pro", rootUrl + "app.mobileprovision");
-        model.addAttribute("downUrl", rootUrl + "/distribute/getStatus?uuid=");
+        model.addAttribute("downUrl", rootUrl + "/distribute/getStatus?statusId=");
         //设置轮播图
         if(null == distribute.getImages()){
             model.addAttribute("img1", rootUrl + "/images/" + "slideshow.png");

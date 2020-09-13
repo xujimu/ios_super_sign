@@ -44,8 +44,12 @@ import java.util.Map;
 public class qiniuyun {
 
 
+    public static void main(String[] args) {
+
+    }
 
     static {
+
         System.out.println(11111111);
     }
 
@@ -91,14 +95,11 @@ public class qiniuyun {
 
 
     @Test
-    public  void  test1(){
+    public  void  test1() throws InterruptedException {
 
-        System.out.println(port);
-        if(port.equals("")){
-            System.out.println("1");
-        }else {
-            System.out.println("2");
-        }
+        AppleApiUtil appleApiUtil = new AppleApiUtil("da1a8314-e03a-4a39-afb3-d788e24dcc24","8R4XT9AFKL",new File("C:\\Users\\xujimu\\Desktop\\da1a8314-e03a-4a39-afb3-d788e24dcc24.p8").getAbsolutePath());
+        appleApiUtil.init();
+
 
     }
 

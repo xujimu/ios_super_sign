@@ -9,12 +9,11 @@ import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.Distribute;
 import com.wlznsb.iossupersign.entity.PackStatus;
 import com.wlznsb.iossupersign.entity.User;
-import com.wlznsb.iossupersign.service.DistrbuteService;
+import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
 import com.wlznsb.iossupersign.util.IoHandler;
 import com.wlznsb.iossupersign.util.RuntimeExec;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,9 +37,10 @@ import java.util.*;
 @CrossOrigin(allowCredentials="true")
 public class DistributeController {
 
+    private Map<String,Integer> tempUuid = new HashMap<>();
 
     @Autowired
-    private DistrbuteService distrbuteService;
+    private DistrbuteServiceImpl distrbuteService;
 
     @Autowired
     private UserDao userDao;
@@ -81,7 +81,9 @@ public class DistributeController {
     //获取描述文件,没有使用业务层
     @GetMapping
     @RequestMapping("/getMobile")
-    public void getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam String id,@RequestParam String name) throws IOException {
+    public void getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name) throws IOException {
+        //临时存放,保证每次描述文件url都是动态的
+        String uuid = ServerUtil.getUuid();
         //域名
         String tempContextUrl = ServerUtil.getRootUrl(request);
         String keyPath = new File("/sign/mode/cert/key.key").getAbsolutePath();
@@ -94,58 +96,63 @@ public class DistributeController {
         //未签名
         String moblicNoSignPath = new File("/sign/mode/temp/" + round + "no.mobileconfig").getAbsolutePath();
         String temp = IoHandler.readTxt(moblicPath);
-        temp = temp.replace("urlRep", tempContextUrl + "distribute/getUdid?id=" + id);
+        temp = temp.replace("urlRep", tempContextUrl + "distribute/getUdid?tempuuid=" + uuid);
         temp = temp.replace("nameRep",name + " -- 点击右上角安装");
         IoHandler.writeTxt(moblicNoSignPath, temp);
         //已签名
         String moblicSignPath = new File("/sign/mode/temp/" + round + ".mobileconfig").getAbsolutePath();
         String cmd =" openssl smime -sign -in " + moblicNoSignPath + " -out " + moblicSignPath + " -signer " + serverPath + " -inkey " + keyPath + " -certfile " + rootPath + " -outform der -nodetach ";
         RuntimeExec.runtimeExec(cmd);
+        //写入map
+        tempUuid.put(uuid, id);
+        log.info(uuid);
         log.info(tempContextUrl);
         response.sendRedirect(tempContextUrl + round + ".mobileconfig");
     }
 
     //301回调
     @RequestMapping(value = "/getUdid")
-    public void getUdid(@RequestParam int id, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //创建打包uuid
-        String uuid = ServerUtil.getUuid();
-/**
- * 这里的返回值是pist没用上
- */
-        StringBuffer url = request.getRequestURL();
-        //获取项目路径域名
-        String tempContextUrl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append(request.getSession().getServletContext().getContextPath()).append("/").toString();
-        //获取HTTP请求的输入流
-        InputStream is = request.getInputStream();
-        //已HTTP请求输入流建立一个BufferedReader对象
-        BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
-        StringBuilder sb = new StringBuilder();
-        //读取HTTP请求内容
-        String buffer = null;
-        while ((buffer = br.readLine()) != null) {
-            sb.append(buffer);
+    public void getUdid(@RequestParam String tempuuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Integer id = tempUuid.get(tempuuid);
+        if(id != null){
+            tempUuid.remove(tempuuid);
+            //创建打包uuid
+            String uuid = ServerUtil.getUuid();
+            /**
+             * 这里的返回值是pist没用上
+             */
+            StringBuffer url = request.getRequestURL();
+            //获取项目路径域名
+            String tempContextUrl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append(request.getSession().getServletContext().getContextPath()).append("/").toString();
+            //获取HTTP请求的输入流
+            InputStream is = request.getInputStream();
+            //已HTTP请求输入流建立一个BufferedReader对象
+            BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            //读取HTTP请求内容
+            String buffer = null;
+            while ((buffer = br.readLine()) != null) {
+                sb.append(buffer);
+            }
+            //去除xml多余信息
+            String content = sb.toString().substring(sb.toString().indexOf("<?xml"), sb.toString().indexOf("</plist>")+8);
+            String json =  org.json.XML.toJSONObject(content).toString();
+            log.info(json);
+            String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
+            if(null != udid && !udid.equals("")){
+                //创建状态
+                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null, new Date(), null, null, "排队中", 1,id,tempContextUrl);
+                packStatusDao.add(packStatus);
+                //获取原来的分发地址
+                Distribute distribute = distributeDao.query(id);
+                String skipUrl = distribute.getUrl().replace("down", "downStatus");
+                //再次请求带上uuid
+                response.setHeader("Location", skipUrl + "/" + packStatus.getId());
+                log.info("statusid" + packStatus.getId());
+                response.setStatus(301);
+            }
         }
-        //去除xml多余信息
-        String content = sb.toString().substring(sb.toString().indexOf("<?xml"), sb.toString().indexOf("</plist>")+8);
-        String json =  org.json.XML.toJSONObject(content).toString();
-        String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
-        log.info(content);
-        if(null != udid && !udid.equals("")){
-            //创建状态
-            PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null, new Date(), null, null, "排队中", 1,id,tempContextUrl);
-            packStatusDao.add(packStatus);
-            //获取原来的分发地址
-            Distribute distribute = distributeDao.query(id);
-            String skipUrl = distribute.getUrl().replace("down", "downStatus");
-            //再次请求带上uuid
-            response.setHeader("Location", skipUrl + "/" + packStatus.getId());
-            log.info("statusid" + packStatus.getId());
-            response.setStatus(301);
-        }
-
     }
-
     /**
      * 获取下载状态,没有使用业务层
      * @param model
@@ -255,6 +262,7 @@ public class DistributeController {
         map.put("data", distributeList);
         return map;
     }
+
 
     //修改简介
     @RequestMapping(value = "/updateIntroduce",method = RequestMethod.POST)

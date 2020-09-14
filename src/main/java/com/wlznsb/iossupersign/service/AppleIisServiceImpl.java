@@ -1,10 +1,9 @@
-package com.wlznsb.iossupersign.service.impl;
+package com.wlznsb.iossupersign.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wlznsb.iossupersign.dao.AppleIisDao;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.User;
-import com.wlznsb.iossupersign.service.AppleIisService;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +20,13 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class AppleIisServiceImpl implements AppleIisService {
+public class AppleIisServiceImpl{
 
 
     @Autowired
     private AppleIisDao appleIisDao;
 
 
-    @Override
     @Transactional
     public int add(String iis, String kid, MultipartFile p8, User user ) {
         //证书目录
@@ -83,7 +81,6 @@ public class AppleIisServiceImpl implements AppleIisService {
         return 0;
     }
 
-    @Override
     @Transactional
     public int dele(String iis,User user) {
         try {
@@ -105,7 +102,6 @@ public class AppleIisServiceImpl implements AppleIisService {
         return 0;
     }
 
-    @Override
     @Transactional
     public int updateStartOrStatus(String type, String iis, int s,User user) {
         try {
@@ -134,7 +130,6 @@ public class AppleIisServiceImpl implements AppleIisService {
         return 0;
     }
 
-    @Override
     @Transactional
     public AppleIis query(String iis, User user) {
         try {
@@ -146,7 +141,6 @@ public class AppleIisServiceImpl implements AppleIisService {
         }
     }
 
-    @Override
     @Transactional
     public List<AppleIis> queryAll() {
         try {
@@ -158,7 +152,6 @@ public class AppleIisServiceImpl implements AppleIisService {
         }
     }
 
-    @Override
     @Transactional
     public List<AppleIis> queryAccount(String account) {
         try {

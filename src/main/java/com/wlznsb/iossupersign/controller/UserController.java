@@ -3,7 +3,7 @@ package com.wlznsb.iossupersign.controller;
 
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.User;
-import com.wlznsb.iossupersign.service.UserService;
+import com.wlznsb.iossupersign.service.UserServiceImpl;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     //登录
     @RequestMapping(value = "/login",method = RequestMethod.POST)

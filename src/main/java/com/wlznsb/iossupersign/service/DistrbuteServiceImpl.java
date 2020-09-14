@@ -1,6 +1,5 @@
-package com.wlznsb.iossupersign.service.impl;
+package com.wlznsb.iossupersign.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
@@ -11,11 +10,12 @@ import com.qiniu.util.Auth;
 import com.wlznsb.iossupersign.dao.AppleIisDao;
 import com.wlznsb.iossupersign.dao.DistributeDao;
 import com.wlznsb.iossupersign.dao.PackStatusDao;
-import com.wlznsb.iossupersign.entity.*;
-import com.wlznsb.iossupersign.service.DistrbuteService;
+import com.wlznsb.iossupersign.entity.AppleIis;
+import com.wlznsb.iossupersign.entity.Distribute;
+import com.wlznsb.iossupersign.entity.PackStatus;
+import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.util.*;
 import lombok.extern.slf4j.Slf4j;
-import net.odyssi.asc4j.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,15 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
-public class DistrbuteServiceImpl implements DistrbuteService {
+public class DistrbuteServiceImpl{
 
 
     @Value("${qiniuyun.accessKey}")
@@ -52,7 +51,6 @@ public class DistrbuteServiceImpl implements DistrbuteService {
     @Autowired
     private PackStatusDao packStatusDao;
 
-    @Override
     @Transactional
     public Distribute uploadIpa(MultipartFile ipa, User user,String rootUrl) {
         Integer id = null;
@@ -109,7 +107,6 @@ public class DistrbuteServiceImpl implements DistrbuteService {
      * @param id
      * @return
      */
-    @Override
     @Transactional
     public int uploadApk(MultipartFile apk,User user, Integer id) {
         try {
@@ -138,7 +135,6 @@ public class DistrbuteServiceImpl implements DistrbuteService {
      * @param udid
      * @return
      */
-    @Override
     public String getUuid(int id,String uuid,String url, String udid){
         try {
             log.info("udid:" + udid);
@@ -163,6 +159,8 @@ public class DistrbuteServiceImpl implements DistrbuteService {
                     log.info("addUuid" + addUuid);
                     if(null == addUuid){
                         addUuid = appleApiUtil.queryDevice(udid);
+                    }else {
+                        appleIisDao.updateCount(appleIis1.getCount() - 1 , appleIis1.getIis());
                     }
                     //查询id,查不到就添加
                     if(addUuid != null){
@@ -233,7 +231,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
     }
 
 
-    @Override
+
     public int dele(String account, int id) {
         try {
             Distribute distribute = distributeDao.query(id);
@@ -254,7 +252,7 @@ public class DistrbuteServiceImpl implements DistrbuteService {
         return 0;
     }
 
-    @Override
+
     public List<Distribute> queryAccountAll(String account) {
         try {
             List<Distribute> distributeList = distributeDao.queryAccountAll(account);

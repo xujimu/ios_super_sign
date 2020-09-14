@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 public class IosSuperSignApplication {
 
     public static void main(String[] args) {
-        log.info("启动了");
+        log.info("启动了去除业务层接口");
         SpringApplication.run(IosSuperSignApplication.class, args);
 
     }

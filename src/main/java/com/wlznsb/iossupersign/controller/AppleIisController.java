@@ -3,7 +3,7 @@ package com.wlznsb.iossupersign.controller;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.User;
-import com.wlznsb.iossupersign.service.AppleIisService;
+import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +29,7 @@ import java.util.Map;
 public class AppleIisController {
 
     @Autowired
-    private AppleIisService appleIisService;
+    private AppleIisServiceImpl appleIisService;
 
     @RequestMapping(value = "/addIis",method = RequestMethod.POST)
     public Map<String,Object> addIis(@RequestParam @NotEmpty String iis, @RequestParam @NotEmpty String kid,@RequestParam  MultipartFile p8, HttpServletRequest request){

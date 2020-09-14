@@ -3,8 +3,8 @@ package com.wlznsb.iossupersign.controller;
 import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.User;
-import com.wlznsb.iossupersign.service.AppleIisService;
-import com.wlznsb.iossupersign.service.UserService;
+import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
+import com.wlznsb.iossupersign.service.UserServiceImpl;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -28,10 +28,10 @@ public class AdminController {
     private UserDao userDao;
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Autowired
-    private AppleIisService appleIisService;
+    private AppleIisServiceImpl appleIisService;
 
     //修改类型
     @RequestMapping(value = "/updateType",method = RequestMethod.POST)

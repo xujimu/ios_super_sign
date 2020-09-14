@@ -1,8 +1,6 @@
 package com.wlznsb.iossupersign.service.impl;
 
-import com.dd.plist.NSDictionary;
-import com.wlznsb.iossupersign.entity.AppleIis;
-import com.wlznsb.iossupersign.service.AppleIisService;
+import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
 import com.wlznsb.iossupersign.util.IoHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AppleIisServiceImplTest {
 
     @Autowired
-    private AppleIisService appleIisService;
+    private AppleIisServiceImpl appleIisService;
 
     @Test
     void add() throws IOException {

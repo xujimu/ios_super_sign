@@ -1,9 +1,8 @@
-package com.wlznsb.iossupersign.service.impl;
+package com.wlznsb.iossupersign.service;
 
 import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.User;
-import com.wlznsb.iossupersign.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,14 +12,13 @@ import java.io.File;
 
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl {
 
 
     @Autowired
     private UserDao userDao;
 
     @Transactional
-    @Override
     public UserDto register(User user) {
         try {
             if(userDao.queryAccount(user.getAccount()) != null){
@@ -41,7 +39,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    @Override
     public UserDto login(String account, String password) {
         try {
             User user = userDao.queryAccount(account);
@@ -61,7 +58,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    @Override
     public UserDto dele(String account) {
         try {
             User user = userDao.queryAccount(account);
@@ -82,7 +78,6 @@ public class UserServiceImpl implements UserService {
 
 
     @Transactional
-    @Override
     public UserDto updatePassword(String account,String password, String newPassword) {
         try {
             User user = userDao.queryAccount(account);
@@ -105,7 +100,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override
     @Transactional
     public UserDto updateType(String account, int type) {
         try {
@@ -124,6 +118,5 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("修改失败:" + e.getMessage());
         }
     }
-
 
 }

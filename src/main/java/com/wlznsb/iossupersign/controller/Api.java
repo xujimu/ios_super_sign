@@ -1,9 +1,6 @@
 package com.wlznsb.iossupersign.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wlznsb.iossupersign.entity.AppleIis;
-import com.wlznsb.iossupersign.entity.User;
-import com.wlznsb.iossupersign.service.AppleIisService;
+import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +29,7 @@ public class Api {
 
 
     @Autowired
-    private AppleIisService appleIisService;
+    private AppleIisServiceImpl appleIisService;
 
     @RequestMapping(value = "/addIis",method = RequestMethod.POST)
     public Map<String,Object> addIis(@RequestParam @NotEmpty String iis, @RequestParam @NotEmpty String kid,@RequestParam  MultipartFile p8, HttpServletRequest request) throws IOException {

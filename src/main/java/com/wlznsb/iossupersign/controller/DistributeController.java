@@ -140,8 +140,11 @@ public class DistributeController {
             log.info(json);
             String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
             if(null != udid && !udid.equals("")){
+                //linux差八个小时,什么都设置了还是不行只能手动加8小时
+                long currentTime = System.currentTimeMillis() + 4800 * 60 * 1000;
+                Date date = new Date(currentTime);
                 //创建状态
-                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null, new Date(), null, null, "排队中", 1,id,tempContextUrl);
+                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,date, null, null, "排队中", 1,id,tempContextUrl);
                 packStatusDao.add(packStatus);
                 //获取原来的分发地址
                 Distribute distribute = distributeDao.query(id);

@@ -156,12 +156,13 @@ public class DistrbuteServiceImpl{
                     packStatusDao.updateStatus("正在添加设备", uuid);
                     //直接添加设备,如果添加设备为null再去寻找设备
                     String addUuid = appleApiUtil.addUuid(udid);
-                    log.info("addUuid" + addUuid);
+                    log.info("添加addUuid结果" + addUuid);
                     if(null == addUuid){
                         addUuid = appleApiUtil.queryDevice(udid);
                     }else {
                         appleIisDao.updateCount(appleIis1.getCount() - 1 , appleIis1.getIis());
                     }
+                    log.info("添加addUuid结果2" + addUuid);
                     //查询id,查不到就添加
                     if(addUuid != null){
                         packStatusDao.updateStatus("注册配置文件", uuid);
@@ -209,7 +210,7 @@ public class DistrbuteServiceImpl{
                             return plistName;
                         }else {
                             log.info("创建配置文件失败");
-                            //  appleIisDao.updateStatus(0, appleApiUtil.getIis());
+                            appleIisDao.updateStatus(0, appleApiUtil.getIis());
                         }
                     }else {
                         log.info("添加指定设备失败,证书失效");

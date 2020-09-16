@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -14,6 +17,7 @@ class PackStatusDaoTest {
 
     @Autowired
     private PackStatusDao packStatusDao;
+
     @Test
     void query() {
 
@@ -27,9 +31,13 @@ class PackStatusDaoTest {
     @Test
     void updateStatus() {
 
-        PackStatus packStatus = packStatusDao.query("123");
-        packStatus.setStatus("分好了");
-        packStatusDao.update(packStatus,"123");
+        PackStatus packStatus = packStatusDao.query("953");
+        packStatus.setId(null);
+
+
+        packStatusDao.add(packStatus);
+       // packStatus.setStatus("分好了");
+        //packStatusDao.update(packStatus,"123");
 
     }
 

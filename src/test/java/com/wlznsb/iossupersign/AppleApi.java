@@ -72,9 +72,11 @@ public class AppleApi {
    public void test2() throws IOException {
 
 //
-        System.out.println(ServerUtil.getUuid());
 
+        AppleApiUtil appleApiUtil = new AppleApiUtil("da1a8314-e03a-4a39-afb3-d788e24dcc24", "VPPLKLAS6Q", "C:\\Users\\xujimu\\Desktop\\AuthKey_VPPLKLAS6Q.p8");
+        appleApiUtil.init();
 
+        System.out.println(appleApiUtil.queryDevices());;
 //        String abc = appleApiUtil.queryProfiles();
 //        int count =  new ObjectMapper().readTree(abc).get("meta").get("paging").get("total").asInt();
 //        for (int i = 0; i < count; i++) {

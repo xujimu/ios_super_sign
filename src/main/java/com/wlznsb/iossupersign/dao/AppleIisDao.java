@@ -83,7 +83,7 @@ public interface AppleIisDao {
      * @param account
      * @return
      */
-    @Select("select * from apple_iis where count >= 0 and account = #{account} and start = 1 and status = 1")
+    @Select("select * from apple_iis where count > 0 and account = #{account} and start = 1 and status = 1")
     List<AppleIis> queryUsIis(String account);
 
     /**

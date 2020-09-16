@@ -244,7 +244,7 @@ public class AppleApiUtil {
             log.info("获取指定设备耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
             JsonNode json = new ObjectMapper().readTree(exchange.getBody()).get("data");
             if(json.size() == 0){
-                return "no";
+                return null;
             }else {
                 log.info(json.get(0).get("id").asText());
                 return json.get(0).get("id").asText();

@@ -160,7 +160,12 @@ public class DistrbuteServiceImpl{
                     if(null == addUuid){
                         addUuid = appleApiUtil.queryDevice(udid);
                     }else {
-                        appleIisDao.updateCount(appleIis1.getCount() - 1 , appleIis1.getIis());
+                        if(!addUuid.equals("no")){
+                            appleIisDao.updateCount(appleIis1.getCount() - 1 , appleIis1.getIis());
+                        }else {
+                            packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, null,null , "失败udid不合法", null,null,null), uuid);
+                            throw  new RuntimeException("udid不合法");
+                        }
                     }
                     log.info("添加addUuid结果2" + addUuid);
                     //查询id,查不到就添加
@@ -210,7 +215,7 @@ public class DistrbuteServiceImpl{
                             return plistName;
                         }else {
                             log.info("创建配置文件失败");
-                            appleIisDao.updateStatus(0, appleApiUtil.getIis());
+                            //appleIisDao.updateStatus(0, appleApiUtil.getIis());
                         }
                     }else {
                         log.info("添加指定设备失败,证书失效");

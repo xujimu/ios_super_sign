@@ -191,15 +191,22 @@ public class AppleApiUtil {
         headers.setContentType(type);
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
         headers.add("Authorization", "Bearer " + token);
+        String data;
         try {
             HttpEntity<String> formEntity = new HttpEntity<String>(json, headers);
             ResponseEntity<String> exchange =
                     restTemplate.postForEntity("https://api.appstoreconnect.apple.com/v1/devices",formEntity,String.class);
             log.info("添加设备:" + (System.currentTimeMillis() - time)/1000 + "秒");
+
             return  new ObjectMapper().readTree(exchange.getBody()).get("data").get("id").asText();
         }catch (Exception e){
             System.out.println(e.toString());
-            return null;
+           if(e.toString().indexOf("ENTITY_ERROR.ATTRIBUTE.INVALID") != -1){
+               return "no";
+           }else {
+               return null;
+           }
+
         }
     }
 

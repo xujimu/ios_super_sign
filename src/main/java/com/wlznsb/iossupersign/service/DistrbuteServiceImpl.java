@@ -18,6 +18,7 @@ import com.wlznsb.iossupersign.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
@@ -70,7 +71,7 @@ public class DistrbuteServiceImpl{
                 //ipa路径
                 String ipaPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".ipa").getAbsolutePath();
                 //ipa解压路基
-                String ipaUnzipPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/Payload").getAbsolutePath();
+                String ipaUnzipPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" + id + ".ipa").getAbsolutePath();
                 //写出
                 System.out.println(ipaPath);
                 ipa.transferTo(new File(ipaPath));

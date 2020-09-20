@@ -1,5 +1,6 @@
 package com.wlznsb.iossupersign.entity;
 
+import javax.annotation.Resource;
 import java.util.Date;
 
 public class User {

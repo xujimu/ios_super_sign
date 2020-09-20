@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign.dao;
 
 import com.wlznsb.iossupersign.entity.PackStatus;
+import com.wlznsb.iossupersign.util.ServerUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +32,13 @@ class PackStatusDaoTest {
     @Test
     void updateStatus() {
 
-        PackStatus packStatus = packStatusDao.query("953");
-        packStatus.setId(null);
-
-
-        packStatusDao.add(packStatus);
+       while (true){
+           PackStatus packStatus = packStatusDao.query("24027");
+           packStatus.setId(null);
+           packStatus.setUuid(ServerUtil.getUuid());
+           packStatus.setStatus("排队中");
+           packStatusDao.add(packStatus);
+       }
        // packStatus.setStatus("分好了");
         //packStatusDao.update(packStatus,"123");
 

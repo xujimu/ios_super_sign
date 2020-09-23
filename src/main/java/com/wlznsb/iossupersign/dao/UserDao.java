@@ -35,6 +35,15 @@ public interface UserDao {
     @Update("update user set password = #{password} where account = #{account}")
     int updatePassword(String account,String password);
 
+    /**
+     * 减少次数
+     * @param account
+     * @return
+     */
+    @Update("update user set count = count - 1 where account = #{account}")
+    int reduceCount(String account);
+
+
 
     /**
      * 修改用户类型
@@ -59,7 +68,7 @@ public interface UserDao {
      * @param user
      * @return
      */
-    @Insert("insert into user() values(#{user.id},#{user.account},#{user.password},#{user.createTime},#{user.type})")
+    @Insert("insert into user() values(#{user.id},#{user.account},#{user.password},#{user.createTime},#{user.type},#{user.count})")
     int addAccount(@Param("user") User user);
 
 }

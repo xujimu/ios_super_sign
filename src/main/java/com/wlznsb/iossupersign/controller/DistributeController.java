@@ -11,6 +11,7 @@ import com.wlznsb.iossupersign.entity.PackStatus;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
 import com.wlznsb.iossupersign.util.IoHandler;
+import com.wlznsb.iossupersign.util.IpUtils;
 import com.wlznsb.iossupersign.util.RuntimeExec;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -137,11 +138,11 @@ public class DistributeController {
             //去除xml多余信息
             String content = sb.toString().substring(sb.toString().indexOf("<?xml"), sb.toString().indexOf("</plist>")+8);
             String json =  org.json.XML.toJSONObject(content).toString();
-            log.info(json);
+            log.info(json + "plist");
             String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
             if(null != udid && !udid.equals("")){
                 //创建状态
-                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,new Date(), null, null, "排队中", 1,id,tempContextUrl);
+                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,new Date(), null, null, "排队中", 1,id,tempContextUrl, IpUtils.getIpAddr(request));
                 packStatusDao.add(packStatus);
                 //获取原来的分发地址
                 Distribute distribute = distributeDao.query(id);

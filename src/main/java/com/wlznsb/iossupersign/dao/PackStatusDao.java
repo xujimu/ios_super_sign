@@ -29,7 +29,7 @@ public interface PackStatusDao {
      */
     @Insert("insert into pack_status() values(#{packStatus.id},#{packStatus.account},#{packStatus.pageName},#{packStatus.uuid},#" +
             "{packStatus.udid},#{packStatus.iis},#{packStatus.createTime},#{packStatus.ipa},#{packStatus.plist}" +
-            ",#{packStatus.status},#{packStatus.signOff},#{packStatus.appId},#{packStatus.url})")
+            ",#{packStatus.status},#{packStatus.signOff},#{packStatus.appId},#{packStatus.url},#{packStatus.ip})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int add(@Param("packStatus") PackStatus packStatus);
 
@@ -41,7 +41,6 @@ public interface PackStatusDao {
      */
     @Update("update  pack_status set status = #{status} where uuid = #{uuid}")
     int updateStatus(String status,String uuid);
-
 
 
     /**

@@ -10,13 +10,9 @@ public class User {
     private String password;
     private Date createTime;
     private Integer type;
+    private Integer count;
 
-    public User(Integer id, String account, String password, Date createTime, Integer type) {
-        this.id = id;
-        this.account = account;
-        this.password = password;
-        this.createTime = createTime;
-        this.type = type;
+    public User() {
     }
 
     @Override
@@ -27,11 +23,8 @@ public class User {
                 ", password='" + password + '\'' +
                 ", createTime=" + createTime +
                 ", type=" + type +
+                ", count=" + count +
                 '}';
-    }
-
-    public User() {
-
     }
 
     public Integer getId() {
@@ -72,5 +65,22 @@ public class User {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
+
+    public User(Integer id, String account, String password, Date createTime, Integer type, Integer count) {
+        this.id = id;
+        this.account = account;
+        this.password = password;
+        this.createTime = createTime;
+        this.type = type;
+        this.count = count;
     }
 }

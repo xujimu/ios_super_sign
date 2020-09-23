@@ -79,12 +79,21 @@ public interface AppleIisDao {
     List<AppleIis> queryAccount(String account);
 
     /**
-     * 查询可用证书
+     * 查询私有证书
      * @param account
      * @return
      */
     @Select("select * from apple_iis where count > 0 and account = #{account} and start = 1 and status = 1")
-    List<AppleIis> queryUsIis(String account);
+    List<AppleIis> queryPrivateIis(String account);
+
+    /**
+     * 查询公用证书
+     * @param account
+     * @return
+     */
+    @Select("select * from apple_iis where count > 0 and ispublic = 1 and start = 1 and status = 1")
+    List<AppleIis> queryPublicIis(String account);
+
 
     /**
      * 修改次数
@@ -93,5 +102,13 @@ public interface AppleIisDao {
      */
     @Update("update apple_iis set count = #{count} where iis = #{iis}")
     int updateCount(int count,String iis);
+
+    /**
+     * 减少次数
+     * @param
+     * @return
+     */
+    @Update("update apple_iis set count = count - 1 where iis = #{iis}")
+    int reduceCount(String iis);
 
 }

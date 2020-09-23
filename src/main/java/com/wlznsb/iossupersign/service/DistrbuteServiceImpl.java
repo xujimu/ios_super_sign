@@ -10,6 +10,7 @@ import com.qiniu.util.Auth;
 import com.wlznsb.iossupersign.dao.AppleIisDao;
 import com.wlznsb.iossupersign.dao.DistributeDao;
 import com.wlznsb.iossupersign.dao.PackStatusDao;
+import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.Distribute;
 import com.wlznsb.iossupersign.entity.PackStatus;
@@ -52,6 +53,9 @@ public class DistrbuteServiceImpl{
     @Autowired
     private PackStatusDao packStatusDao;
 
+    @Autowired
+    private UserDao userDao;
+
     @Transactional
     public Distribute uploadIpa(MultipartFile ipa, User user,String rootUrl) {
         Integer id = null;
@@ -71,7 +75,7 @@ public class DistrbuteServiceImpl{
                 //ipa路径
                 String ipaPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".ipa").getAbsolutePath();
                 //ipa解压路基
-                String ipaUnzipPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" + id + ".ipa").getAbsolutePath();
+                String ipaUnzipPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/Payload").getAbsolutePath();
                 //写出
                 System.out.println(ipaPath);
                 ipa.transferTo(new File(ipaPath));
@@ -141,8 +145,18 @@ public class DistrbuteServiceImpl{
             log.info("udid:" + udid);
             //查询这个应用对应的账号
             Distribute distribute = distributeDao.query(id);
-            //查询账号所有可用的证书
-            List<AppleIis> appleIislist = appleIisDao.queryUsIis(distribute.getAccount());
+            User user = userDao.queryAccount(distribute.getAccount());
+            List<AppleIis> appleIislist;
+            if(user.getCount() > 0){
+                 //如果共有池有就查询共有的
+                log.info("使用共有证书");
+                 appleIislist = appleIisDao.queryPublicIis(distribute.getAccount());
+                 userDao.reduceCount(user.getAccount());
+            }else {
+                log.info("使用私有证书");
+                //共有池没有就查询自己的证书
+                 appleIislist = appleIisDao.queryPrivateIis(distribute.getAccount());
+            }
             //判断循环结束是否成功添加了设备,如果为null说明没有可用的证书了
             int isSuccess = 1;
             //如果有证书
@@ -162,9 +176,9 @@ public class DistrbuteServiceImpl{
                         addUuid = appleApiUtil.queryDevice(udid);
                     }else {
                         if(!addUuid.equals("no")){
-                            appleIisDao.updateCount(appleIis1.getCount() - 1 , appleIis1.getIis());
+                            appleIisDao.reduceCount(appleIis1.getIis());
                         }else {
-                            packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, null,null , "失败udid不合法", null,null,null), uuid);
+                            packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, null,null , "失败udid不合法", null,null,null,null), uuid);
                             throw  new RuntimeException("udid不合法");
                         }
                     }
@@ -206,7 +220,7 @@ public class DistrbuteServiceImpl{
                             String plistName = new Date().getTime() + ".plist";
                             IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
                             String plistUrl = "itms-services://?action=download-manifest&url=" +  url + plistName;
-                            packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, nameIpa,plistUrl , "点击下载", null,null,null), uuid);
+                            packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, nameIpa,plistUrl , "点击下载", null,null,null,null), uuid);
                             //删除配置文件
                             log.info("删除配置文件");
                             appleApiUtil.deleProfiles(map.get("id"));
@@ -238,6 +252,12 @@ public class DistrbuteServiceImpl{
     }
 
 
+
+    @Transactional
+    public void updateCount(){
+
+
+    }
 
     public int dele(String account, int id) {
         try {

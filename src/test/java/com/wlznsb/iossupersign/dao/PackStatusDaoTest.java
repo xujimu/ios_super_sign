@@ -32,13 +32,13 @@ class PackStatusDaoTest {
     @Test
     void updateStatus() {
 
-       while (true){
-           PackStatus packStatus = packStatusDao.query("24027");
-           packStatus.setId(null);
-           packStatus.setUuid(ServerUtil.getUuid());
-           packStatus.setStatus("排队中");
-           packStatusDao.add(packStatus);
-       }
+        for (int i = 0; i < 1000; i++) {
+            PackStatus packStatus = packStatusDao.query("18");
+            packStatus.setId(null);
+            packStatus.setUuid(ServerUtil.getUuid());
+            packStatus.setStatus("排队中");
+            packStatusDao.add(packStatus);
+        }
        // packStatus.setStatus("分好了");
         //packStatusDao.update(packStatus,"123");
 

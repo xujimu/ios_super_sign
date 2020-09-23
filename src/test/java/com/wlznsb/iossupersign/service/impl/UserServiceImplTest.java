@@ -24,7 +24,7 @@ class UserServiceImplTest {
 
     void register() {
         System.out.println(userService);
-        User user = new User(null, "1231231", "119999", new Date(), 0);
+        User user = new User(null, "1231231", "119999", new Date(), 0,0);
         System.out.println(userService.register(user).getMessage());;
     }
 

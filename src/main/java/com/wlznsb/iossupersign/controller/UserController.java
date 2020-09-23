@@ -46,7 +46,7 @@ public class UserController {
     @RequestMapping(value = "/register",method = RequestMethod.POST)
     public Map<String,Object> register(@RequestParam @NotEmpty String account,@RequestParam @NotEmpty String password){
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = new User(null,account,password,new Date(),0);
+        User user = new User(null,account,password,new Date(),0,0);
         UserDto userDto = userService.register(user);
         user.setPassword(null);
         map.put("code", 0);

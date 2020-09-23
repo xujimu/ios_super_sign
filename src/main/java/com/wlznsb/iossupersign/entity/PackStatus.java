@@ -20,24 +20,46 @@ public class PackStatus {
     private Integer signOff;
     private Integer appId;
     private String url;
-
-    public Integer getAppId() {
-        return appId;
-    }
-
-    public void setAppId(Integer appId) {
-        this.appId = appId;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
+    private String ip;
 
     public PackStatus() {
+    }
+
+    public PackStatus(Integer id, String account, String pageName, String uuid, String udid, String iis, Date createTime, String ipa, String plist, String status, Integer signOff, Integer appId, String url, String ip) {
+        this.id = id;
+        this.account = account;
+        this.pageName = pageName;
+        this.uuid = uuid;
+        this.udid = udid;
+        this.iis = iis;
+        this.createTime = createTime;
+        this.ipa = ipa;
+        this.plist = plist;
+        this.status = status;
+        this.signOff = signOff;
+        this.appId = appId;
+        this.url = url;
+        this.ip = ip;
+    }
+
+    @Override
+    public String toString() {
+        return "PackStatus{" +
+                "id=" + id +
+                ", account='" + account + '\'' +
+                ", pageName='" + pageName + '\'' +
+                ", uuid='" + uuid + '\'' +
+                ", udid='" + udid + '\'' +
+                ", iis='" + iis + '\'' +
+                ", createTime=" + createTime +
+                ", ipa='" + ipa + '\'' +
+                ", plist='" + plist + '\'' +
+                ", status='" + status + '\'' +
+                ", signOff=" + signOff +
+                ", appId=" + appId +
+                ", url='" + url + '\'' +
+                ", ip='" + ip + '\'' +
+                '}';
     }
 
     public Integer getId() {
@@ -124,43 +146,31 @@ public class PackStatus {
         return signOff;
     }
 
-    @Override
-    public String toString() {
-        return "PackStatus{" +
-                "id=" + id +
-                ", account='" + account + '\'' +
-                ", pageName='" + pageName + '\'' +
-                ", uuid='" + uuid + '\'' +
-                ", udid='" + udid + '\'' +
-                ", iis='" + iis + '\'' +
-                ", createTime=" + createTime +
-                ", ipa='" + ipa + '\'' +
-                ", plist='" + plist + '\'' +
-                ", status='" + status + '\'' +
-                ", signOff=" + signOff +
-                ", appId=" + appId +
-                ", url='" + url + '\'' +
-                '}';
-    }
-
     public void setSignOff(Integer signOff) {
         this.signOff = signOff;
     }
 
+    public Integer getAppId() {
+        return appId;
+    }
 
-    public PackStatus(Integer id, String account, String pageName, String uuid, String udid, String iis, Date createTime, String ipa, String plist, String status, Integer signOff, Integer appId, String url) {
-        this.id = id;
-        this.account = account;
-        this.pageName = pageName;
-        this.uuid = uuid;
-        this.udid = udid;
-        this.iis = iis;
-        this.createTime = createTime;
-        this.ipa = ipa;
-        this.plist = plist;
-        this.status = status;
-        this.signOff = signOff;
+    public void setAppId(Integer appId) {
         this.appId = appId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

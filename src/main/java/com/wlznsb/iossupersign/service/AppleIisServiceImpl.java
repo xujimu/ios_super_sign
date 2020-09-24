@@ -27,13 +27,14 @@ public class AppleIisServiceImpl{
     private AppleIisDao appleIisDao;
 
 
+
+
     @Transactional
     public int add(String iis, String kid, MultipartFile p8, User user ) {
         //证书目录
         String certRoot = null;
         try {
             if(appleIisDao.query(user.getAccount(),iis) == null){
-
                 //p8路径
                 String p8Path = new File("/sign/temp/" + user.getAccount() + "/cert/" + iis + "/" + iis +  ".p8").getAbsolutePath();
                 log.info("p8路径:" + new File(p8Path).getAbsoluteFile());
@@ -62,8 +63,15 @@ public class AppleIisServiceImpl{
                     String certId = map.get("certId");
                     //查询剩余设备
                     int count = 100 - new ObjectMapper().readTree(appleApiUtil.queryDevices()).get("meta").get("paging").get("total").asInt();
-                    //写入数据库
-                    AppleIis appleIis = new AppleIis(null, user.getAccount(), iis, kid,certId,identifier,p8Path,p12,1, 1, 0, count,new Date());
+                    AppleIis appleIis;
+                    if(user.getType() == 1){
+                        //如果是管理则添加公用证书
+                         appleIis = new AppleIis(null, user.getAccount(), iis, kid,certId,identifier,p8Path,p12,1, 1, 1, count,new Date());
+                    }else {
+                        //如果不是管理则添加私有证书
+                         //appleIis = new AppleIis(null, user.getAccount(), iis, kid,certId,identifier,p8Path,p12,1, 1, 0, count,new Date());
+                        throw  new RuntimeException("目前只允许管理员上传证书");
+                    }
                     appleIisDao.add(appleIis);
                 }else {
                     //如果失败就删除证书目录

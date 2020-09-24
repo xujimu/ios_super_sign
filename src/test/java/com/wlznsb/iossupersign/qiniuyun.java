@@ -1,6 +1,9 @@
 package com.wlznsb.iossupersign;
 
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.PutObjectRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
@@ -46,6 +49,14 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class qiniuyun {
 
+    @Value("${aliyun.accessKey}")
+    private String aliyunAccessKey;
+    @Value("${aliyun.secretKey}")
+    private String aliyunSecretKey;
+    @Value("${aliyun.bucket}")
+    private String aliyunBucket;
+    @Value("${aliyun.url}")
+    private String aliyunUrl;
 
     public static void main(String[] args) {
 
@@ -100,10 +111,15 @@ public class qiniuyun {
     @Test
     public  void  test1() throws InterruptedException {
 
-        AppleApiUtil appleApiUtil = new AppleApiUtil("da1a8314-e03a-4a39-afb3-d788e24dcc24","8R4XT9AFKL",new File("C:\\Users\\xujimu\\Desktop\\da1a8314-e03a-4a39-afb3-d788e24dcc24.p8").getAbsolutePath());
-        appleApiUtil.init();
-
-
+        Long time = System.currentTimeMillis();
+        String endpoint = aliyunUrl;
+        String accessKeyId = aliyunAccessKey;
+        String accessKeySecret = aliyunSecretKey;
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucket, "123.ipa", new File("C:\\Users\\xujimu\\Desktop\\123.ipa"));
+        ossClient.putObject(putObjectRequest);
+        ossClient.shutdown();
+        log.info("阿里云上传时间:" + (System.currentTimeMillis() - time)/1000 + "秒");
     }
 
     @Test

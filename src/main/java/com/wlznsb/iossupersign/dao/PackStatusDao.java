@@ -55,7 +55,7 @@ public interface PackStatusDao {
     /**
      * 查询用户自己的下载记录
      */
-    @Select("select * from pack_status where account = #{account}")
+    @Select("select * from pack_status where account = #{account} order by id desc")
     List<PackStatus> queryDown(String account);
 
 

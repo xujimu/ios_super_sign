@@ -1,5 +1,8 @@
 package com.wlznsb.iossupersign.service;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.PutObjectRequest;
 import com.google.gson.Gson;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
@@ -36,14 +39,24 @@ public class DistrbuteServiceImpl{
 
 
     @Value("${qiniuyun.accessKey}")
-    private String accessKey;
+    private String qiniuyunAccessKey;
     @Value("${qiniuyun.secretKey}")
-    private String secretKey;
+    private String qiniuyunSecretKey;
     @Value("${qiniuyun.bucket}")
-    private String bucket;
+    private String qiniuyunBucket;
     @Value("${qiniuyun.url}")
-    private String url;
+    private String qiniuyunUrl;
 
+    @Value("${aliyun.accessKey}")
+    private String aliyunAccessKey;
+    @Value("${aliyun.secretKey}")
+    private String aliyunSecretKey;
+    @Value("${aliyun.bucket}")
+    private String aliyunBucket;
+    @Value("${aliyun.url}")
+    private String aliyunUrl;
+    @Value("${aliyun.downUrl}")
+    private String aliyunDownUrl;
 
 
     @Autowired
@@ -203,13 +216,16 @@ public class DistrbuteServiceImpl{
                             String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
                             packStatusDao.updateStatus("准备下载", uuid);
                             //是否使用七牛云
-                            if(this.accessKey.equals("")){
+                            if(!this.qiniuyunAccessKey.equals("")){
+                                log.info("使用七牛云");
+                                plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp));
+                            }else if(!this.aliyunAccessKey.equals("")){
+                                log.info("使用阿里云");
+                                plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp));
+                            }else {
                                 log.info("不使用七牛云");
                                 plist = plist.replace("urlRep", url  + nameIpa);
                                 log.info("ipa路径:" + url  + nameIpa);
-                            }else {
-                                log.info("使用七牛云");
-                                plist = plist.replace("urlRep", this.url + uploadQly(temp));
                             }
                             //bundle要随机不然有时候没进度条
                             plist = plist.replace("bundleRep", ServerUtil.getUuid());
@@ -252,13 +268,6 @@ public class DistrbuteServiceImpl{
     }
 
 
-
-    @Transactional
-    public void updateCount(){
-
-
-    }
-
     public int dele(String account, int id) {
         try {
             Distribute distribute = distributeDao.query(id);
@@ -289,7 +298,6 @@ public class DistrbuteServiceImpl{
         }
     }
 
-
     /**
      * 上传七牛云
      * @return
@@ -300,8 +308,8 @@ public class DistrbuteServiceImpl{
         cfg.useHttpsDomains = false;
         UploadManager uploadManager = new UploadManager(cfg);
         String key = new Date().getTime() + ".ipa";
-        Auth auth = Auth.create(accessKey, secretKey);
-        String upToken = auth.uploadToken(bucket);
+        Auth auth = Auth.create(qiniuyunAccessKey, qiniuyunSecretKey);
+        String upToken = auth.uploadToken(qiniuyunBucket);
         try {
             Response response = uploadManager.put(localFilePath, key, upToken);
             //解析上传成功的结果
@@ -310,6 +318,30 @@ public class DistrbuteServiceImpl{
             return putRet.key;
         } catch (Exception ex) {
             log.info("上传失败" + ex.toString());
+            return null;
+        }
+    }
+
+    /**
+     * 阿里云上传
+     * @param localFilePath
+     * @return
+     */
+    public String uploadAly(String localFilePath){
+        Long time = System.currentTimeMillis();
+        try {
+            String name = System.currentTimeMillis() + ".ipa";
+            String endpoint = aliyunUrl;
+            String accessKeyId = aliyunAccessKey;
+            String accessKeySecret = aliyunSecretKey;
+            OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+            PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucket,name, new File(localFilePath));
+            ossClient.putObject(putObjectRequest);
+            ossClient.shutdown();
+            log.info("阿里云上传时间:" + (System.currentTimeMillis() - time)/1000 + "秒");
+            return name;
+        }catch (Exception e){
+            log.info("阿里云上传失败:" + e.toString());
             return null;
         }
     }

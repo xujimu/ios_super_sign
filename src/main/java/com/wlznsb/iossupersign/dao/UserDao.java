@@ -36,14 +36,20 @@ public interface UserDao {
     int updatePassword(String account,String password);
 
     /**
-     * 减少次数
+     * 减少一次
      * @param account
      * @return
      */
     @Update("update user set count = count - 1 where account = #{account}")
     int reduceCount(String account);
 
-
+    /**
+     * 减少次数
+     * @param account
+     * @return
+     */
+    @Update("update user set count = count + #{count} where account = #{account}")
+    int addCount(String account,Integer count);
 
     /**
      * 修改用户类型

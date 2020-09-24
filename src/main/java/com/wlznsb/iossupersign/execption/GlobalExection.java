@@ -15,7 +15,7 @@ public class GlobalExection {
     public Map<String,Object> Exection(Exception e){
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("code", 3);
-        map.put("message", e.toString());
+        map.put("message","操作失败,请联系管理员");
         return map;
     }
 

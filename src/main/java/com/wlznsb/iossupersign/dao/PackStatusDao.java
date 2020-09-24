@@ -52,5 +52,12 @@ public interface PackStatusDao {
             ",iis = #{packStatus.iis},ipa = #{packStatus.ipa},plist = #{packStatus.plist},status = #{packStatus.status} where uuid = #{uuid}")
     int update(@Param("packStatus") PackStatus packStatus,@Param("uuid") String uuid);
 
+    /**
+     * 查询用户自己的下载记录
+     */
+    @Select("select * from pack_status where account = #{account}")
+    List<PackStatus> queryDown(String account);
+
+
 }
 

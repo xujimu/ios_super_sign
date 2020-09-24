@@ -1,5 +1,7 @@
 package com.wlznsb.iossupersign.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.User;
@@ -63,14 +65,16 @@ public class AppleIisController {
 
 
     @RequestMapping(value = "/queryAccount",method = RequestMethod.GET)
-    public Map<String,Object> queryAccount(HttpServletRequest request){
+    public Map<String,Object> queryAccount(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
-        System.out.println(user.getAccount() + "111111111");
-        List<AppleIis> appleIisList = appleIisService.queryAccount(user.getAccount());
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page =  (Page) appleIisService.queryAccount(user.getAccount());
         map.put("code", 0);
         map.put("message", "查询成功");
-        map.put("data", appleIisList);
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
         return map;
     }
 

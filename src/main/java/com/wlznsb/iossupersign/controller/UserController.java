@@ -1,6 +1,9 @@
 package com.wlznsb.iossupersign.controller;
 
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.wlznsb.iossupersign.dao.PackStatusDao;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
@@ -27,6 +30,9 @@ public class UserController {
 
     @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
+    private PackStatusDao packStatusDao;
 
     //登录
     @RequestMapping(value = "/login",method = RequestMethod.POST)
@@ -64,6 +70,7 @@ public class UserController {
         map.put("message", "退出成功");
         return map;
     }
+
     //修改密码
     @RequestMapping(value = "/updatePassword",method = RequestMethod.POST)
     public Map<String,Object> updatePassword(@RequestParam @NotEmpty String password,@RequestParam @NotEmpty String newPassword,HttpServletRequest request){
@@ -73,6 +80,21 @@ public class UserController {
         request.getSession().removeAttribute("user");
         map.put("code", 0);
         map.put("message", "修改成功");
+        return map;
+    }
+
+    //查询下载记录
+    @RequestMapping(value = "/queryDown",method = RequestMethod.GET)
+    public Map<String,Object> queryDown(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page =  (Page) packStatusDao.queryDown(user.getAccount());
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
         return map;
     }
 

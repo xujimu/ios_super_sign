@@ -1,5 +1,7 @@
 package com.wlznsb.iossupersign.dao;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.entity.PackStatus;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,8 @@ class PackStatusDaoTest {
 
     @Test
     void query() {
-
+        PageHelper.startPage(1,10);
+        Page<PackStatus> page =  (Page) packStatusDao.queryPage("点击下载");
     }
 
     @Test

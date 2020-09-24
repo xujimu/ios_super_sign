@@ -3,6 +3,8 @@ package com.wlznsb.iossupersign.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.dao.DistributeDao;
 import com.wlznsb.iossupersign.dao.PackStatusDao;
 import com.wlznsb.iossupersign.dao.UserDao;
@@ -254,13 +256,16 @@ public class DistributeController {
     //查询ipa
     @RequestMapping(value = "/queryAccountAll",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> queryAccountAll(HttpServletRequest request) throws IOException {
+    public Map<String,Object> queryAccountAll(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
-        List<Distribute> distributeList =  distrbuteService.queryAccountAll(user.getAccount());
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page =  (Page) distrbuteService.queryAccountAll(user.getAccount());
         map.put("code", 0);
         map.put("message", "查询成功");
-        map.put("data", distributeList);
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
         return map;
     }
 

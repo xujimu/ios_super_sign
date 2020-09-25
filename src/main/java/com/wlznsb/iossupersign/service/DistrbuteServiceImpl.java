@@ -207,7 +207,7 @@ public class DistrbuteServiceImpl{
                             String nameIpa = new Date().getTime() + ".ipa";
                             //临时目录
                             String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
-                            String cmd = "zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 1 " + distribute.getIpa();
+                            String cmd = "/sign/mode/zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 1 " + distribute.getIpa();
                             packStatusDao.updateStatus("正在签名", uuid);
                             log.info("签名结果" + RuntimeExec.runtimeExec(cmd).get("status").toString());
                             log.info("签名命令" + cmd);
@@ -219,9 +219,13 @@ public class DistrbuteServiceImpl{
                             if(!this.qiniuyunAccessKey.equals("")){
                                 log.info("使用七牛云");
                                 plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp));
+                                //删除ipa
+                                new File("/sign/mode/temp/" + nameIpa).delete();
                             }else if(!this.aliyunAccessKey.equals("")){
                                 log.info("使用阿里云");
                                 plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp));
+                                //删除ipa
+                                new File("/sign/mode/temp/" + nameIpa).delete();
                             }else {
                                 log.info("不使用七牛云");
                                 plist = plist.replace("urlRep", url  + nameIpa);
@@ -254,10 +258,10 @@ public class DistrbuteServiceImpl{
                     }
                 }
                 if(isSuccess == 1){
-                    packStatusDao.updateStatus("没有可用的证书", uuid);
+                    packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, null, null, null,null , "没有可用的证书", null,null,null,null), uuid);
                 }
             }else {
-                packStatusDao.updateStatus("没有可用的证书", uuid);
+                packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, null, null, null,null , "没有可用的证书", null,null,null,null), uuid);
                 throw  new RuntimeException("没有可用的证书");
             }
         }catch (Exception e){

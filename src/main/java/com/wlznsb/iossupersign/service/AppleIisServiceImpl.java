@@ -69,8 +69,7 @@ public class AppleIisServiceImpl{
                          appleIis = new AppleIis(null, user.getAccount(), iis, kid,certId,identifier,p8Path,p12,1, 1, 1, count,new Date());
                     }else {
                         //如果不是管理则添加私有证书
-                         //appleIis = new AppleIis(null, user.getAccount(), iis, kid,certId,identifier,p8Path,p12,1, 1, 0, count,new Date());
-                        throw  new RuntimeException("目前只允许管理员上传证书");
+                         appleIis = new AppleIis(null, user.getAccount(), iis, kid,certId,identifier,p8Path,p12,1, 1, 0, count,new Date());
                     }
                     appleIisDao.add(appleIis);
                 }else {

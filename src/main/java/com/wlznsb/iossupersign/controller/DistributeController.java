@@ -141,7 +141,7 @@ public class DistributeController {
             String content = sb.toString().substring(sb.toString().indexOf("<?xml"), sb.toString().indexOf("</plist>")+8);
             String json =  org.json.XML.toJSONObject(content).toString();
             log.info(json + "plist");
-            String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").get(3).asText();
+            String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").asText();
             if(null != udid && !udid.equals("")){
                 //创建状态
                 PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,new Date(), null, null, "排队中", 1,id,tempContextUrl, IpUtils.getIpAddr(request));

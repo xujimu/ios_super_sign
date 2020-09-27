@@ -73,10 +73,9 @@ public class AppleApi {
 
 //
 
-        AppleApiUtil appleApiUtil = new AppleApiUtil("da1a8314-e03a-4a39-afb3-d788e24dcc24", "VPPLKLAS6Q", "C:\\Users\\xujimu\\Desktop\\AuthKey_VPPLKLAS6Q.p8");
+        AppleApiUtil appleApiUtil = new AppleApiUtil("70e2fe2f-cb06-49a2-9696-753ca9ca7a50", "A7G55942HJ", "C:\\Users\\xujimu\\Desktop\\70e2fe2f-cb06-49a2-9696-753ca9ca7a50.p8");
         appleApiUtil.init();
 
-        System.out.println(appleApiUtil.addUuid("123"));
 //        String abc = appleApiUtil.queryProfiles();
 //        int count =  new ObjectMapper().readTree(abc).get("meta").get("paging").get("total").asInt();
 //        for (int i = 0; i < count; i++) {
@@ -109,7 +108,9 @@ public class AppleApi {
     @Test
     public void  test6() throws IOException {
 
-
+         String a= Base64.getEncoder().encodeToString(String.valueOf(1).getBytes());
+         int c =Integer.valueOf(new String(Base64.getDecoder().decode(a.getBytes())));
+        System.out.println(c);
 
     }
 

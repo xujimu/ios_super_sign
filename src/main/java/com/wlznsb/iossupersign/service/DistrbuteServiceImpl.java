@@ -29,9 +29,7 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -87,7 +85,7 @@ public class DistrbuteServiceImpl{
                 String iconPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".png").getAbsolutePath();
                 //ipa路径
                 String ipaPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".ipa").getAbsolutePath();
-                //ipa解压路基
+                //ipa解压路径
                 String ipaUnzipPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/Payload").getAbsolutePath();
                 //写出
                 System.out.println(ipaPath);
@@ -102,8 +100,7 @@ public class DistrbuteServiceImpl{
                 log.info("解压命令" + cmd);
                 log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
                 String name = mapIpa.get("displayName").toString();
-                String url = rootUrl + "distribute/down/" + id;
-
+                String url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
                         toString(),mapIpa.get("versionName").toString(),iconPath,ipaUnzipPath,null,url,new Date(),"极速下载",null);
                 distributeDao.add(distribute);
@@ -200,9 +197,9 @@ public class DistrbuteServiceImpl{
                     if(addUuid != null){
                         packStatusDao.updateStatus("注册配置文件", uuid);
                         Map<String,String> map = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, ServerUtil.getUuid(),new File("/sign/mode/temp").getAbsolutePath());
-                        String filePro = map.get("filePath");
                         //如果pro文件创建成功
-                        if(filePro != null){
+                        if(map != null){
+                            String filePro = map.get("filePath");
                             //包名
                             String nameIpa = new Date().getTime() + ".ipa";
                             //临时目录
@@ -250,7 +247,7 @@ public class DistrbuteServiceImpl{
                             return plistName;
                         }else {
                             log.info("创建配置文件失败");
-                            //appleIisDao.updateStatus(0, appleApiUtil.getIis());
+                            appleIisDao.updateStatus(0, appleApiUtil.getIis());
                         }
                     }else {
                         log.info("添加指定设备失败,证书失效");

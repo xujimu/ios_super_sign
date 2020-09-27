@@ -55,10 +55,11 @@ public class DistributeController {
     private PackStatusDao packStatusDao;
 
     //下载页面,没有使用业务层
-    @RequestMapping(value = "/down/{id}",method = RequestMethod.GET)
-    public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable Integer id) throws JsonProcessingException, UnsupportedEncodingException {
+    @RequestMapping(value = "/down/{base64Id}",method = RequestMethod.GET)
+    public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
         String rootUrl = ServerUtil.getRootUrl(request);
+        Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(base64Id.getBytes())));
         log.info("当前id" + id);
         Distribute distribute = distributeDao.query(id);
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
@@ -161,16 +162,17 @@ public class DistributeController {
      * @param model
      * @param request
      * @param response
-     * @param id
+     * @param base64Id
      * @param
      * @return
      * @throws JsonProcessingException
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping(value = "/downStatus/{id}/{statusId}",method = RequestMethod.GET)
-    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String id, @PathVariable String statusId) throws JsonProcessingException, UnsupportedEncodingException {
+    @RequestMapping(value = "/downStatus/{base64Id}/{statusId}",method = RequestMethod.GET)
+    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id, @PathVariable String statusId) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
         String rootUrl = ServerUtil.getRootUrl(request);
+        Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(base64Id.getBytes())));
         Distribute distribute = distributeDao.query(Integer.valueOf(id));
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
         distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");

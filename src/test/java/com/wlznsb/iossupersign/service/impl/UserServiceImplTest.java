@@ -57,4 +57,8 @@ class UserServiceImplTest {
         AppleApiUtil appleApiUtil = new AppleApiUtil("da1a8314-e03a-4a39-afb3-d788e24dcc24","8R4XT9AFKL","C:\\Users\\xujimu\\Desktop\\da1a8314-e03a-4a39-afb3-d788e24dcc24.p8");
         System.out.println(appleApiUtil.init());
     }
+    void abaaa(){
+
+
+    }
 }

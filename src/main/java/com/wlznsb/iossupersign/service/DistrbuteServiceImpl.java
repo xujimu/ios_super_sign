@@ -97,12 +97,12 @@ public class DistrbuteServiceImpl{
                     throw new RuntimeException("无法读取包信息");
                 }
                 String cmd = "unzip -oq " + ipaPath + " -d " + "/sign/temp/" + user.getAccount() + "/distribute/" + id + "/";
-                log.info("解压命令" + cmd);
-                log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
+                //log.info("解压命令" + cmd);
+               // log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
                 String name = mapIpa.get("displayName").toString();
                 String url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaUnzipPath,null,url,new Date(),"极速下载",null);
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null);
                 distributeDao.add(distribute);
                 return distribute;
             }else {

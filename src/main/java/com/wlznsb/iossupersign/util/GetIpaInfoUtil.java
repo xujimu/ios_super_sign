@@ -17,7 +17,7 @@ import java.util.zip.ZipInputStream;
 public class GetIpaInfoUtil {
 
     public static void main(String[] args) {
-        String ipaUrl = "C:\\Users\\xujimu\\Desktop\\123.ipa";
+        String ipaUrl = "C:\\Users\\xujimu\\Desktop\\ccc.ipa";
         String imgPath = "C:\\Users\\xujimu\\Desktop\\aaa.png";
         Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA(ipaUrl,imgPath);
         System.out.println(mapIpa.get("package"));

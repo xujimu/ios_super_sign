@@ -99,41 +99,41 @@ public class AppleApiUtil {
      * @throws JsonProcessingException
      */
     public void deleCertAll() {
-       try {
-           //查询所有证书
-           ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates",
-                   HttpMethod.GET,this.httpEntity, String.class);
-           //序列化返回
-           JsonNode json = new ObjectMapper().readTree(exchange.getBody()).get("data");
-           //删除所有证书
-           for (JsonNode obj:json){
-               restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates/"+ obj.get("id").asText(),
-                       HttpMethod.DELETE,this.httpEntity, String.class);
-           }
-           //查询所有配置文件
+        try {
+            //查询所有证书
+            ResponseEntity<String> exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates",
+                    HttpMethod.GET,this.httpEntity, String.class);
+            //序列化返回
+            JsonNode json = new ObjectMapper().readTree(exchange.getBody()).get("data");
+            //删除所有证书
+            for (JsonNode obj:json){
+                restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/certificates/"+ obj.get("id").asText(),
+                        HttpMethod.DELETE,this.httpEntity, String.class);
+            }
+            //查询所有配置文件
             exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles",
-                   HttpMethod.GET,this.httpEntity, String.class);
-           //序列化返回
+                    HttpMethod.GET,this.httpEntity, String.class);
+            //序列化返回
             json = new ObjectMapper().readTree(exchange.getBody()).get("data");
 
-           //删除所有配置文件
-           for (JsonNode obj:json){
-               restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles/"+ obj.get("id").asText(),
-                       HttpMethod.DELETE,this.httpEntity, String.class);
-           }
+            //删除所有配置文件
+            for (JsonNode obj:json){
+                restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/profiles/"+ obj.get("id").asText(),
+                        HttpMethod.DELETE,this.httpEntity, String.class);
+            }
 
-           //查询所有包名
-           exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/bundleIds",
-                   HttpMethod.GET,this.httpEntity, String.class);
-           json = new ObjectMapper().readTree(exchange.getBody()).get("data");
-           //删除所有包名
-           for (JsonNode obj:json){
-               restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/bundleIds/"+ obj.get("id").asText(),
-                       HttpMethod.DELETE,this.httpEntity, String.class);
-           }
-       }catch (Exception e){
-           log.info("删除证书错误" + e.getMessage());
-       }
+            //查询所有包名
+            exchange = restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/bundleIds",
+                    HttpMethod.GET,this.httpEntity, String.class);
+            json = new ObjectMapper().readTree(exchange.getBody()).get("data");
+            //删除所有包名
+            for (JsonNode obj:json){
+                restTemplate.exchange("https://api.appstoreconnect.apple.com/v1/bundleIds/"+ obj.get("id").asText(),
+                        HttpMethod.DELETE,this.httpEntity, String.class);
+            }
+        }catch (Exception e){
+            log.info("删除证书错误" + e.getMessage());
+        }
     }
 
     /**
@@ -168,7 +168,7 @@ public class AppleApiUtil {
         //拿p12
         RuntimeExec.runtimeExec("openssl pkcs12 -export -inkey " +  keyPath + " -in " + pemPath + " -out " + p12Path + " -passout pass:" + password);
         //删除多余文件
-       // IoHandler.deleFile(cerPath);
+        // IoHandler.deleFile(cerPath);
         //IoHandler.deleFile(pemPath);
         Map<String,String> map = new HashMap<String, String>();
         map.put("p12", p12Path);
@@ -201,11 +201,11 @@ public class AppleApiUtil {
             return  new ObjectMapper().readTree(exchange.getBody()).get("data").get("id").asText();
         }catch (Exception e){
             System.out.println(e.toString());
-           if(e.toString().indexOf("ENTITY_ERROR.ATTRIBUTE.INVALID") != -1){
-               return "no";
-           }else {
-               return null;
-           }
+            if(e.toString().indexOf("ENTITY_ERROR.ATTRIBUTE.INVALID") != -1){
+                return "no";
+            }else {
+                return null;
+            }
 
         }
     }
@@ -326,6 +326,38 @@ public class AppleApiUtil {
             ResponseEntity<String> exchange =
                     restTemplate.postForEntity("https://api.appstoreconnect.apple.com/v1/bundleIds",formEntity,String.class);
             log.info("创建包名Bundle 耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
+            String bulidd = new ObjectMapper().readTree(exchange.getBody()).get("data").get("id").asText();
+            if(null != addBulidFun(bulidd)){
+                return bulidd;
+            }else {
+                return null;
+            }
+            //return new ObjectMapper().readTree(exchange.getBody()).asText();
+        }catch (Exception e){
+            System.out.println(e.toString());
+            return null;
+        }
+    }
+
+
+    /**
+     * 新增bulidid功能
+     * @return
+     */
+    public String addBulidFun(String bulidd){
+        Long time = System.currentTimeMillis();
+        String json = "{\"data\":{\"attributes\":{\"capabilityType\":\"PUSH_NOTIFICATIONS\",\"settings\":[]},\"relationships\":{\"bundleId\":{\"data\":{\"id\":\"idRep\",\"type\":\"bundleIds\"}}},\"type\":\"bundleIdCapabilities\"}}";
+        json = json.replace("idRep",bulidd);
+        HttpHeaders headers = new HttpHeaders();
+        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+        headers.setContentType(type);
+        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+        headers.add("Authorization", "Bearer " + token);
+        try {
+            HttpEntity<String> formEntity = new HttpEntity<String>(json, headers);
+            ResponseEntity<String> exchange =
+                    restTemplate.postForEntity("https://api.appstoreconnect.apple.com/v1/bundleIdCapabilities",formEntity,String.class);
+            log.info("创建包名Bundle功能 耗费:" + (System.currentTimeMillis() - time)/1000 + "秒");
             return  new ObjectMapper().readTree(exchange.getBody()).get("data").get("id").asText();
             //return new ObjectMapper().readTree(exchange.getBody()).asText();
         }catch (Exception e){
@@ -333,6 +365,7 @@ public class AppleApiUtil {
             return null;
         }
     }
+
 
     /**
      * 查询所有Profiles返回查询结果

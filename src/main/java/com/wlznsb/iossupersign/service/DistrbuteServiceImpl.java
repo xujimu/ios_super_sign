@@ -128,7 +128,20 @@ public class DistrbuteServiceImpl{
             if(apk.getSize() != 0){
                 String aokPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" + id + ".apk").getAbsolutePath();
                 apk.transferTo(new File(aokPath));
-
+                //是否使用七牛云
+                if(!this.qiniuyunAccessKey.equals("")){
+                    log.info("使用七牛云");
+                    aokPath = this.qiniuyunUrl + uploadQly(aokPath);
+                    //删除ipa
+                    new File(aokPath).delete();
+                }else if(!this.aliyunAccessKey.equals("")){
+                    log.info("使用阿里云");
+                    aokPath =  this.aliyunDownUrl + uploadAly(aokPath);
+                    //删除ipa
+                    new File(aokPath).delete();
+                }else {
+                    log.info("不使用七牛云");
+                };
                 distributeDao.uploadApk(aokPath, id);
             }else {
                 throw new RuntimeException("请不要上传空包");

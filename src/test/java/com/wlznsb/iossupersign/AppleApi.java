@@ -2,6 +2,7 @@ package com.wlznsb.iossupersign;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
 import com.wlznsb.iossupersign.util.IoHandler;
@@ -72,9 +73,32 @@ public class AppleApi {
    public void test2() throws IOException {
 
 //
-
-        AppleApiUtil appleApiUtil = new AppleApiUtil("70e2fe2f-cb06-49a2-9696-753ca9ca7a50", "A7G55942HJ", "C:\\Users\\xujimu\\Desktop\\70e2fe2f-cb06-49a2-9696-753ca9ca7a50.p8");
-        appleApiUtil.init();
+//            //p8路径
+            String p8Path = new File("C:\\Users\\xujimu\\Desktop\\a5bfcfba-0592-4103-8bf4-26155249e76f.p8").getAbsolutePath();
+//            log.info("p8路径:" + new File(p8Path).getAbsoluteFile());
+//            //key路径
+//            String keyPath = new File("C:\\Users\\xujimu\\Desktop\\123\\my.key").getAbsolutePath();
+//            log.info("key路径:" + keyPath);
+//            //创建证书目录
+//            String certRoot = new File("C:\\Users\\xujimu\\Desktop\\123").getAbsolutePath();
+//            new File(certRoot).mkdirs();
+            //写入p8这里的new file必须是绝对路径抽象路径无效
+            //创建苹果api工具类
+            AppleApiUtil appleApiUtil = new AppleApiUtil("a5bfcfba-0592-4103-8bf4-26155249e76f", "2H85Q3Q5YW", p8Path);
+            appleApiUtil.init();
+//            //获取证书工作目录
+//            String directoryPath = new File("C:\\Users\\xujimu\\Desktop\\123").getAbsolutePath();
+//            log.info("证书工作目录:" + directoryPath);
+//
+//            //删除所有证书
+//           // appleApiUtil.deleCertAll();
+//            //生成p12
+//            Map<String,String> map=  appleApiUtil.createCert(directoryPath,keyPath,"123456");
+//            //随机bunild id
+//            String buildId = ServerUtil.getUuid();
+//           // String identifier = appleApiUtil.addIdentifiers(buildId,buildId);
+//            String p12 = map.get("p12");
+//            String certId = map.get("certId");
 
 //        String abc = appleApiUtil.queryProfiles();
 //        int count =  new ObjectMapper().readTree(abc).get("meta").get("paging").get("total").asInt();

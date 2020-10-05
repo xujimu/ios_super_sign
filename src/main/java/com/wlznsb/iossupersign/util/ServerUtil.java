@@ -1,6 +1,9 @@
 package com.wlznsb.iossupersign.util;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.UUID;
 
 public class ServerUtil {
@@ -16,6 +19,7 @@ public class ServerUtil {
         String tempContextUrl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append(request.getSession().getServletContext().getContextPath()).append("/").toString();
         return tempContextUrl;
     }
+
 
     /**
      * 获取uuid

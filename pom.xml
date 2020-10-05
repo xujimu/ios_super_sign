@@ -50,6 +50,7 @@
             <version>2.1.3</version>
         </dependency>
 
+
 <!--        springframework-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -159,6 +160,14 @@
             <artifactId>aliyun-sdk-oss</artifactId>
             <version>3.10.2</version>
         </dependency>
+
+        <!--      切换目录-->
+        <dependency>
+            <groupId>com.github.jnr</groupId>
+            <artifactId>jnr-posix</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>

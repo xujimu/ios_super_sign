@@ -18,7 +18,7 @@ public interface PackStatusIosApkDao {
      * 查询所有
      * @return
      */
-    @Select("select * from pack_status_ios_apk ORDER BY id DESC;")
+    @Select("select * from pack_status_ios_apk;")
     List<PackStatusIosApk> queryAll();
 
     /**

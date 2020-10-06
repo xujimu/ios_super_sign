@@ -72,7 +72,6 @@ public class DistrbuteServiceImpl{
         Integer id = null;
         try {
             if(ipa.getSize() != 0){
-
                 //获取下一次的主键id
                 id = distributeDao.getId();
                 if(id == null){
@@ -102,7 +101,7 @@ public class DistrbuteServiceImpl{
                 String name = mapIpa.get("displayName").toString();
                 String url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null);
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null);
                 distributeDao.add(distribute);
                 return distribute;
             }else {
@@ -282,22 +281,29 @@ public class DistrbuteServiceImpl{
     }
 
 
-    public int dele(String account, int id) {
+    public int dele(User user,Integer id) {
         try {
-            Distribute distribute = distributeDao.query(id);
-            if(distribute != null){
-                if(distributeDao.dele(account, id) == 0){
-                    File file = new File("/sign/temp/" + account + "/distribute/" + id).getAbsoluteFile();
-                    System.out.println(file.getAbsolutePath());
+            //如果是管理员就找到应用账号再删
+            if(user.getType() == 1){
+                Distribute distribute = distributeDao.query(id);
+                if(distribute != null){
+                    distributeDao.dele(distribute.getAccount(), id);
+                    File file = new File("/sign/temp/" + distribute.getAccount() + "/distribute/" + id).getAbsoluteFile();
                     FileSystemUtils.deleteRecursively(file);
-                    throw  new RuntimeException("删除失败");
+                }else {
+                    throw  new RuntimeException("应用不存在");
                 }
             }else {
-                throw  new RuntimeException("该应用不存在");
+                if(distributeDao.dele(user.getAccount(), id) == 1){
+                    File file = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id).getAbsoluteFile();
+                    System.out.println(file.getAbsolutePath());
+                    FileSystemUtils.deleteRecursively(file);
+                }else {
+                    throw  new RuntimeException("应用不存在");
+                }
             }
-
         }catch (Exception e){
-            throw  new RuntimeException("删除失败" + e.getMessage());
+            throw  new RuntimeException("删除失败," + e.getMessage());
         }
         return 0;
     }
@@ -306,6 +312,15 @@ public class DistrbuteServiceImpl{
     public List<Distribute> queryAccountAll(String account) {
         try {
             List<Distribute> distributeList = distributeDao.queryAccountAll(account);
+            return distributeList;
+        }catch (Exception e){
+            throw  new RuntimeException("查询失败" + e.getMessage());
+        }
+    }
+
+    public List<Distribute> queryAll() {
+        try {
+            List<Distribute> distributeList = distributeDao.querAll();
             return distributeList;
         }catch (Exception e){
             throw  new RuntimeException("查询失败" + e.getMessage());

@@ -21,6 +21,8 @@ public class Distribute {
     private Date createTime;
     private String introduce;
     private String images;
+    private Integer downCode;
+    private String buyDownCodeUrl;
 
     @Override
     public String toString() {
@@ -37,25 +39,9 @@ public class Distribute {
                 ", createTime=" + createTime +
                 ", introduce='" + introduce + '\'' +
                 ", images='" + images + '\'' +
+                ", downCode=" + downCode +
+                ", buyDownCodeUrl='" + buyDownCodeUrl + '\'' +
                 '}';
-    }
-
-    public Distribute() {
-    }
-
-    public Distribute(Integer id, String account, String appName, String pageName, String version, String icon, String ipa, String apk, String url, Date createTime, String introduce, String images) {
-        this.id = id;
-        this.account = account;
-        this.appName = appName;
-        this.pageName = pageName;
-        this.version = version;
-        this.icon = icon;
-        this.ipa = ipa;
-        this.apk = apk;
-        this.url = url;
-        this.createTime = createTime;
-        this.introduce = introduce;
-        this.images = images;
     }
 
     public Integer getId() {
@@ -152,5 +138,38 @@ public class Distribute {
 
     public void setImages(String images) {
         this.images = images;
+    }
+
+    public Integer getDownCode() {
+        return downCode;
+    }
+
+    public void setDownCode(Integer downCode) {
+        this.downCode = downCode;
+    }
+
+    public String getBuyDownCodeUrl() {
+        return buyDownCodeUrl;
+    }
+
+    public void setBuyDownCodeUrl(String buyDownCodeUrl) {
+        this.buyDownCodeUrl = buyDownCodeUrl;
+    }
+
+    public Distribute(Integer id, String account, String appName, String pageName, String version, String icon, String ipa, String apk, String url, Date createTime, String introduce, String images, Integer downCode, String buyDownCodeUrl) {
+        this.id = id;
+        this.account = account;
+        this.appName = appName;
+        this.pageName = pageName;
+        this.version = version;
+        this.icon = icon;
+        this.ipa = ipa;
+        this.apk = apk;
+        this.url = url;
+        this.createTime = createTime;
+        this.introduce = introduce;
+        this.images = images;
+        this.downCode = downCode;
+        this.buyDownCodeUrl = buyDownCodeUrl;
     }
 }

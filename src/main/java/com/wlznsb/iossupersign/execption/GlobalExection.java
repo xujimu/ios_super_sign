@@ -16,6 +16,7 @@ public class GlobalExection {
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("code", 3);
         map.put("message","操作失败,请联系管理员");
+        e.printStackTrace();
         return map;
     }
 
@@ -26,6 +27,7 @@ public class GlobalExection {
         map.put("code", 3);
         System.out.println(e.toString() + "1");
         map.put("message", e.getMessage());
+        e.printStackTrace();
         return map;
     }
 

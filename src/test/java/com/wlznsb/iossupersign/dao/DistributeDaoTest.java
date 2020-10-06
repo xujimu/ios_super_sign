@@ -25,7 +25,7 @@ class DistributeDaoTest {
 
     @Test
     void add() {
-       // Distribute distribute = new Distribute(null, "123", "123", "123", "111", "123", "123", new Date());
+        Distribute distribute = new Distribute(null, "123", "123", "123", "111", "123", "123", "","123",new Date(), "你好", "1", 0, "123");
       //  System.out.println(distributeDao.add(distribute));
         //System.out.println(distribute.getId());;
     }
@@ -48,6 +48,15 @@ class DistributeDaoTest {
         System.out.println(distributeDao.getId());
     }
 
+
+    @Test
+    void updateBuyDownCodeUrl(){
+        distributeDao.updateBuyDownCodeUrl("1212121",2,"https://wwqe");
+    }
+    @Test
+    void updateDownCode(){
+        distributeDao.updateDownCode("1212121", 2, 1);
+    }
 
 
 }

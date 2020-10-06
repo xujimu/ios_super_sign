@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.dao.DistributeDao;
+import com.wlznsb.iossupersign.dao.DownCodeDao;
 import com.wlznsb.iossupersign.dao.PackStatusDao;
 import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.Distribute;
+import com.wlznsb.iossupersign.entity.DownCode;
 import com.wlznsb.iossupersign.entity.PackStatus;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
@@ -18,6 +20,7 @@ import com.wlznsb.iossupersign.util.RuntimeExec;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,6 +57,9 @@ public class DistributeController {
     @Autowired
     private PackStatusDao packStatusDao;
 
+    @Autowired
+    private DownCodeDao downCodeDao;
+
     //下载页面,没有使用业务层
     @RequestMapping(value = "/down/{base64Id}",method = RequestMethod.GET)
     public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id) throws JsonProcessingException, UnsupportedEncodingException {
@@ -62,11 +68,16 @@ public class DistributeController {
         Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(base64Id.getBytes())));
         log.info("当前id" + id);
         Distribute distribute = distributeDao.query(id);
+        if(distribute.getApk() != null){
+            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
+        }else {
+            distribute.setApk("no");
+        }
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
-        distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
         distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
         model.addAttribute("distribute", distribute);
         model.addAttribute("pro", rootUrl + "app.mobileprovision");
+        model.addAttribute("downCode", distribute.getDownCode());
         //设置轮播图
         if(null == distribute.getImages()){
             model.addAttribute("img1", rootUrl + "/images/" + "slideshow.png");
@@ -85,7 +96,32 @@ public class DistributeController {
     //获取描述文件,没有使用业务层
     @GetMapping
     @RequestMapping("/getMobile")
-    public void getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name) throws IOException {
+    @ResponseBody
+    public Map<String,Object> getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name,String downCode) throws IOException {
+        Distribute distribute =  distributeDao.query(id);
+        Map<String,Object> map = new HashMap<String, Object>();
+        //如果该应用启用了下载码
+        if(distribute.getDownCode() == 1){
+            if(null != downCode && !"".equals(downCode)){
+                    DownCode downCode1 = downCodeDao.queryAccountDownCode(distribute.getAccount(),downCode);
+                    if(null != downCode1){
+                        if(downCode1.getStatus() == 1){
+                            downCodeDao.updateDownCodeStatus(distribute.getAccount(),downCode,new Date(), 0);
+                            map.put("code",0);
+                            map.put("message", "验证成功");
+                        }else {
+                            throw new RuntimeException("下载码已被使用");
+                        }
+                    }else {
+                        throw new RuntimeException("下载码错误");
+                    }
+            }else {
+                throw new RuntimeException("下载码不能为空");
+            }
+        }else {
+            map.put("code",0);
+            map.put("message", "验证成功");
+        }
         //临时存放,保证每次描述文件url都是动态的
         String uuid = ServerUtil.getUuid();
         //域名
@@ -111,7 +147,8 @@ public class DistributeController {
         tempUuid.put(uuid, id);
         log.info(uuid);
         log.info(tempContextUrl);
-        response.sendRedirect(tempContextUrl + round + ".mobileconfig");
+        map.put("data", tempContextUrl + round + ".mobileconfig");
+        return map;
     }
 
     //301回调
@@ -196,8 +233,6 @@ public class DistributeController {
         return "downStatus";
     }
 
-
-
     //查询打包状态,没有使用业务层
     @RequestMapping(value = "/getStatus")
     @ResponseBody
@@ -245,10 +280,7 @@ public class DistributeController {
     public Map<String,Object> deleIpa(@RequestParam  int id,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
-        distrbuteService.dele(user.getAccount(),id);
-        File file = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id).getAbsoluteFile();
-        System.out.println(file.getAbsolutePath());
-        FileSystemUtils.deleteRecursively(file);
+        distrbuteService.dele(user, id);
         map.put("code", 0);
         map.put("message", "删除成功");
         return map;
@@ -261,8 +293,15 @@ public class DistributeController {
     public Map<String,Object> queryAccountAll(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
-        PageHelper.startPage(pageNum,pageSize);
-        Page<User> page =  (Page) distrbuteService.queryAccountAll(user.getAccount());
+        Page<User> page;
+        //如果是管理员就查询所有
+        if(user.getType() == 0){
+            PageHelper.startPage(pageNum,pageSize);
+            page = (Page) distrbuteService.queryAccountAll(user.getAccount());
+        }else {
+            PageHelper.startPage(pageNum,pageSize);
+            page =  (Page) distrbuteService.queryAll();
+        }
         map.put("code", 0);
         map.put("message", "查询成功");
         map.put("data", page.getResult());
@@ -299,6 +338,72 @@ public class DistributeController {
         distributeDao.updateImages("已上传", user.getAccount(), id);
         map.put("code", 0);
         map.put("message", "上传成功");
+        return map;
+    }
+
+    //启用下载码
+    @RequestMapping(value = "/updateDownCodeStatus",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> updateDownCodeStatus(@RequestParam Integer id, @RequestParam  @Range(max = 1,min = 0)  Integer status, HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        distributeDao.updateDownCode(user.getAccount(), id, status);
+        map.put("code", 0);
+        map.put("message", "操作成功");
+        return map;
+    }
+
+
+    //修改下载码购买地址
+    @RequestMapping(value = "/updateBuyDownCodeUrl",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> updateBuyDownCodeUrl(@RequestParam Integer id,@NotEmpty @RequestParam String url, HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        distributeDao.updateBuyDownCodeUrl(user.getAccount(), id, url);
+        map.put("code", 0);
+        map.put("message", "操作成功");
+        return map;
+    }
+
+    //添加下载码
+    @RequestMapping(value = "/addDownCode",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> addDownCode(HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        DownCode downCode = new DownCode(null, user.getAccount(), ServerUtil.getUuid(), new Date(), null, 1);
+        downCodeDao.addDownCode(downCode);
+        map.put("code", 0);
+        map.put("message", "操作成功");
+        return map;
+    }
+
+    //查询所有下载码
+    @RequestMapping(value = "/queryAllDownCode",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,Object> queryAllDownCode(@RequestParam Integer pageNum,@RequestParam  Integer pageSize,HttpServletRequest request)  {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        PageHelper.startPage(pageNum,pageSize);
+        Page page = (Page) downCodeDao.queryAccountAllDownCode(user.getAccount());
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
+        return map;
+    }
+
+    //删除下载码
+    @RequestMapping(value = "/deleDownCode",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> deleDownCode(@RequestParam Integer id,HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+        downCodeDao.deleDownCode(user.getAccount(), id);
+        map.put("code", 0);
+        map.put("message", "操作成功");
         return map;
     }
 

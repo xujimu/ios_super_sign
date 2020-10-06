@@ -30,7 +30,9 @@ public class LoginConfig implements WebMvcConfigurer {
         //过滤所有未登录用户
         registry.addInterceptor(userLoginInterceptor).addPathPatterns("/user/updatePassword")
                 .addPathPatterns("/user/queryDown").addPathPatterns("/admin/**").addPathPatterns("/distribute/uploadIpa").addPathPatterns("/distribute/queryAccountAll")
-                .addPathPatterns("/distribute/deleIpa").addPathPatterns("/distribute/uploadImg").addPathPatterns("/distribute/updateIntroduce").
+                .addPathPatterns("/distribute/deleIpa").addPathPatterns("/distribute/updateDownCode").addPathPatterns("/distribute/updateBuyDownCodeUrl").addPathPatterns("/distribute/addDownCode").
+                addPathPatterns("/distribute/queryAllDownCode").addPathPatterns("/distribute/deleDownCode")
+                .addPathPatterns("/distribute/uploadImg").addPathPatterns("/distribute/updateIntroduce").
                 addPathPatterns("/iis/**").addPathPatterns("/distribute/uploadApk").addPathPatterns("/pack/**");
 
         //添加andmin拦截器

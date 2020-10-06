@@ -34,8 +34,8 @@ public interface PackStatusIosApkDao {
     /**
      * 查询一个人的打包信息
      */
-    @Select("select * from pack_status_ios_apk where account = #{account}  ORDER BY id DESC;")
-    List<PackStatusIosApk> queryUserAll(String statusAccount);
+    @Select("select * from pack_status_ios_apk where account = #{account}  order by id desc")
+    List<PackStatusIosApk> queryUserAll(String account);
 
     /**
      * 更新状态

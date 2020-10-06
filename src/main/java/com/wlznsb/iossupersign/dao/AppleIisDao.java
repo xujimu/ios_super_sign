@@ -94,6 +94,14 @@ public interface AppleIisDao {
     @Select("select * from apple_iis where count > 0 and ispublic = 1 and start = 1 and status = 1")
     List<AppleIis> queryPublicIis(String account);
 
+    /**
+     * 查询用户证书数量
+     * @param account
+     * @return
+     */
+    @Select("select count(id) from apple_iis where account = #{account}")
+    Integer queryIisCount(String account);
+
 
     /**
      * 修改次数

@@ -13,11 +13,18 @@ public interface DownCodeDao {
 
     /**
      * 添加下载码
-     * @param downCode
+     * @param
      * @return
      */
-    @Insert("insert into down_code values(#{downCode.id},#{downCode.account},#{downCode.downCode},#{downCode.createTime},#{downCode.useTime},#{downCode.status})")
-    int addDownCode(@Param("downCode") DownCode downCode);
+    @Insert({
+            "<script>",
+            "insert into down_code values ",
+            "<foreach collection='downCodeList' item='downCode' index='index' separator=','>",
+            "(#{downCode.id},#{downCode.account},#{downCode.downCode},#{downCode.createTime},#{downCode.useTime},#{downCode.status})",
+            "</foreach>",
+            "</script>"
+    })
+    int addDownCode(@Param("downCodeList") List<DownCode> downCodeList);
 
     /**
      * 设置下载码状态
@@ -46,4 +53,9 @@ public interface DownCodeDao {
     @Select("select * from down_code where account = #{account} and down_code = #{downCode}")
     DownCode queryAccountDownCode(String account,String downCode);
 
+    /**
+     * 用户查询所有下载码数量
+     */
+    @Select("select count(id) from  down_code  where account = #{account}")
+    Integer queryAccountCount(String account);
 }

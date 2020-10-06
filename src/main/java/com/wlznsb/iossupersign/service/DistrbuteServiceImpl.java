@@ -10,14 +10,8 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
-import com.wlznsb.iossupersign.dao.AppleIisDao;
-import com.wlznsb.iossupersign.dao.DistributeDao;
-import com.wlznsb.iossupersign.dao.PackStatusDao;
-import com.wlznsb.iossupersign.dao.UserDao;
-import com.wlznsb.iossupersign.entity.AppleIis;
-import com.wlznsb.iossupersign.entity.Distribute;
-import com.wlznsb.iossupersign.entity.PackStatus;
-import com.wlznsb.iossupersign.entity.User;
+import com.wlznsb.iossupersign.dao.*;
+import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +57,8 @@ public class DistrbuteServiceImpl{
     private AppleIisDao appleIisDao;
     @Autowired
     private PackStatusDao packStatusDao;
+    @Autowired
+    private DownCodeDao downCodeDao;
 
     @Autowired
     private UserDao userDao;
@@ -280,6 +276,19 @@ public class DistrbuteServiceImpl{
         return null;
     }
 
+    public void addDownCode(User user,Integer num){
+        Integer count = (userDao.queryAccount(user.getAccount()).getCount() + appleIisDao.queryIisCount(user.getAccount()) * 100) - downCodeDao.queryAccountCount(user.getAccount());
+        List<DownCode> downCodeList = new ArrayList<>();
+        if(count >= num){
+            for (int i = 0; i < num; i++) {
+                DownCode downCode = new DownCode(null, user.getAccount(), ServerUtil.getUuid(), new Date(), null, 1);
+                downCodeList.add(downCode);
+            }
+            downCodeDao.addDownCode(downCodeList);
+        }else {
+            throw  new RuntimeException("您最多还可以生成" + count + "个下载码");
+        }
+    }
 
     public int dele(User user,Integer id) {
         try {

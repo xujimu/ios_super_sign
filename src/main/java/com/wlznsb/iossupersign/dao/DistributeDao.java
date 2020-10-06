@@ -92,5 +92,8 @@ public interface DistributeDao {
     @Update("update distribute set down_code = #{downCode} where  account = #{account} and id = #{id}")
     int updateDownCode(@Param("account") String account,@Param("id") Integer id,@Param("downCode") Integer downCode);
 
+
+
+
 }
 

@@ -18,6 +18,7 @@ import com.wlznsb.iossupersign.util.IoHandler;
 import com.wlznsb.iossupersign.util.IpUtils;
 import com.wlznsb.iossupersign.util.RuntimeExec;
 import com.wlznsb.iossupersign.util.ServerUtil;
+import jnr.ffi.annotations.In;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.validator.constraints.Range;
@@ -369,11 +370,10 @@ public class DistributeController {
     //添加下载码
     @RequestMapping(value = "/addDownCode",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> addDownCode(HttpServletRequest request) throws IOException {
+    public Map<String,Object> addDownCode(HttpServletRequest request, @RequestParam @Range(max = 100000,min = 1) Integer num) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
-        DownCode downCode = new DownCode(null, user.getAccount(), ServerUtil.getUuid(), new Date(), null, 1);
-        downCodeDao.addDownCode(downCode);
+        distrbuteService.addDownCode(user,num);
         map.put("code", 0);
         map.put("message", "操作成功");
         return map;

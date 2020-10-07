@@ -126,12 +126,12 @@ public class DistrbuteServiceImpl{
                 //是否使用七牛云
                 if(!this.qiniuyunAccessKey.equals("")){
                     log.info("使用七牛云");
-                    aokPath = this.qiniuyunUrl + uploadQly(aokPath);
+                    aokPath = this.qiniuyunUrl + uploadQly(aokPath,"apk");
                     //删除ipa
                     new File(aokPath).delete();
                 }else if(!this.aliyunAccessKey.equals("")){
                     log.info("使用阿里云");
-                    aokPath =  this.aliyunDownUrl + uploadAly(aokPath);
+                    aokPath =  this.aliyunDownUrl + uploadAly(aokPath,"apk");
                     //删除ipa
                     new File(aokPath).delete();
                 }else {
@@ -223,12 +223,12 @@ public class DistrbuteServiceImpl{
                             //是否使用七牛云
                             if(!this.qiniuyunAccessKey.equals("")){
                                 log.info("使用七牛云");
-                                plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp));
+                                plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp,"ipa"));
                                 //删除ipa
                                 new File("/sign/mode/temp/" + nameIpa).delete();
                             }else if(!this.aliyunAccessKey.equals("")){
                                 log.info("使用阿里云");
-                                plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp));
+                                plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp,"ipa"));
                                 //删除ipa
                                 new File("/sign/mode/temp/" + nameIpa).delete();
                             }else {
@@ -340,12 +340,12 @@ public class DistrbuteServiceImpl{
      * 上传七牛云
      * @return
      */
-    public String uploadQly(String localFilePath){
+    public String uploadQly(String localFilePath,String suffix){
         Long time = System.currentTimeMillis();
         Configuration cfg = new Configuration(Region.region2());
         cfg.useHttpsDomains = false;
         UploadManager uploadManager = new UploadManager(cfg);
-        String key = new Date().getTime() + ".ipa";
+        String key = new Date().getTime() + "." + suffix;
         Auth auth = Auth.create(qiniuyunAccessKey, qiniuyunSecretKey);
         String upToken = auth.uploadToken(qiniuyunBucket);
         try {
@@ -365,10 +365,10 @@ public class DistrbuteServiceImpl{
      * @param localFilePath
      * @return
      */
-    public String uploadAly(String localFilePath){
+    public String uploadAly(String localFilePath,String  suffix){
         Long time = System.currentTimeMillis();
         try {
-            String name = System.currentTimeMillis() + ".ipa";
+            String name = System.currentTimeMillis() + "." + suffix;
             String endpoint = aliyunUrl;
             String accessKeyId = aliyunAccessKey;
             String accessKeySecret = aliyunSecretKey;

@@ -49,8 +49,11 @@ class UserDaoTest {
     }
 
 
+    @Test
     void addAccount() {
-        User user = new User(null, "1111", "119999", new Date(), 0,0);
-        System.out.println(userDao.addAccount(user));
+        Integer id = 0;
+        System.out.println(-id);
+//        User user = new User(null, "1111", "119999", new Date(), 0,0);
+//        System.out.println(userDao.addAccount(user));
     }
 }

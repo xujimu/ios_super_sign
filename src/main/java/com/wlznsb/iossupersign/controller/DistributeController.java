@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileSystemUtils;
@@ -49,6 +50,9 @@ public class DistributeController {
     @Autowired
     private DistrbuteServiceImpl distrbuteService;
 
+    @Value("${apkCount}")
+    private Integer apkCount;
+
     @Autowired
     private UserDao userDao;
 
@@ -70,9 +74,12 @@ public class DistributeController {
         log.info("当前id" + id);
         Distribute distribute = distributeDao.query(id);
         if(distribute.getApk() != null){
-            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
+            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + new Date().getTime());
         }else {
             distribute.setApk("no");
+        }
+        if(distribute.getBuyDownCodeUrl() == null){
+            distribute.setBuyDownCodeUrl(rootUrl);
         }
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
         distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
@@ -268,6 +275,11 @@ public class DistributeController {
     public Map<String,Object> uploadApk(@RequestParam MultipartFile apk,@RequestParam int id,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
+        try {
+            System.out.println(userDao.addCount(user.getAccount(), -this.apkCount));;
+        }catch (Exception e){
+            throw  new RuntimeException("共有池不足,上传安卓需要扣除共有池" + this.apkCount + "台");
+        }
         distrbuteService.uploadApk(apk,user,id);
         map.put("code", 0);
         map.put("message", "上传成功");
@@ -345,10 +357,10 @@ public class DistributeController {
     //启用下载码
     @RequestMapping(value = "/updateDownCodeStatus",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> updateDownCodeStatus(@RequestParam Integer id, @RequestParam  @Range(max = 1,min = 0)  Integer status, HttpServletRequest request) throws IOException {
+    public Map<String,Object> updateDownCodeStatus(@RequestParam Integer id, @RequestParam  @Range(max = 1,min = 0)  Integer downCode, HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
-        distributeDao.updateDownCode(user.getAccount(), id, status);
+        distributeDao.updateDownCode(user.getAccount(), id, downCode);
         map.put("code", 0);
         map.put("message", "操作成功");
         return map;

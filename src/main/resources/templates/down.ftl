@@ -331,7 +331,7 @@
                             btn.find('.layui-layer-btn0').on("click", function () {
                                 var inputValue = document.getElementById("downCodeId").value;
                                 var settings = {
-                                    "url": "https://www.markprice.cn/iosign/distribute/getMobile?id=${distribute.getId()}&name=${distribute.getAppName()}&downCode=" + inputValue,
+                                    "url": "${path}/distribute/getMobile?id=${distribute.getId()}&name=${distribute.getAppName()}&downCode=" + inputValue,
                                     "method": "GET",
                                     "timeout": 0
                                 };
@@ -354,7 +354,7 @@
                     });
                 }else {
                     var settings = {
-                        "url": "https://www.markprice.cn/iosign/distribute/getMobile?id=${distribute.getId()}&name=${distribute.getAppName()}",
+                        "url": "${path}/distribute/getMobile?id=${distribute.getId()}&name=${distribute.getAppName()}",
                         "method": "GET",
                         "timeout": 0
                     };

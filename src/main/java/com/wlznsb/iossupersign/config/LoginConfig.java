@@ -1,8 +1,10 @@
 package com.wlznsb.iossupersign.config;
 
+import com.wlznsb.iossupersign.filter.GlobalFilter;
 import com.wlznsb.iossupersign.interceptor.UserAuthInterceptor;
 import com.wlznsb.iossupersign.interceptor.UserLoginInterceptor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -14,6 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 @Configuration
 public class LoginConfig implements WebMvcConfigurer {
+
+
+    @Bean
+    public FilterRegistrationBean registFilter() {
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(new GlobalFilter());
+        registration.addUrlPatterns("*.apk");
+        registration.setName("LogCostFilter");
+        registration.setOrder(1);
+        return registration;
+    }
 
 
     @Override
@@ -30,7 +43,7 @@ public class LoginConfig implements WebMvcConfigurer {
         //过滤所有未登录用户
         registry.addInterceptor(userLoginInterceptor).addPathPatterns("/user/updatePassword")
                 .addPathPatterns("/user/queryDown").addPathPatterns("/admin/**").addPathPatterns("/distribute/uploadIpa").addPathPatterns("/distribute/queryAccountAll")
-                .addPathPatterns("/distribute/deleIpa").addPathPatterns("/distribute/updateDownCode").addPathPatterns("/distribute/updateBuyDownCodeUrl").addPathPatterns("/distribute/addDownCode").
+                .addPathPatterns("/distribute/deleIpa").addPathPatterns("/distribute/updateDownCodeStatus").addPathPatterns("/distribute/updateBuyDownCodeUrl").addPathPatterns("/distribute/addDownCode").
                 addPathPatterns("/distribute/queryAllDownCode").addPathPatterns("/distribute/deleDownCode")
                 .addPathPatterns("/distribute/uploadImg").addPathPatterns("/distribute/updateIntroduce").
                 addPathPatterns("/iis/**").addPathPatterns("/distribute/uploadApk").addPathPatterns("/pack/**");

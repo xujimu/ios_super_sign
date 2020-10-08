@@ -2,12 +2,14 @@ package com.wlznsb.iossupersign.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wlznsb.iossupersign.dao.AppleIisDao;
+import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
@@ -26,8 +28,11 @@ public class AppleIisServiceImpl{
     @Autowired
     private AppleIisDao appleIisDao;
 
+    @Autowired
+    private UserDao userDao;
 
-
+    @Value("${uploadCertCount}")
+    private Integer uploadCertCount;
 
     @Transactional
     public int add(String iis, String kid, MultipartFile p8, User user ) {
@@ -35,6 +40,14 @@ public class AppleIisServiceImpl{
         String certRoot = null;
         try {
             if(appleIisDao.query(user.getAccount(),iis) == null){
+                //普通用户上传证书需要扣除设备数
+                if(user.getType() == 0){
+                    try {
+                        userDao.addCount(user.getAccount(), -uploadCertCount);
+                    }catch (Exception e){
+                        throw  new RuntimeException("普通用户上传证书需要扣除共有池" + uploadCertCount + "台");
+                    }
+                }
                 //p8路径
                 String p8Path = new File("/sign/temp/" + user.getAccount() + "/cert/" + iis + "/" + iis +  ".p8").getAbsolutePath();
                 log.info("p8路径:" + new File(p8Path).getAbsoluteFile());

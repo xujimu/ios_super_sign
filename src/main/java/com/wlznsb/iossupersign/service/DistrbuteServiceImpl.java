@@ -13,6 +13,7 @@ import com.qiniu.util.Auth;
 import com.wlznsb.iossupersign.dao.*;
 import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.util.*;
+import jnr.posix.POSIXFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,6 +83,8 @@ public class DistrbuteServiceImpl{
                 String ipaPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".ipa").getAbsolutePath();
                 //ipa解压路径
                 String ipaUnzipPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/Payload").getAbsolutePath();
+                //python就来
+                String pyPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/").getAbsolutePath();
                 //写出
                 System.out.println(ipaPath);
                 ipa.transferTo(new File(ipaPath));
@@ -98,6 +101,13 @@ public class DistrbuteServiceImpl{
                 String url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
                         toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null);
+                //备份当前目录
+                String initPath = RuntimeExec.runtimeExec("pwd").get("info").toString();
+                POSIXFactory.getPOSIX().chdir(pyPath);
+                RuntimeExec.runtimeExec("cp -rf /sign/mode/ipin.py " + pyPath );
+                RuntimeExec.runtimeExec("python ipin.py" );
+                RuntimeExec.runtimeExec("rm -rf ipin.py");
+                POSIXFactory.getPOSIX().chdir(initPath);
                 distributeDao.add(distribute);
                 return distribute;
             }else {

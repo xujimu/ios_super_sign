@@ -224,9 +224,14 @@ public class DistrbuteServiceImpl{
                             String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
                             String cmd = "/sign/mode/zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 1 " + distribute.getIpa();
                             packStatusDao.updateStatus("正在签名", uuid);
-                            log.info("签名结果" + RuntimeExec.runtimeExec(cmd).get("status").toString());
+                            Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
+                            log.info("签名结果" + map1.get("status").toString());
                             log.info("签名命令" + cmd);
                             log.info("包名"+ nameIpa);
+                            if(!map1.get("status").toString().equals("0")){
+                                packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, null, null, null,null , "签名失败", null,null,null,null), uuid);
+                                throw  new RuntimeException("签名失败");
+                            }
                             //获取plist
                             String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
                             packStatusDao.updateStatus("准备下载", uuid);

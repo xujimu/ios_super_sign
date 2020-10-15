@@ -9,7 +9,7 @@ import java.util.UUID;
 public class ServerUtil {
 
     /**
-     * 获取当前项目域名
+     * 获取当前项目域名,尾部有/
      * @param request
      * @return
      */

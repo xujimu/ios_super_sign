@@ -39,8 +39,10 @@ class AppleIisDaoTest {
     }
 
 
+    @Test
     void dele() {
 
+        appleIisDao.queryIss("70e2fe2f-cb06-49a2-9696-753ca9ca7a50");
     }
 
 

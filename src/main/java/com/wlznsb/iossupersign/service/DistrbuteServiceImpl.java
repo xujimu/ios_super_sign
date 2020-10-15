@@ -162,128 +162,184 @@ public class DistrbuteServiceImpl{
 
     /**这里不能加事务否则状态无法读取
      *
-     * @param id
-     * @param uuid
-     * @param url
-     * @param udid
      * @return
      */
-    public String getUuid(int id,String uuid,String url, String udid){
+    public String getUuid(PackStatus packStatus){
         try {
-            log.info("udid:" + udid);
-            //查询这个应用对应的账号
-            Distribute distribute = distributeDao.query(id);
-            User user = userDao.queryAccount(distribute.getAccount());
-            List<AppleIis> appleIislist;
-            if(user.getCount() > 0){
-                 //如果共有池有就查询共有的
-                log.info("使用共有证书");
-                 appleIislist = appleIisDao.queryPublicIis(distribute.getAccount());
-                 userDao.reduceCount(user.getAccount());
-            }else {
-                log.info("使用私有证书");
-                //共有池没有就查询自己的证书
-                 appleIislist = appleIisDao.queryPrivateIis(distribute.getAccount());
-            }
-            //判断循环结束是否成功添加了设备,如果为null说明没有可用的证书了
-            int isSuccess = 1;
-            //如果有证书
-            if(appleIislist.size() != 0){
-                log.info("开始遍历证书");
-                packStatusDao.updateStatus("正在匹配证书", uuid);
-                for (AppleIis appleIis1:appleIislist){
-                    AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis1.getIis(),
-                            appleIis1.getKid(),appleIis1.getP8());
-                    //手动设置token
-                    appleApiUtil.initTocken();
-                    packStatusDao.updateStatus("正在添加设备", uuid);
-                    //直接添加设备,如果添加设备为null再去寻找设备
-                    String addUuid = appleApiUtil.addUuid(udid);
-                    log.info("添加addUuid结果" + addUuid);
-                    if(null == addUuid){
-                        addUuid = appleApiUtil.queryDevice(udid);
-                    }else {
-                        if(!addUuid.equals("no")){
-                            appleIisDao.reduceCount(appleIis1.getIis());
+            log.info("udid:" + packStatus.getUdid());
+            if(null == packStatus.getP12Path()){
+                log.info("新设备签名");
+                //查询这个应用对应的账号
+                Distribute distribute = distributeDao.query(packStatus.getAppId());
+                User user = userDao.queryAccount(distribute.getAccount());
+                List<AppleIis> appleIislist;
+                if(user.getCount() > 0){
+                    //如果共有池有就查询共有的
+                    log.info("使用共有证书");
+                    appleIislist = appleIisDao.queryPublicIis(distribute.getAccount());
+                    userDao.reduceCount(user.getAccount());
+                }else {
+                    log.info("使用私有证书");
+                    //共有池没有就查询自己的证书
+                    appleIislist = appleIisDao.queryPrivateIis(distribute.getAccount());
+                }
+                //判断循环结束是否成功添加了设备,如果为null说明没有可用的证书了
+                int isSuccess = 1;
+                //如果有证书
+                if(appleIislist.size() != 0){
+                    log.info("开始遍历证书");
+                    packStatusDao.updateStatus("正在匹配证书", packStatus.getUuid());
+                    for (AppleIis appleIis1:appleIislist){
+                        AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis1.getIis(),
+                                appleIis1.getKid(),appleIis1.getP8());
+                        //手动设置token
+                        appleApiUtil.initTocken();
+                        packStatusDao.updateStatus("正在添加设备", packStatus.getUuid());
+                        //直接添加设备,如果添加设备为null再去寻找设备
+                        String addUuid = appleApiUtil.addUuid(packStatus.getUdid());
+                        log.info("添加addUuid结果" + addUuid);
+                        if(null == addUuid){
+                            addUuid = appleApiUtil.queryDevice(packStatus.getUdid());
                         }else {
-                            packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, null,null , "失败udid不合法", null,null,null,null), uuid);
-                            throw  new RuntimeException("udid不合法");
-                        }
-                    }
-                    log.info("添加addUuid结果2" + addUuid);
-                    //查询id,查不到就添加
-                    if(addUuid != null){
-                        packStatusDao.updateStatus("注册配置文件", uuid);
-                        Map<String,String> map = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, ServerUtil.getUuid(),new File("/sign/mode/temp").getAbsolutePath());
-                        //如果pro文件创建成功
-                        if(map != null){
-                            String filePro = map.get("filePath");
-                            //包名
-                            String nameIpa = new Date().getTime() + ".ipa";
-                            //临时目录
-                            String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
-                            String cmd = "/sign/mode/zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 1 " + distribute.getIpa();
-                            packStatusDao.updateStatus("正在签名", uuid);
-                            Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
-                            log.info("签名结果" + map1.get("status").toString());
-                            log.info("签名命令" + cmd);
-                            log.info("包名"+ nameIpa);
-                            if(!map1.get("status").toString().equals("0")){
-                                packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, null, null, null,null , "签名失败", null,null,null,null), uuid);
-                                throw  new RuntimeException("签名失败");
-                            }
-                            //获取plist
-                            String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
-                            packStatusDao.updateStatus("准备下载", uuid);
-                            //是否使用七牛云
-                            if(!this.qiniuyunAccessKey.equals("")){
-                                log.info("使用七牛云");
-                                plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp,"ipa"));
-                                //删除ipa
-                                new File("/sign/mode/temp/" + nameIpa).delete();
-                            }else if(!this.aliyunAccessKey.equals("")){
-                                log.info("使用阿里云");
-                                plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp,"ipa"));
-                                //删除ipa
-                                new File("/sign/mode/temp/" + nameIpa).delete();
+                            if(!addUuid.equals("no")){
+                                appleIisDao.reduceCount(appleIis1.getIis());
                             }else {
-                                log.info("不使用七牛云");
-                                plist = plist.replace("urlRep", url  + nameIpa);
-                                log.info("ipa路径:" + url  + nameIpa);
+                                packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(),null, null,null, null,null , "失败udid不合法", null,null,null,null,null), packStatus.getUuid());
+                                throw  new RuntimeException("udid不合法");
                             }
-                            //bundle要随机不然有时候没进度条
-                            plist = plist.replace("bundleRep", ServerUtil.getUuid());
-                            plist = plist.replace("versionRep", distribute.getVersion());
-                            String iconPath = url + distribute.getAccount() + "/distribute/" + id + "/" + id + ".png";
-                            plist = plist.replace("iconRep", iconPath);
-                            plist = plist.replace("appnameRep", distribute.getAppName());
-                            String plistName = new Date().getTime() + ".plist";
-                            IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
-                            String plistUrl = "itms-services://?action=download-manifest&url=" +  url + plistName;
-                            packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(), null, nameIpa,plistUrl , "点击下载", null,null,null,null), uuid);
-                            //删除配置文件
-                            log.info("删除配置文件");
-                            appleApiUtil.deleProfiles(map.get("id"));
-                            log.info("打包完成");
-                            log.info("plist名" + plistName);
-                            isSuccess = 0;
-                            return plistName;
+                        }
+                        log.info("添加addUuid结果2" + addUuid);
+                        //查询id,查不到就添加
+                        if(addUuid != null){
+                            packStatusDao.updateStatus("注册配置文件", packStatus.getUuid());
+                            Map<String,String> map = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, ServerUtil.getUuid(),new File("/sign/mode/temp").getAbsolutePath());
+                            //如果pro文件创建成功
+                            if(map != null){
+                                String filePro = map.get("filePath");
+                                //包名
+                                String nameIpa = new Date().getTime() + ".ipa";
+                                //临时目录
+                                String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
+                                String cmd = "/sign/mode/zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 1 " + distribute.getIpa();
+                                log.info("开始签名" + cmd);
+                                packStatusDao.updateStatus("正在签名", packStatus.getUuid());
+                                Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
+                                log.info("签名结果" + map1.get("status").toString());
+                                log.info("签名反馈" + map1.get("info").toString());
+                                log.info("签名命令" + cmd);
+                                log.info("包名"+ nameIpa);
+                                if(!map1.get("status").toString().equals("0")){
+                                    packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(),appleIis1.getP12(),filePro,null, null,null , "签名失败", null,null,null,null,null), packStatus.getUuid());
+                                    throw  new RuntimeException("签名失败");
+                                }
+                                //获取plist
+                                String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
+                                packStatusDao.updateStatus("准备下载",  packStatus.getUuid());
+                                //是否使用七牛云
+                                if(!this.qiniuyunAccessKey.equals("")){
+                                    log.info("使用七牛云");
+                                    plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp,"ipa"));
+                                    //删除ipa
+                                    new File("/sign/mode/temp/" + nameIpa).delete();
+                                }else if(!this.aliyunAccessKey.equals("")){
+                                    log.info("使用阿里云");
+                                    plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp,"ipa"));
+                                    //删除ipa
+                                    new File("/sign/mode/temp/" + nameIpa).delete();
+                                }else {
+                                    log.info("不使用七牛云");
+                                    plist = plist.replace("urlRep", packStatus.getUrl()  + nameIpa);
+                                    log.info("ipa路径:" + packStatus.getUrl()  + nameIpa);
+                                }
+                                //bundle要随机不然有时候没进度条
+                                plist = plist.replace("bundleRep", ServerUtil.getUuid());
+                                plist = plist.replace("versionRep", distribute.getVersion());
+                                String iconPath = packStatus.getUrl() + distribute.getAccount() + "/distribute/" + packStatus.getAppId() + "/" + packStatus.getAppId() + ".png";
+                                plist = plist.replace("iconRep", iconPath);
+                                plist = plist.replace("appnameRep", distribute.getAppName());
+                                String plistName = new Date().getTime() + ".plist";
+                                IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
+                                String plistUrl = "itms-services://?action=download-manifest&url=" +  packStatus.getUrl() + plistName;
+                                packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(),appleIis1.getP12(),filePro,null, nameIpa,plistUrl , "点击下载", null,null,null,null,null), packStatus.getUuid());
+                                //删除配置文件
+                                log.info("删除配置文件");
+                                appleApiUtil.deleProfiles(map.get("id"));
+                                log.info("打包完成");
+                                log.info("plist名" + plistName);
+                                isSuccess = 0;
+                                return plistName;
+                            }else {
+                                log.info("创建配置文件失败");
+                                appleIisDao.updateStatus(0, appleApiUtil.getIis());
+                            }
                         }else {
-                            log.info("创建配置文件失败");
+                            log.info("添加指定设备失败,证书失效");
                             appleIisDao.updateStatus(0, appleApiUtil.getIis());
                         }
-                    }else {
-                        log.info("添加指定设备失败,证书失效");
-                        appleIisDao.updateStatus(0, appleApiUtil.getIis());
                     }
-                }
-                if(isSuccess == 1){
-                    packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, null, null, null,null , "没有可用的证书", null,null,null,null), uuid);
+                    if(isSuccess == 1){
+                        packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null,null,null, null, null, null,null , "没有可用的证书", null,null,null,null,null), packStatus.getUuid());
+                    }
+                }else {
+                    packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null,null, null,null, null, null,null , "没有可用的证书", null,null,null,null,null), packStatus.getUuid());
+                    throw  new RuntimeException("没有可用的证书");
                 }
             }else {
-                packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, null, null, null,null , "没有可用的证书", null,null,null,null), uuid);
-                throw  new RuntimeException("没有可用的证书");
+                log.info("老设备签名");
+                //查询这个应用对应的账号
+                Distribute distribute = distributeDao.query(packStatus.getAppId());
+                User user = userDao.queryAccount(distribute.getAccount());
+                //包名
+                String nameIpa = new Date().getTime() + ".ipa";
+                //临时目录
+                String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
+                String cmd = "/sign/mode/zsign -k " + packStatus.getP12Path() + " -p 123456 -m " + packStatus.getMobilePath() + " -o " + temp + " -z 1 " + distribute.getIpa();
+                log.info("开始签名" + cmd);
+                packStatusDao.updateStatus("正在签名", packStatus.getUuid());
+                Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
+                log.info("签名结果" + map1.get("status").toString());
+                log.info("签名反馈" + map1.get("info").toString());
+                log.info("签名命令" + cmd);
+                log.info("包名"+ nameIpa);
+                if(!map1.get("status").toString().equals("0")){
+                    packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, packStatus.getIis(),packStatus.getP12Path(),packStatus.getMobilePath(),null, null,null , "签名失败", null,null,null,null,null), packStatus.getUuid());
+                    throw  new RuntimeException("签名失败");
+                }
+                //获取plist
+                String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
+                packStatusDao.updateStatus("准备下载",  packStatus.getUuid());
+                //是否使用七牛云
+                if(!this.qiniuyunAccessKey.equals("")){
+                    log.info("使用七牛云");
+                    plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp,"ipa"));
+                    //删除ipa
+                    new File("/sign/mode/temp/" + nameIpa).delete();
+                }else if(!this.aliyunAccessKey.equals("")){
+                    log.info("使用阿里云");
+                    plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp,"ipa"));
+                    //删除ipa
+                    new File("/sign/mode/temp/" + nameIpa).delete();
+                }else {
+                    log.info("不使用七牛云");
+                    plist = plist.replace("urlRep", packStatus.getUrl()  + nameIpa);
+                    log.info("ipa路径:" + packStatus.getUrl()  + nameIpa);
+                }
+                //bundle要随机不然有时候没进度条
+                plist = plist.replace("bundleRep", ServerUtil.getUuid());
+                plist = plist.replace("versionRep", distribute.getVersion());
+                String iconPath = packStatus.getUrl() + distribute.getAccount() + "/distribute/" + packStatus.getAppId() + "/" + packStatus.getAppId() + ".png";
+                plist = plist.replace("iconRep", iconPath);
+                plist = plist.replace("appnameRep", distribute.getAppName());
+                String plistName = new Date().getTime() + ".plist";
+                IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
+                String plistUrl = "itms-services://?action=download-manifest&url=" +  packStatus.getUrl() + plistName;
+                packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null,  packStatus.getIis(),packStatus.getP12Path(),packStatus.getMobilePath(),null, nameIpa,plistUrl , "点击下载", null,null,null,null,null), packStatus.getUuid());
+                //删除配置文件
+                log.info("打包完成");
+                log.info("plist名" + plistName);
+                return plistName;
             }
+
         }catch (Exception e){
             log.info(e.toString());
             throw  new RuntimeException("失败" + e.getMessage());

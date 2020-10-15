@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.sql.DataSourceDefinitions;
 
+import java.io.File;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,8 +52,9 @@ class UserDaoTest {
 
     @Test
     void addAccount() {
-        Integer id = 0;
-        System.out.println(-id);
+        System.out.println(new File("C:\\sign\\mode\\my.key").getParent());
+//        Integer id = 0;
+//        System.out.println(-id);
 //        User user = new User(null, "1111", "119999", new Date(), 0,0);
 //        System.out.println(userDao.addAccount(user));
     }

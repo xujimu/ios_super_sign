@@ -119,4 +119,12 @@ public interface AppleIisDao {
     @Update("update apple_iis set count = count - 1 where iis = #{iis}")
     int reduceCount(String iis);
 
+    /**
+     * 查询指定iis
+     * @param
+     * @return
+     */
+    @Select("select *  from apple_iis where iis = #{iis} limit 1")
+    AppleIis queryIss(String iis);
+
 }

@@ -5,22 +5,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.wlznsb.iossupersign.dao.DistributeDao;
-import com.wlznsb.iossupersign.dao.DownCodeDao;
-import com.wlznsb.iossupersign.dao.PackStatusDao;
-import com.wlznsb.iossupersign.dao.UserDao;
-import com.wlznsb.iossupersign.entity.Distribute;
-import com.wlznsb.iossupersign.entity.DownCode;
-import com.wlznsb.iossupersign.entity.PackStatus;
-import com.wlznsb.iossupersign.entity.User;
+import com.wlznsb.iossupersign.dao.*;
+import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
-import com.wlznsb.iossupersign.util.IoHandler;
-import com.wlznsb.iossupersign.util.IpUtils;
-import com.wlznsb.iossupersign.util.RuntimeExec;
-import com.wlznsb.iossupersign.util.ServerUtil;
+import com.wlznsb.iossupersign.util.*;
 import jnr.ffi.annotations.In;
+import jnr.posix.POSIXFactory;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.ibatis.annotations.Param;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +47,9 @@ public class DistributeController {
     private Integer apkCount;
 
     @Autowired
+    private AppleIisDao appleIisDao;
+
+    @Autowired
     private UserDao userDao;
 
     @Autowired
@@ -74,18 +70,17 @@ public class DistributeController {
         log.info("当前id" + id);
         Distribute distribute = distributeDao.query(id);
         if(distribute.getApk() != null){
-            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + new Date().getTime());
+            String time = Base64.getEncoder().encodeToString(Long.toString(new Date().getTime() * 1390).getBytes());
+            time = Base64.getEncoder().encodeToString(time.getBytes());
+            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + time);
         }else {
             distribute.setApk("no");
-        }
-        if(distribute.getBuyDownCodeUrl() == null){
-            distribute.setBuyDownCodeUrl(rootUrl);
         }
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
         distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
         model.addAttribute("distribute", distribute);
         model.addAttribute("pro", rootUrl + "app.mobileprovision");
-        model.addAttribute("downCode", distribute.getDownCode());
+//        model.addAttribute("downCode", distribute.getDownCode());
         //设置轮播图
         if(null == distribute.getImages()){
             model.addAttribute("img1", rootUrl + "/images/" + "slideshow.png");
@@ -104,32 +99,8 @@ public class DistributeController {
     //获取描述文件,没有使用业务层
     @GetMapping
     @RequestMapping("/getMobile")
-    @ResponseBody
-    public Map<String,Object> getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name,String downCode) throws IOException {
-        Distribute distribute =  distributeDao.query(id);
+    public void getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        //如果该应用启用了下载码
-        if(distribute.getDownCode() == 1){
-            if(null != downCode && !"".equals(downCode)){
-                    DownCode downCode1 = downCodeDao.queryAccountDownCode(distribute.getAccount(),downCode);
-                    if(null != downCode1){
-                        if(downCode1.getStatus() == 1){
-                            downCodeDao.updateDownCodeStatus(distribute.getAccount(),downCode,new Date(), 0);
-                            map.put("code",0);
-                            map.put("message", "验证成功");
-                        }else {
-                            throw new RuntimeException("下载码已被使用");
-                        }
-                    }else {
-                        throw new RuntimeException("下载码错误");
-                    }
-            }else {
-                throw new RuntimeException("下载码不能为空");
-            }
-        }else {
-            map.put("code",0);
-            map.put("message", "验证成功");
-        }
         //临时存放,保证每次描述文件url都是动态的
         String uuid = ServerUtil.getUuid();
         //域名
@@ -155,8 +126,7 @@ public class DistributeController {
         tempUuid.put(uuid, id);
         log.info(uuid);
         log.info(tempContextUrl);
-        map.put("data", tempContextUrl + round + ".mobileconfig");
-        return map;
+        response.sendRedirect(tempContextUrl + round + ".mobileconfig");
     }
 
     //301回调
@@ -190,13 +160,13 @@ public class DistributeController {
             String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").asText();
             if(null != udid && !udid.equals("")){
                 //创建状态
-                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,new Date(), null, null, "排队中", 1,id,tempContextUrl, IpUtils.getIpAddr(request));
+                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,null,null,new Date(), null, null, "待验证", 1,id,tempContextUrl, IpUtils.getIpAddr(request),null);
                 packStatusDao.add(packStatus);
                 //获取原来的分发地址
                 Distribute distribute = distributeDao.query(id);
                 String skipUrl = distribute.getUrl().replace("down", "downStatus");
-                //再次请求带上uuid
-                response.setHeader("Location", skipUrl + "/" + packStatus.getId());
+                //再次请求带上uuid和打包状态id
+                response.setHeader("Location", skipUrl + "/" + packStatus.getId() + "/"  + uuid + "/" + udid);
                 log.info("statusid" + packStatus.getId());
                 response.setStatus(301);
             }
@@ -213,8 +183,9 @@ public class DistributeController {
      * @throws JsonProcessingException
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping(value = "/downStatus/{base64Id}/{statusId}",method = RequestMethod.GET)
-    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id, @PathVariable String statusId) throws JsonProcessingException, UnsupportedEncodingException {
+    @RequestMapping(value = "/downStatus/{base64Id}/{statusId}/{uuid}/{udid}")
+    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id, @PathVariable String statusId, @PathVariable String uuid, @PathVariable String udid) throws JsonProcessingException, UnsupportedEncodingException {
+
         //域名
         String rootUrl = ServerUtil.getRootUrl(request);
         Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(base64Id.getBytes())));
@@ -222,10 +193,13 @@ public class DistributeController {
         distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
         distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
         distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
+        if(distribute.getBuyDownCodeUrl() == null){
+            distribute.setBuyDownCodeUrl(rootUrl);
+        }
         model.addAttribute("distribute", distribute);
         model.addAttribute("statusId", statusId);
         model.addAttribute("pro", rootUrl + "app.mobileprovision");
-        model.addAttribute("downUrl", rootUrl + "/distribute/getStatus?statusId=");
+        model.addAttribute("downUrl", rootUrl + "/distribute/exec/" + id + "/" + uuid + "/" + udid);
         //设置轮播图
         if(null == distribute.getImages()){
             model.addAttribute("img1", rootUrl + "/images/" + "slideshow.png");
@@ -241,6 +215,72 @@ public class DistributeController {
         return "downStatus";
     }
 
+    //判断是否需要下载码,如果有就需要带下载码
+    @RequestMapping(value = "/exec/{id}/{uuid}/{udid}")
+    @ResponseBody
+    public Map<String,Object> exec(String downCode, @PathVariable String uuid, @PathVariable Integer id, HttpServletRequest request, @PathVariable String udid) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        try {
+            //域名
+            log.info("udid" + udid);
+            String rootUrl = ServerUtil.getRootUrl(request);
+            Distribute distribute =  distributeDao.query(id);
+            //判断要不要下载码
+            if(distribute.getDownCode() == 1){
+                log.info("需要下载码");
+                //这里暂时只使用最近的一条下载记录
+                PackStatus packStatus = packStatusDao.queryUdidCert(udid,distribute.getAccount());
+                //判断有没有下载记录
+                if(null != packStatus){
+                    log.info("查询到下载记录");
+                    AppleIis appleIis =  appleIisDao.queryIss(packStatus.getIis());
+                    AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis.getIis(),
+                            appleIis.getKid(),appleIis.getP8());
+                    if(appleApiUtil.init()){
+                        packStatusDao.updateStatusExecS("排队中", packStatus.getIis(),packStatus.getDownCode(),packStatus.getP12Path(),packStatus.getMobilePath(),uuid,"待验证");
+                        map.put("code",0);
+                        map.put("message", "验证成功");
+                        map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                    }else {
+                        appleIisDao.updateStatus(0,appleApiUtil.getIis());
+                        throw new RuntimeException("证书失效");
+                    }
+                }else {
+                    log.info("未查询到下载记录");
+                    if(null != downCode && !"".equals(downCode)){
+                        DownCode downCode1 = downCodeDao.queryAccountDownCode(distribute.getAccount(),downCode);
+                        if(null != downCode1){
+                            if(downCode1.getStatus() == 1){
+                                downCodeDao.updateDownCodeStatus(distribute.getAccount(),downCode,new Date(), 0);
+                                packStatusDao.updateStatusExec("排队中",downCode, uuid,"待验证");
+                                map.put("code",0);
+                                map.put("message", "验证成功");
+                                map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                            }else {
+                                throw new RuntimeException("下载码已被使用");
+                            }
+                        }else {
+                            throw new RuntimeException("下载码错误");
+                        }
+                    }else {
+                        throw new RuntimeException("下载码不能为空");
+                    }
+                }
+            }else {
+                log.info("不需要下载码");
+                System.out.println("uuid" + uuid);
+                packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
+                map.put("code",0);
+                map.put("message", "验证成功");
+                map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            throw  new RuntimeException(e.getMessage());
+        }
+        return map;
+    }
+
     //查询打包状态,没有使用业务层
     @RequestMapping(value = "/getStatus")
     @ResponseBody
@@ -252,6 +292,7 @@ public class DistributeController {
         map.put("data", packStatus);
         return map;
     }
+
 
     //上传ipa
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
@@ -416,6 +457,33 @@ public class DistributeController {
         downCodeDao.deleDownCode(user.getAccount(), id);
         map.put("code", 0);
         map.put("message", "操作成功");
+        return map;
+    }
+
+    //下载证书
+    @RequestMapping(value = "/downCert",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,Object> downCert(@RequestParam Integer id,HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        String rootUrl = ServerUtil.getRootUrl(request);
+        User user = (User) request.getSession().getAttribute("user");
+        try {
+            PackStatus packStatus = packStatusDao.queryDownCert(id, user.getAccount());
+            String  tempName = new Date().getTime() + "证书密码123456.zip";
+            String  mobilePath = new File(packStatus.getMobilePath()).getParent();
+            String  mobilename = new File(packStatus.getMobilePath()).getName();
+            String  p12Path = new File(packStatus.getP12Path()).getParent();
+            String  p12name = new File(packStatus.getP12Path()).getName();
+
+            String cmd = " tar -cvf  /sign/mode/temp/" + tempName + " -C " + p12Path + " " + p12name + " -C " + mobilePath + " " + mobilename;
+            log.info("打包命令" + cmd);
+            RuntimeExec.runtimeExec(cmd);
+            map.put("code", 0);
+            map.put("message", "操作成功");
+            map.put("url", rootUrl + tempName);
+        }catch (Exception e){
+            throw  new RuntimeException("操作失败");
+        }
         return map;
     }
 

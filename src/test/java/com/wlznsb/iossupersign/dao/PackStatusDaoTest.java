@@ -23,14 +23,13 @@ class PackStatusDaoTest {
 
     @Test
     void query() {
-        PageHelper.startPage(1,10);
-        Page<PackStatus> page =  (Page) packStatusDao.queryPage("点击下载");
+
     }
 
     @Test
     void add() {
 
-    }
+}
 
     @Test
     void updateStatus() {

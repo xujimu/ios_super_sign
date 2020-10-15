@@ -11,6 +11,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
@@ -32,8 +33,14 @@ class DistributeDaoTest {
 
     @Test
     void dele() {
+        String time = Base64.getEncoder().encodeToString(Long.toString(new Date().getTime() * 1390).getBytes());
+        time = Base64.getEncoder().encodeToString(time.getBytes());
 
-        System.out.println(new File("").getAbsolutePath());
+        String detime = new String(Base64.getDecoder().decode(time));
+
+        detime =  new String(Base64.getDecoder().decode(detime.getBytes()));
+        System.out.println(Long.parseLong(detime) / 1390);
+
        // System.out.println(distributeDao.dele(4));
     }
 

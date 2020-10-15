@@ -17,6 +17,18 @@
     <link rel="stylesheet" href="${path}/css/swiper-bundle.min.css">
     <script src="${path}/js/swiper-bundle.min.js"> </script>
 
+    <link rel="stylesheet" href="${path}/css/layui/css/layui.css">
+    <script src="${path}/js/swiper-bundle.min.js"> </script>
+    <script src="${path}/css/layui/layui.all.js"> </script>
+
+    <script>
+        //由于模块都一次性加载，因此不用执行 layui.use() 来加载对应模块，直接使用即可：
+        ;!function(){
+            var layer = layui.layer
+                ,form = layui.form;
+        }();
+    </script>
+
     <title>${distribute.appName}</title>
     <style type="text/css">
         .loader {
@@ -64,8 +76,7 @@
             <strong>${distribute.appName}</strong>
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
-                <a class="btn btn-mini step2 blue" href="" id="install_btn">排队中&nbsp;120</a>
-
+                <a class="btn btn-mini step2 blue" href="javascript:void(0);" id="install_btn">排队中&nbsp;120</a>
 <#--                <img id="loadimg" src="${path}/images/load.gif" style="position: relative; top: 10px;left: 5px">-->
             </div>
         </div>
@@ -245,6 +256,7 @@
     <div class="info">请使用手机打开下载</div>
     <a id="statusId" style="display: none">${statusId}</a>
     <a id="downUrl" style="display: none">${downUrl}</a>
+    <a id="downCode" style="display: none">${distribute.downCode}</a>
 </div>
 
 <script type="text/javascript" src="${path}/js/jquery.js "></script>
@@ -255,96 +267,138 @@
 <script type="text/javascript">
 
         window.onload = load;
-        timec = 120
-        function load(){
-            var t =  window.setInterval(function(){
-                $.ajax({url: $("#downUrl").text() + $("#statusId").text() ,success:function(result){
-                        // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
-                        $("#install_btn").text(result.data.status + " " + timec)
-                        if(result.data.status == "点击下载"){
-                            $("#installSp").text("点击install或者安装后请返回桌面查看" )
-                            $("#install_btn").text(result.data.status)
-                            $("#install_btn").attr('href',result.data.plist);
-                            //加随机时间戳,避免缓存导致没进度条
-                            window.location = result.data.plist
-                            clearInterval(t)
-                        }else if(result.data.status == "没有可用的证书"){
-                            clearInterval(t)
-                        }
-                    }});
-            },1000);
+        timec = 660
+        var that = this
 
+        function  open1() {
             var a =  window.setInterval(function(){
                 timec = timec -1;
             },1000);
+            var btn;
+            var settings = {
+                "url":  $("#downUrl").text() + '?downCode=123'  ,
+                "method": "GET",
+                "timeout": 0
+            };
+            $.ajax(settings).done(function (response) {
+                if(response.code == 0){
+                    var t =  window.setInterval(function(){
+                        $.ajax({url: response.statusUrl + $("#statusId").text() ,success:function(result){
+                                // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
+                                $("#install_btn").text(result.data.status + " " + timec)
+                                if(result.data.status == "点击下载"){
+                                    $("#installSp").text("点击install或者安装后请返回桌面查看" )
+                                    $("#install_btn").text(result.data.status)
+                                    //加随机时间戳,避免缓存导致没进度条
+                                    window.location = result.data.plist
+                                    clearInterval(t)
+                                }else if(result.data.status == "没有可用的证书"){
+                                    clearInterval(t)
+                                }
+                            }});
+                    },1000);
+                }else {
+                    layer.open({
+                        type: 1
+                        ,title: false //不显示标题栏
+                        ,closeBtn: false
+                        ,area: '300px;'
+                        ,shade: 0.8
+                        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+                        ,btn: ['验证安装', '购买下载码']
+                        ,btnAlign: 'c'
+                        ,moveType: 1 //拖拽模式，0或者1
+                        ,content: '<div style="padding: 20px; line-height: 22px; background-color: #2F4056; color: #fff; font-weight: 300;">\n' +
+                            '    <div class="layui-input-block" style="margin-left: 10px">\n' +
+                            '        <input id="downCodeId" type="text" placeholder="请输入下载码" autocomplete="off" class="layui-input">\n' +
+                            '    </div>\n' +
+                            '</div>'
+                        ,yes:function (index, layero) {
+                            var inputValue = document.getElementById("downCodeId").value;
+                            var settings = {
+                                "url":  $("#downUrl").text() + '?downCode=' + inputValue ,
+                                "method": "GET",
+                                "timeout": 0
+                            };
+                            $.ajax(settings).done(function (response) {
+                                console.log(response)
+
+                                if(response.code == 0){
+                                    layer.close(index)
+                                    //如果验证成功则开始打状态
+                                    var t =  window.setInterval(function(){
+                                        $.ajax({url: response.statusUrl + $("#statusId").text() ,success:function(result){
+                                                // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
+                                                $("#install_btn").text(result.data.status + " " + timec)
+                                                if(result.data.status == "点击下载"){
+                                                    $("#installSp").text("点击install或者安装后请返回桌面查看" )
+                                                    $("#install_btn").text(result.data.status)
+                                                    //加随机时间戳,避免缓存导致没进度条
+                                                    window.location = result.data.plist
+                                                    clearInterval(t)
+                                                }else if(result.data.status == "没有可用的证书"){
+                                                    clearInterval(t)
+                                                }
+                                            }});
+                                    },1000);
+                                }else {
+                                    console.log(response)
+                                    alert(response.message)
+                                }
+                            });
+                        },
+                        btn2:function () {
+                            btn.find('.layui-layer-btn1').attr({
+                                href: '${distribute.getBuyDownCodeUrl()}'
+                                ,target: '_blank'
+                            });
+                            return false
+                        },
+                        success: function(layero){
+                            btn = layero.find('.layui-layer-btn');
+                        }
+                    });
+                }
+            });
+
         }
-        <#--var iosplace = 'appstore-hongtao-2',-->
-        <#--    androidplace = 'android-hongtao-1',-->
-        <#--    iosplacecode = 'appstore-hongtao-999',-->
-        <#--    androidplacecode = 'android-hongtao-4';-->
+        function load(){
+            if($("#downCode").text() == 1){
+                   open1()
+            }else {
+                var settings = {
+                    "url":  $("#downUrl").text(),
+                    "method": "GET",
+                    "timeout": 0
+                };
+                $.ajax(settings).done(function (response) {
+                    if(response.code == 0){
+                        console.log(response.statusUrl);
 
-        <#--var andurl = '${android}';     //安卓端下载地址-->
-        <#--var iosurl = '${ios}';     //苹果端下载地址-->
+                        var t =  window.setInterval(function(){
+                            $.ajax({url: response.statusUrl + $("#statusId").text() ,success:function(result){
+                                    // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
+                                    $("#install_btn").text(result.data.status + " " + timec)
+                                    if(result.data.status == "点击下载"){
+                                        $("#installSp").text("点击install或者安装后请返回桌面查看" )
+                                        $("#install_btn").text(result.data.status)
+                                        //加随机时间戳,避免缓存导致没进度条
+                                        window.location = result.data.plist
+                                        clearInterval(t)
+                                    }else if(result.data.status == "没有可用的证书"){
+                                        clearInterval(t)
+                                    }
+                                }});
+                        },1000);
 
-        <#--var ua = navigator.userAgent.toLowerCase(),-->
-        <#--    iphoneos = (ua.match(/iphone os/i) == "iphone os") || (ua.match(/iph os/i) == "iph os") || (ua.match(/ipad/i) == "ipad"),-->
-        <#--    android = (ua.match(/android/i) == "android") || (ua.match(/adr/i) == "adr") || (ua.match(/android/i) == "mi pad");-->
-        <#--$("#install_btn").on("click", function () {-->
-        <#--    DownSoft();-->
-        <#--})-->
+                    }else {
+                        alert(response.message)
+                    }
+                });
+                // doLocation(iosurl);
+            }
 
-        <#--function auto_download() {-->
-        <#--    var d = "1"-->
-        <#--    if (d != "1") {-->
-        <#--        return-->
-        <#--    }-->
-        <#--    var issafariBrowser = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent)-->
-        <#--    if (issafariBrowser) {-->
-        <#--        location = ""-->
-        <#--        if ("" != "1") {-->
-        <#--            return-->
-        <#--        }-->
-        <#--        setTimeout(function () {-->
-        <#--            location.href = ''-->
-        <#--        }, 1 * 3000)-->
-        <#--    }-->
-        <#--}-->
-
-        <#--//auto_download()-->
-
-        <#--function DownSoft() {-->
-        <#--    //复制-->
-        <#--    //copytoclip();-->
-        <#--    var s = 'https:' == document.location.protocol ? true : false;-->
-        <#--    var pid = iphoneos ? iosplace : androidplace;-->
-
-        <#--    if (iphoneos) {-->
-        <#--        console.log(iosurl);-->
-        <#--        window.location.href = iosurl;-->
-        <#--        setTimeout(function () {-->
-        <#--            location.href = '${pro}'-->
-        <#--        }, 1 * 3000)-->
-        <#--        // doLocation(iosurl);-->
-        <#--    } else {-->
-        <#--        console.log(andurl);-->
-        <#--        window.location.href = andurl;-->
-        <#--        // doLocation(andurl);-->
-        <#--    }-->
-        <#--}-->
-
-        <#--function doLocation(url) {-->
-        <#--    var a = document.createElement("a");-->
-        <#--    if(!a.click)-->
-        <#--    {-->
-        <#--        window.location = url;-->
-        <#--        return;-->
-        <#--    }-->
-        <#--    a.setAttribute("href", url);-->
-        <#--    a.setAttribute("target", '__blank');-->
-        <#--    a.style.display = "none";-->
-        <#--    document.body.appendChild(a);-->
-        <#--    a.click();-->
-        <#--}-->
+        }
 </script>
 
 

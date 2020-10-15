@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +30,10 @@ public class GlobalFilter implements Filter {
         //设置apk5分钟有效
         if(request.getServletPath().indexOf("distribute") != -1){
             String token = request.getParameter("token");
+            String detime = new String(Base64.getDecoder().decode(token));
+            detime =  new String(Base64.getDecoder().decode(detime.getBytes()));
             Long time = new Date().getTime();
-            Long time1 = Long.parseLong(token);
+            Long time1 = Long.parseLong(detime) / 1390;
             System.out.println(time - time1);
             if(time - time1 >= 0 &&  time - time1 < 3600000){
                filterChain.doFilter(servletRequest, servletResponse);

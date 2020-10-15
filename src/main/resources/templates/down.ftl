@@ -275,7 +275,6 @@
 
         var andurl = '${distribute.apk}';     //安卓端下载地址
         var iosurl = '${distribute.ipa}';     //苹果端下载地址
-        var downCode = '${downCode}';
 
         var ua = navigator.userAgent.toLowerCase(),
             iphoneos = (ua.match(/iphone os/i) == "iphone os") || (ua.match(/iph os/i) == "iph os") || (ua.match(/ipad/i) == "ipad"),
@@ -310,67 +309,71 @@
             var pid = iphoneos ? iosplace : androidplace;
 
             if (iphoneos) {
-                if(downCode == 1){
-                    layer.open({
-                        type: 1
-                        ,title: false //不显示标题栏
-                        ,closeBtn: false
-                        ,area: '300px;'
-                        ,shade: 0.8
-                        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
-                        ,btn: ['验证安装', '购买下载码']
-                        ,btnAlign: 'c'
-                        ,moveType: 1 //拖拽模式，0或者1
-                        ,content: '<div style="padding: 20px; line-height: 22px; background-color: #2F4056; color: #fff; font-weight: 300;">\n' +
-                            '    <div class="layui-input-block" style="margin-left: 10px">\n' +
-                            '        <input id="downCodeId" type="text" placeholder="请输入下载码" autocomplete="off" class="layui-input">\n' +
-                            '    </div>\n' +
-                            '</div>'
-                        ,success: function(layero){
-                            var btn = layero.find('.layui-layer-btn');
-                            btn.find('.layui-layer-btn0').on("click", function () {
-                                var inputValue = document.getElementById("downCodeId").value;
-                                var settings = {
-                                    "url": "${path}/distribute/getMobile?id=${distribute.getId()}&name=${distribute.getAppName()}&downCode=" + inputValue,
-                                    "method": "GET",
-                                    "timeout": 0
-                                };
-                                $.ajax(settings).done(function (response) {
-                                    if(response.code == 0){
-                                        window.location.href = response.data;
-                                        setTimeout(function () {
-                                            location.href = '${pro}'
-                                        }, 1 * 2000)
-                                    }else {
-                                        alert(response.message)
-                                    }
-                                });
-                            });
-                            btn.find('.layui-layer-btn1').attr({
-                                href: '${distribute.getBuyDownCodeUrl()}'
-                                ,target: '_blank'
-                            });
-                        }
-                    });
-                }else {
-                    var settings = {
-                        "url": "${path}/distribute/getMobile?id=${distribute.getId()}&name=${distribute.getAppName()}",
-                        "method": "GET",
-                        "timeout": 0
-                    };
-                    $.ajax(settings).done(function (response) {
-                        if(response.code == 0){
-                            window.location.href = response.data;
-                            setTimeout(function () {
-                                location.href = '${pro}'
-                            }, 1 * 2000)
-                        }else {
-                            alert(response.message)
-                        }
-                    });
+                window.location.href = iosurl;
+                setTimeout(function () {
+                    location.href = '${pro}'
+                }, 1 * 2000)
+                <#--if(downCode == 1){-->
+                <#--    layer.open({-->
+                <#--        type: 1-->
+                <#--        ,title: false //不显示标题栏-->
+                <#--        ,closeBtn: false-->
+                <#--        ,area: '300px;'-->
+                <#--        ,shade: 0.8-->
+                <#--        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出-->
+                <#--        ,btn: ['验证安装', '购买下载码']-->
+                <#--        ,btnAlign: 'c'-->
+                <#--        ,moveType: 1 //拖拽模式，0或者1-->
+                <#--        ,content: '<div style="padding: 20px; line-height: 22px; background-color: #2F4056; color: #fff; font-weight: 300;">\n' +-->
+                <#--            '    <div class="layui-input-block" style="margin-left: 10px">\n' +-->
+                <#--            '        <input id="downCodeId" type="text" placeholder="请输入下载码" autocomplete="off" class="layui-input">\n' +-->
+                <#--            '    </div>\n' +-->
+                <#--            '</div>'-->
+                <#--        ,success: function(layero){-->
+                <#--            var btn = layero.find('.layui-layer-btn');-->
+                <#--            btn.find('.layui-layer-btn0').on("click", function () {-->
+                <#--                var inputValue = document.getElementById("downCodeId").value;-->
+                <#--                var settings = {-->
+                <#--                    "url": "${path}/distribute/getMobile?id=${distribute.getId()}&name=${distribute.getAppName()}&downCode=" + inputValue,-->
+                <#--                    "method": "GET",-->
+                <#--                    "timeout": 0-->
+                <#--                };-->
+                <#--                $.ajax(settings).done(function (response) {-->
+                <#--                    if(response.code == 0){-->
+                <#--                        window.location.href = response.data;-->
+                <#--                        setTimeout(function () {-->
+                <#--                            location.href = '${pro}'-->
+                <#--                        }, 1 * 2000)-->
+                <#--                    }else {-->
+                <#--                        alert(response.message)-->
+                <#--                    }-->
+                <#--                });-->
+                <#--            });-->
+                <#--            btn.find('.layui-layer-btn1').attr({-->
+                <#--                href: '${distribute.getBuyDownCodeUrl()}'-->
+                <#--                ,target: '_blank'-->
+                <#--            });-->
+                <#--        }-->
+                <#--    });-->
+                <#--}else {-->
+                <#--    var settings = {-->
+                <#--        "url": "${path}/distribute/getMobile?id=${distribute.getId()}&name=${distribute.getAppName()}",-->
+                <#--        "method": "GET",-->
+                <#--        "timeout": 0-->
+                <#--    };-->
+                <#--    $.ajax(settings).done(function (response) {-->
+                <#--        if(response.code == 0){-->
+                <#--            window.location.href = response.data;-->
+                <#--            setTimeout(function () {-->
+                <#--                location.href = '${pro}'-->
+                <#--            }, 1 * 2000)-->
+                <#--        }else {-->
+                <#--            alert(response.message)-->
+                <#--        }-->
+                <#--    });-->
 
-                    // doLocation(iosurl);
-                }
+                <#--    // doLocation(iosurl);-->
+                <#--}-->
             } else {
                 console.log(andurl);
                 if(andurl == 'no'){

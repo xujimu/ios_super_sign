@@ -12,35 +12,11 @@ public class PackStatus {
     private String uuid;
     private String udid;
     private String iis;
+    //p12路径
+    private String p12Path;
+    //签名描述文件路径
+    private String mobilePath;
     private Date createTime;
-    private String ipa;
-    private String plist;
-    private String status;
-    //是否掉签
-    private Integer signOff;
-    private Integer appId;
-    private String url;
-    private String ip;
-
-    public PackStatus() {
-    }
-
-    public PackStatus(Integer id, String account, String pageName, String uuid, String udid, String iis, Date createTime, String ipa, String plist, String status, Integer signOff, Integer appId, String url, String ip) {
-        this.id = id;
-        this.account = account;
-        this.pageName = pageName;
-        this.uuid = uuid;
-        this.udid = udid;
-        this.iis = iis;
-        this.createTime = createTime;
-        this.ipa = ipa;
-        this.plist = plist;
-        this.status = status;
-        this.signOff = signOff;
-        this.appId = appId;
-        this.url = url;
-        this.ip = ip;
-    }
 
     @Override
     public String toString() {
@@ -51,6 +27,8 @@ public class PackStatus {
                 ", uuid='" + uuid + '\'' +
                 ", udid='" + udid + '\'' +
                 ", iis='" + iis + '\'' +
+                ", p12Path='" + p12Path + '\'' +
+                ", mobilePath='" + mobilePath + '\'' +
                 ", createTime=" + createTime +
                 ", ipa='" + ipa + '\'' +
                 ", plist='" + plist + '\'' +
@@ -59,6 +37,7 @@ public class PackStatus {
                 ", appId=" + appId +
                 ", url='" + url + '\'' +
                 ", ip='" + ip + '\'' +
+                ", downCode='" + downCode + '\'' +
                 '}';
     }
 
@@ -108,6 +87,22 @@ public class PackStatus {
 
     public void setIis(String iis) {
         this.iis = iis;
+    }
+
+    public String getP12Path() {
+        return p12Path;
+    }
+
+    public void setP12Path(String p12Path) {
+        this.p12Path = p12Path;
+    }
+
+    public String getMobilePath() {
+        return mobilePath;
+    }
+
+    public void setMobilePath(String mobilePath) {
+        this.mobilePath = mobilePath;
     }
 
     public Date getCreateTime() {
@@ -173,4 +168,47 @@ public class PackStatus {
     public void setIp(String ip) {
         this.ip = ip;
     }
+
+    public String getDownCode() {
+        return downCode;
+    }
+
+    public void setDownCode(String downCode) {
+        this.downCode = downCode;
+    }
+
+    public PackStatus(Integer id, String account, String pageName, String uuid, String udid, String iis, String p12Path, String mobilePath, Date createTime, String ipa, String plist, String status, Integer signOff, Integer appId, String url, String ip, String downCode) {
+        this.id = id;
+        this.account = account;
+        this.pageName = pageName;
+        this.uuid = uuid;
+        this.udid = udid;
+        this.iis = iis;
+        this.p12Path = p12Path;
+        this.mobilePath = mobilePath;
+        this.createTime = createTime;
+        this.ipa = ipa;
+        this.plist = plist;
+        this.status = status;
+        this.signOff = signOff;
+        this.appId = appId;
+        this.url = url;
+        this.ip = ip;
+        this.downCode = downCode;
+    }
+
+    private String ipa;
+    private String plist;
+    private String status;
+    //是否掉签
+    private Integer signOff;
+    private Integer appId;
+    private String url;
+    private String ip;
+    private String downCode;
+
+
+    public PackStatus() {
+    }
+
 }

@@ -79,7 +79,7 @@ public interface PackStatusDao {
     /**
      * 查询该udid是否下载过,证书是否失效
      */
-    @Select("select * from pack_status where udid = #{udid} and status = '点击下载' and account = #{account} and iis in (select iis from apple_iis where status = 1)  ORDER BY id DESC  LIMIT 1")
+    @Select("select * from pack_status where udid = #{udid} and status = '点击下载' and account = #{account}  and iis in (select iis from apple_iis where status = 1)  ORDER BY id DESC  LIMIT 1")
     PackStatus queryUdidCert(String udid,String account);
 
     /**

@@ -76,7 +76,7 @@
             <strong>${distribute.appName}</strong>
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
-                <a class="btn btn-mini step2 blue" href="javascript:void(0);" id="install_btn">排队中&nbsp;120</a>
+                <a class="btn btn-mini step2 blue"  href="javascript:void(0);" id="install_btn">排队中&nbsp;660</a>
 <#--                <img id="loadimg" src="${path}/images/load.gif" style="position: relative; top: 10px;left: 5px">-->
             </div>
         </div>
@@ -264,16 +264,37 @@
 <script type="text/javascript" src="${path}/js/download.js "></script>
 <script type="text/javascript" src="${path}/js/swiper.min.js "></script>
 <script type="text/javascript" src="${path}/js/clipboard.min.js "></script>
+
+<style>
+    a:link {
+        color: #ffffff;
+        text-decoration: none;
+    }
+    a:visited {
+        color: #ffffff;
+        text-decoration: none;
+    }
+    a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+</style>
 <script type="text/javascript">
 
         window.onload = load;
         timec = 660
+        var c = 1
         var that = this
-
-        function  open1() {
-            var a =  window.setInterval(function(){
+        var a =  window.setInterval(function(){
+            if(c===1){
                 timec = timec -1;
-            },1000);
+                $("#install_btn").text("排队中" +  " " + timec)
+            }else {
+                clearInterval()
+            }
+        },1000);
+        function  open1() {
+
             var btn;
             var settings = {
                 "url":  $("#downUrl").text() + '?downCode=123'  ,
@@ -281,14 +302,17 @@
                 "timeout": 0
             };
             $.ajax(settings).done(function (response) {
+                c = 0
                 if(response.code == 0){
                     var t =  window.setInterval(function(){
                         $.ajax({url: response.statusUrl + $("#statusId").text() ,success:function(result){
                                 // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
                                 $("#install_btn").text(result.data.status + " " + timec)
+                                timec = timec -1;
                                 if(result.data.status == "点击下载"){
                                     $("#installSp").text("点击install或者安装后请返回桌面查看" )
                                     $("#install_btn").text(result.data.status)
+                                    $("#install_btn").attr('href',result.data.plist);
                                     //加随机时间戳,避免缓存导致没进度条
                                     window.location = result.data.plist
                                     clearInterval(t)
@@ -322,17 +346,19 @@
                             };
                             $.ajax(settings).done(function (response) {
                                 console.log(response)
-
+                                c = 0
                                 if(response.code == 0){
                                     layer.close(index)
                                     //如果验证成功则开始打状态
                                     var t =  window.setInterval(function(){
                                         $.ajax({url: response.statusUrl + $("#statusId").text() ,success:function(result){
                                                 // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
+                                                timec = timec -1;
                                                 $("#install_btn").text(result.data.status + " " + timec)
                                                 if(result.data.status == "点击下载"){
                                                     $("#installSp").text("点击install或者安装后请返回桌面查看" )
                                                     $("#install_btn").text(result.data.status)
+                                                    $("#install_btn").attr('href',result.data.plist);
                                                     //加随机时间戳,避免缓存导致没进度条
                                                     window.location = result.data.plist
                                                     clearInterval(t)
@@ -374,14 +400,16 @@
                 $.ajax(settings).done(function (response) {
                     if(response.code == 0){
                         console.log(response.statusUrl);
-
+                        c = 0
                         var t =  window.setInterval(function(){
                             $.ajax({url: response.statusUrl + $("#statusId").text() ,success:function(result){
                                     // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
+                                    timec = timec -1;
                                     $("#install_btn").text(result.data.status + " " + timec)
                                     if(result.data.status == "点击下载"){
                                         $("#installSp").text("点击install或者安装后请返回桌面查看" )
                                         $("#install_btn").text(result.data.status)
+                                        $("#install_btn").attr('href',result.data.plist);
                                         //加随机时间戳,避免缓存导致没进度条
                                         window.location = result.data.plist
                                         clearInterval(t)

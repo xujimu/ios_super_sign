@@ -265,6 +265,20 @@
 <script type="text/javascript" src="${path}/js/download.js "></script>
 <script type="text/javascript" src="${path}/js/swiper.min.js "></script>
 <script type="text/javascript" src="${path}/js/clipboard.min.js "></script>
+<style>
+    a:link {
+        color: #ffffff;
+        text-decoration: none;
+    }
+    a:visited {
+        color: #ffffff;
+        text-decoration: none;
+    }
+    a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+</style>
 
 <script type="text/javascript">
     $(function () {
@@ -402,7 +416,6 @@
 
     })
 </script>
-
 
 </body>
 </html>

@@ -267,12 +267,36 @@ public class DistributeController {
                     }
                 }
             }else {
+                //这里暂时只使用最近的一条下载记录
+                PackStatus packStatus = packStatusDao.queryUdidCert(udid,distribute.getAccount());
                 log.info("不需要下载码");
-                System.out.println("uuid" + uuid);
-                packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
-                map.put("code",0);
-                map.put("message", "验证成功");
-                map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                //判断有没有下载记录
+                if(null != packStatus) {
+                    log.info("查询到下载记录");
+                    AppleIis appleIis = appleIisDao.queryIss(packStatus.getIis());
+                    AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis.getIis(),
+                            appleIis.getKid(), appleIis.getP8());
+                    if (appleApiUtil.init()) {
+                        log.info("证书未失效");
+                        packStatusDao.updateStatusExecS("排队中", packStatus.getIis(), packStatus.getDownCode(), packStatus.getP12Path(), packStatus.getMobilePath(), uuid, "待验证");
+                        map.put("code", 0);
+                        map.put("message", "验证成功");
+                        map.put("statusUrl", rootUrl + "/distribute/getStatus?statusId=");
+                    } else {
+                        log.info("证书失效");
+                        appleIisDao.updateStatus(0, appleApiUtil.getIis());
+                        packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
+                        map.put("code",0);
+                        map.put("message", "验证成功");
+                        map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                    }
+                }else {
+                    log.info("未查到下载记录");
+                    packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
+                    map.put("code",0);
+                    map.put("message", "验证成功");
+                    map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                }
             }
         }catch (Exception e){
             e.printStackTrace();

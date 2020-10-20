@@ -8,8 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.crypto.Cipher;
 import javax.naming.ldap.PagedResultsControl;
 import java.io.File;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -41,8 +46,6 @@ class AppleIisDaoTest {
 
     @Test
     void dele() {
-
-        appleIisDao.queryIss("70e2fe2f-cb06-49a2-9696-753ca9ca7a50");
     }
 
 

@@ -128,7 +128,11 @@ public class GetIpaInfoUtil {
             map.put("name", parameters.toString());
             //应用展示的名称
             parameters = (NSString) rootDict.objectForKey("CFBundleDisplayName");
-            map.put("displayName", parameters.toString());
+            if(parameters != null){
+                map.put("displayName", parameters.toString());
+            }else {
+                map.put("displayName", map.get("name"));
+            }
             //ipa大小
             map.put("size", size);
             //应用所需IOS最低版本

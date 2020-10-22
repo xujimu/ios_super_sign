@@ -60,6 +60,7 @@ public class qiniuyun {
 
     public static void main(String[] args) {
 
+        System.out.println( new File("/sign/mode/cert/server.crt").exists());;
     }
 
     static {

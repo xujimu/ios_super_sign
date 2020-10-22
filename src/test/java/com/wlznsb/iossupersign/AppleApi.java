@@ -47,8 +47,7 @@ public class AppleApi {
     @Test
     public void test() throws IOException {
 
-        AppleApiUtil appleApiUtil = new AppleApiUtil("70e2fe2f-cb06-49a2-9696-753ca9ca7a50","9W6Y7V67D3","C:\\Users\\xujimu\\Desktop\\AuthKey_9W6Y7V67D3.p8");
-        System.out.println(appleApiUtil.init());
+
 
     }
 

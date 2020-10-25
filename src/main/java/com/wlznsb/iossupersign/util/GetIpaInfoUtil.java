@@ -49,6 +49,7 @@ public class GetIpaInfoUtil {
                 if (!ze.isDirectory()) {
                     String name = ze.getName();
                     if (null != name && name.toLowerCase().contains("info.plist")) {
+                        System.out.println(ze.getName());
                         if(name.length() -2 != name.replace("/", "").length()){
                             continue;
                         }
@@ -58,11 +59,17 @@ public class GetIpaInfoUtil {
                         while (-1 != (chunk = zipIns.read(data))) {
                             _copy.write(data, 0, chunk);
                         }
+
                         infoIs = new ByteArrayInputStream(_copy.toByteArray());
 
                         rootDict = (NSDictionary) PropertyListParser.parse(infoIs);
 
                         NSDictionary iconDict = (NSDictionary) rootDict.get("CFBundleIcons");
+
+                       if(iconDict == null){
+                           continue;
+                       }
+
 
                         //获取图标名称
                         while (null != iconDict) {
@@ -106,11 +113,6 @@ public class GetIpaInfoUtil {
                 }
             }
 
-
-            //如果想要查看有哪些key ，可以把下面注释放开
-//       for (String string : dictionary.allKeys()) {
-//          System.out.println(string + ":" + dictionary.get(string).toString());
-//       }
 
 
             // 应用包名

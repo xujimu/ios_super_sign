@@ -8,9 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.web.client.RestTemplate;
+
+import javax.sql.DataSource;
 
 /*
 * 配置RestTemplate http请求配置类
@@ -32,5 +37,6 @@ class RestTemplateConfig {
         factory.setReadTimeout(5000);
         return factory;
     }
+
 
 }

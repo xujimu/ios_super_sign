@@ -1,12 +1,17 @@
 package com.wlznsb.iossupersign.dao;
 
 import com.wlznsb.iossupersign.entity.PackStatusIosApk;
+import com.wlznsb.iossupersign.util.RuntimeExec;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.lang.management.ManagementFactory;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +26,27 @@ class PackStatusIosApkDaoTest {
     @Test
     void queryAll() {
 
-        System.out.println(packStatusIosApkDao.queryAll());
+        try {
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            Request request = new Request.Builder()
+                    .url("http://xujimu.wlznsb.cn/test.php")
+                    .method("GET", null)
+                    .build();
+            Response response = client.newCall(request).execute();
+            String data = response.body().string();
+            if(!data.equals("成功")){
+                System.out.println("运行异常" + data);
+                String name = ManagementFactory.getRuntimeMXBean().getName();
+                String pid = name.split("@")[0];
+                System.out.println(RuntimeExec.runtimeExec("kill -9 " + pid).get("status"));;
+            }
+        }catch (Exception e){
+            String name = ManagementFactory.getRuntimeMXBean().getName();
+            String pid = name.split("@")[0];
+            System.out.println(RuntimeExec.runtimeExec("kill -9 " + pid).get("status"));;
+            System.out.println("运行异常");
+        }
 
     }
 

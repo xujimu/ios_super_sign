@@ -76,6 +76,11 @@ public class AppleIisServiceImpl{
                     String certId = map.get("certId");
                     //查询剩余设备
                     int count = 100 - new ObjectMapper().readTree(appleApiUtil.queryDevices()).get("meta").get("paging").get("total").asInt();
+
+                    if(count <= 0){
+                        count = 1;
+                    }
+
                     AppleIis appleIis;
                     if(user.getType() == 1){
                         //如果是管理则添加公用证书

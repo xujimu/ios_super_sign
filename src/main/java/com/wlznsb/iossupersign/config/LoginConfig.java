@@ -46,7 +46,7 @@ public class LoginConfig implements WebMvcConfigurer {
                 .addPathPatterns("/distribute/deleIpa").addPathPatterns("/distribute/updateDownCodeStatus").addPathPatterns("/distribute/updateBuyDownCodeUrl").addPathPatterns("/distribute/addDownCode").
                 addPathPatterns("/distribute/queryAllDownCode").addPathPatterns("/distribute/downCert").addPathPatterns("/distribute/deleDownCode")
                 .addPathPatterns("/distribute/uploadImg").addPathPatterns("/distribute/updateIntroduce").
-                addPathPatterns("/iis/**").addPathPatterns("/distribute/uploadApk").addPathPatterns("/pack/**");
+                addPathPatterns("/iis/**").addPathPatterns("/distribute/uploadApk").addPathPatterns("/pack/**").excludePathPatterns("/pack/distribute/**");
 
         //添加andmin拦截器
         registry.addInterceptor(new UserAuthInterceptor()).addPathPatterns("/admin/**");

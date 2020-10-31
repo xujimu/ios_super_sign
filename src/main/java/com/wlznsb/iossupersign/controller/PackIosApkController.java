@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.IOException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -144,6 +143,25 @@ public class PackIosApkController {
         map.put("total", page.getTotal());
         return map;
 
+    }
+
+    //分发
+    @RequestMapping(value = "/distribute/{id}" ,method = RequestMethod.GET)
+    public String distribute(HttpServletRequest request, @PathVariable Integer id) {
+        PackStatusIosApk packStatusIosApk = packStatusIosApkDao.queryId(id);
+
+        return "redirect:" + packStatusIosApk.getUrl();
+    }
+
+    //修改网址
+    @ResponseBody
+    @RequestMapping(value = "/updateIdUrl" ,method = RequestMethod.POST)
+    public  Map<String, Object>  updateIdUrl(HttpServletRequest request, @RequestParam String url,@RequestParam Integer id) {
+        Map<String,Object> map = new HashMap<String, Object>();
+        packStatusIosApkDao.updateIdUrl(url, id);
+        map.put("code", 0);
+        map.put("message", "修改成功");
+        return map;
     }
 
 }

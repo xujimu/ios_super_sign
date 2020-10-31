@@ -34,6 +34,8 @@ public class PackStatusIosApk {
     //是否可移除 0否 1是 xml文件false就是不能移除
     @NotEmpty(message = "是否可移除不能为空")
     private Integer isRemove;
+    //是否是动态网址
+    private Integer isVariable;
     //包名
     @NotEmpty(message = "包名不能为空")
     private String pageName;
@@ -59,6 +61,12 @@ public class PackStatusIosApk {
     //服务器秘钥
     private String keyCert;
 
+    //备注
+    private String remark;
+
+    public PackStatusIosApk() {
+    }
+
     @Override
     public String toString() {
         return "PackStatusIosApk{" +
@@ -74,6 +82,7 @@ public class PackStatusIosApk {
                 ", icon='" + icon + '\'' +
                 ", startIcon='" + startIcon + '\'' +
                 ", isRemove=" + isRemove +
+                ", isVariable=" + isVariable +
                 ", pageName='" + pageName + '\'' +
                 ", version='" + version + '\'' +
                 ", isXfive=" + isXfive +
@@ -90,6 +99,33 @@ public class PackStatusIosApk {
 
     public Integer getId() {
         return id;
+    }
+
+    public PackStatusIosApk(Integer id, @NotEmpty(message = "账号不能为空") String account, Date createTime, @NotEmpty(message = "软件不能为空") String appName, @NotEmpty(message = "打包网址不能为空") String url, String name, String organization, String describe, String consentMessage, @NotEmpty(message = "应用图标不能为空") String icon, @NotEmpty(message = "启动图不能为空") String startIcon, @NotEmpty(message = "是否可移除不能为空") Integer isRemove, Integer isVariable, @NotEmpty(message = "包名不能为空") String pageName, @NotEmpty(message = "版本不能为空") String version, @NotEmpty(message = "是否集成x5不能为空") Integer isXfive, String status, String preview, String down, Date expirationTime, String rootCert, String serverCert, String keyCert, String remark) {
+        this.id = id;
+        this.account = account;
+        this.createTime = createTime;
+        this.appName = appName;
+        this.url = url;
+        this.name = name;
+        this.organization = organization;
+        this.describe = describe;
+        this.consentMessage = consentMessage;
+        this.icon = icon;
+        this.startIcon = startIcon;
+        this.isRemove = isRemove;
+        this.isVariable = isVariable;
+        this.pageName = pageName;
+        this.version = version;
+        this.isXfive = isXfive;
+        this.status = status;
+        this.preview = preview;
+        this.down = down;
+        this.expirationTime = expirationTime;
+        this.rootCert = rootCert;
+        this.serverCert = serverCert;
+        this.keyCert = keyCert;
+        this.remark = remark;
     }
 
     public void setId(Integer id) {
@@ -184,6 +220,14 @@ public class PackStatusIosApk {
         this.isRemove = isRemove;
     }
 
+    public Integer getIsVariable() {
+        return isVariable;
+    }
+
+    public void setIsVariable(Integer isVariable) {
+        this.isVariable = isVariable;
+    }
+
     public String getPageName() {
         return pageName;
     }
@@ -269,38 +313,6 @@ public class PackStatusIosApk {
     }
 
     public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    //备注
-    private String remark;
-
-    public PackStatusIosApk() {
-    }
-
-    public PackStatusIosApk(Integer id, @NotEmpty(message = "账号不能为空") String account, Date createTime, @NotEmpty(message = "软件不能为空") String appName, @NotEmpty(message = "打包网址不能为空") String url, String name, String organization, String describe, String consentMessage, @NotEmpty(message = "应用图标不能为空") String icon, @NotEmpty(message = "启动图不能为空") String startIcon, @NotEmpty(message = "是否可移除不能为空") Integer isRemove, @NotEmpty(message = "包名不能为空") String pageName, @NotEmpty(message = "版本不能为空") String version, @NotEmpty(message = "是否集成x5不能为空") Integer isXfive, String status, String preview, String down, Date expirationTime, String rootCert, String serverCert, String keyCert, String remark) {
-        this.id = id;
-        this.account = account;
-        this.createTime = createTime;
-        this.appName = appName;
-        this.url = url;
-        this.name = name;
-        this.organization = organization;
-        this.describe = describe;
-        this.consentMessage = consentMessage;
-        this.icon = icon;
-        this.startIcon = startIcon;
-        this.isRemove = isRemove;
-        this.pageName = pageName;
-        this.version = version;
-        this.isXfive = isXfive;
-        this.status = status;
-        this.preview = preview;
-        this.down = down;
-        this.expirationTime = expirationTime;
-        this.rootCert = rootCert;
-        this.serverCert = serverCert;
-        this.keyCert = keyCert;
         this.remark = remark;
     }
 }

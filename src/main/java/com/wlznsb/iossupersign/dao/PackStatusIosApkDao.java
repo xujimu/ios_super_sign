@@ -25,7 +25,7 @@ public interface PackStatusIosApkDao {
      * 提交一条记录pack_status_ios_apk
      */
     @Insert("insert into pack_status_ios_apk() values(#{id},#{account},#{createTime},#{appName},#{url},#{name},#{organization},\n" +
-            "        #{describe},#{consentMessage},#{icon},#{startIcon},#{isRemove},#{pageName},\n" +
+            "        #{describe},#{consentMessage},#{icon},#{startIcon},#{isRemove},#{isVariable},#{pageName},\n" +
             "        #{version},#{isXfive},#{status},#{preview},#{down},#{expirationTime},\n" +
             "        #{rootCert},#{serverCert},#{keyCert},#{remark})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
@@ -44,5 +44,20 @@ public interface PackStatusIosApkDao {
      */
     @Update("update  pack_status_ios_apk set status = #{status},preview = #{preview},down = #{down},expiration_time = #{time} where id = #{id};")
     int updateStatus(@Param("status") String status, @Param("preview") String preview, @Param("down") String down, @Param("time") Date time, @Param("id") Integer id);
+
+    /**
+     * 查询指定id
+     */
+    @Select("select * from pack_status_ios_apk where id = #{id}")
+    PackStatusIosApk queryId(Integer id);
+
+    /**
+     * 修改指定idURl
+     */
+    @Select("update  pack_status_ios_apk set url = #{url} where id = #{id}")
+    PackStatusIosApk updateIdUrl(String url,Integer id);
+
+
+
 
 }

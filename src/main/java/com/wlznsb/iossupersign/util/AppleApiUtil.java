@@ -446,6 +446,42 @@ public class AppleApiUtil {
     }
 
 
+    /**
+     * 请求失败返回null否则返回json
+     * @param p12Path
+     * @param password
+     * @return
+     * @throws IOException
+     */
+    public static String certVerify(String p12Path,String password) throws IOException {
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        okhttp3.MediaType mediaType = okhttp3.MediaType.parse("text/plain");
+        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("file[cert]",p12Path,
+                        RequestBody.create(okhttp3.MediaType.parse("application/octet-stream"),
+                                new File(p12Path)))
+                .addFormDataPart("password", password)
+                .build();
+        Request request = new Request.Builder()
+                .url("https://www.pgyer.com/tools/certificate")
+                .method("POST", body)
+                .build();
+        Response response = client.newCall(request).execute();
+
+
+        if(response.code() == 200){
+            String res = response.body().string();
+            log.info("证书结果" + res);
+            return  res;
+        }else {
+            log.info("证书验证发送请求失败" + response.body().string());
+            return  null;
+        }
+
+
+    }
+
 
 
     public String getToken() {

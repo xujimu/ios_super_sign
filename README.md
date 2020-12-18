@@ -7,3 +7,23 @@
 cert.jsk换成你的tomcat ssl证书
 更改yml文件的一些参数
 新建数据库ios_super_sign,导入sql文件
+
+更换域名,替换cert.jks,清空mode  cert证书
+systemctl stop firewalld.service
+systemctl disable firewalld.service
+yum update -y  && chmod -R 777 /sign && yum install docker -y && systemctl start docker
+systemctl status docker
+docker run -v /opt:/opt  -v /var/lib/mysql/:/var/lib/mysql/  -v /sign:/sign -p 80:80 -p 3306:3306 -p 443:443 -tdi --privileged    --name sign -d  --restart always 2524931333/centos7xjm:expect  init -t
+docker exec -it sign /bin/bash
+sh /root/mysqlinit.sh
+systemctl start mysqld
+mysql -uroot -pMysql666..
+create database ios_super_sign;
+use ios_super_sign;
+set names utf8mb4;
+source /sign/mode/ios_super_sign.sql;
+insert into user() values(null,super,super,now(),1,0);
+quit;
+screen -S sign
+cd  /opt
+java -jar -Djava.security.egd=file:/dev/./urandom ios-super-sign-0.0.1-SNAPSHOT.jar

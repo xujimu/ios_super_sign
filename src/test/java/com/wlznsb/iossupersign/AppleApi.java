@@ -1,12 +1,10 @@
 package com.wlznsb.iossupersign;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wlznsb.iossupersign.entity.AppleIis;
-import com.wlznsb.iossupersign.util.AppleApiUtil;
-import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
-import com.wlznsb.iossupersign.util.IoHandler;
-import com.wlznsb.iossupersign.util.ServerUtil;
+import com.wlznsb.iossupersign.util.*;
 import lombok.extern.slf4j.Slf4j;
 import net.odyssi.asc4j.util.TokenUtil;
 import org.junit.Test;
@@ -24,6 +22,8 @@ import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -45,10 +45,19 @@ public class AppleApi {
      */
 
     @Test
-    public void test() throws IOException {
+    public void test() throws IOException, ParseException {
+
+        String data = AppleApiUtil.certVerify("C:\\Users\\xujimu\\Desktop\\Ns_共享证书密码123\\ns共享证书密码123\\证书.p12", "123");
+        JsonNode jsonNode = new ObjectMapper().readTree(data);
+        String name = jsonNode.get("extra").get("name").asText();
+
+        SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date expiredTime = format.parse(jsonNode.get("extra").get("expired").asText());
+        System.out.println(expiredTime.getTime());
+        System.out.println(System.currentTimeMillis());
 
 
-
+        System.out.println("证书民资" + name + "过期时间" + expiredTime);
     }
 
 

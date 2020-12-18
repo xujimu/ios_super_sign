@@ -324,9 +324,11 @@
 
             if (iphoneos) {
                 window.location.href = iosurl;
+
                 setTimeout(function () {
                     location.href = '${pro}'
-                }, 1 * 2000)
+                }, 3000)
+
                 <#--if(downCode == 1){-->
                 <#--    layer.open({-->
                 <#--        type: 1-->

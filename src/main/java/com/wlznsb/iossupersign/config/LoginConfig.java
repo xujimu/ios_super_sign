@@ -42,15 +42,16 @@ public class LoginConfig implements WebMvcConfigurer {
 
         //过滤所有未登录用户
         registry.addInterceptor(userLoginInterceptor).addPathPatterns("/user/updatePassword")
-                .addPathPatterns("/user/queryDown").addPathPatterns("/admin/**").addPathPatterns("/distribute/uploadIpa").addPathPatterns("/distribute/queryAccountAll")
+                .addPathPatterns("/user/queryDown").addPathPatterns("/admin/**").excludePathPatterns("/admin/distribute/**").addPathPatterns("/distribute/uploadIpa").addPathPatterns("/distribute/queryAccountAll")
                 .addPathPatterns("/distribute/deleIpa").addPathPatterns("/distribute/updateDownCodeStatus").addPathPatterns("/distribute/updateBuyDownCodeUrl").addPathPatterns("/distribute/addDownCode").
                 addPathPatterns("/distribute/queryAllDownCode").addPathPatterns("/distribute/downCert").addPathPatterns("/distribute/deleDownCode")
                 .addPathPatterns("/distribute/uploadImg").addPathPatterns("/distribute/updateIntroduce").
                 addPathPatterns("/iis/**").addPathPatterns("/distribute/uploadApk").addPathPatterns("/pack/**").excludePathPatterns("/pack/distribute/**").
-                addPathPatterns("/EnterpriseSign/**");
+                addPathPatterns("/EnterpriseSign/**").
+                addPathPatterns("/softwareDistribute/**").excludePathPatterns("/softwareDistribute/down/**");
 
         //添加andmin拦截器
-        registry.addInterceptor(new UserAuthInterceptor()).addPathPatterns("/admin/**");
+        registry.addInterceptor(new UserAuthInterceptor()).addPathPatterns("/admin/**").excludePathPatterns("/admin/distribute/**");
 
 
         //添加iis证书拦截器

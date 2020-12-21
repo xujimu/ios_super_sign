@@ -145,7 +145,7 @@ public class EnterpriseSignController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/queryAllCert",method = RequestMethod.POST)
+    @RequestMapping(value = "/queryAllCert",method = RequestMethod.GET)
     public Map<String,Object> queryAllCert(@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         PageHelper.startPage(pageNum,pageSize);
@@ -160,44 +160,25 @@ public class EnterpriseSignController {
 
 
     /**
-     * 修改扣除共有池
-     * @param count
-     * @param md5
-     * @param request
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/updateCertCount",method = RequestMethod.POST)
-    public Map<String,Object> updateCertCount(@RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count, @RequestParam  String md5,HttpServletRequest request) throws Exception {
-        Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
-        if(user.getType() == 1){
-            enterpriseSignCertDao.updateCertCount(count, md5);
-            map.put("code", 0);
-            map.put("message", "修改成功");
-        }
-        return map;
-    }
-
-    /**
-     * 修改证书备注
+     * 修改证书所需共有池和备注
      * @param remark
      * @param md5
      * @param request
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/updateCertRemark",method = RequestMethod.POST)
-    public Map<String,Object> updateCertRemark(@RequestParam String remark, @RequestParam  String md5,HttpServletRequest request) throws Exception {
+    @RequestMapping(value = "/edit",method = RequestMethod.POST)
+    public Map<String,Object> edit(@RequestParam String remark,@RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count, @RequestParam  String md5,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
         if(user.getType() == 1){
-            enterpriseSignCertDao.updateCertRemark(remark, md5);
+            enterpriseSignCertDao.edit(remark,count, md5);
             map.put("code", 0);
             map.put("message", "修改成功");
         }
         return map;
     }
+
 
     /**
      * 上传ipa签名
@@ -249,7 +230,7 @@ public class EnterpriseSignController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/queryAccountPack",method = RequestMethod.POST)
+    @RequestMapping(value = "/queryAccountPack",method = RequestMethod.GET)
     public Map<String,Object> queryAccountPack(@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");

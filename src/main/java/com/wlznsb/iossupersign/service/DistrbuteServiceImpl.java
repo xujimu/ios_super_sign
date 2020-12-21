@@ -159,6 +159,64 @@ public class DistrbuteServiceImpl{
     }
 
 
+    /**
+     * 自助分发上传ipa
+     * @param ipaPath
+     * @return
+     */
+    public String uploadSoftwareIpa(String ipaPath) {
+        try {
+            //是否使用七牛云
+            if(!this.qiniuyunAccessKey.equals("")){
+                log.info("使用七牛云");
+                ipaPath = this.qiniuyunUrl + uploadQly(ipaPath,"ipa");
+                //删除ipa
+                new File(ipaPath).delete();
+            }else if(!this.aliyunAccessKey.equals("")){
+                log.info("使用阿里云");
+                ipaPath =  this.aliyunDownUrl + uploadAly(ipaPath,"ipa");
+                //删除ipa
+                new File(ipaPath).delete();
+            }else {
+                log.info("不使用七牛云");
+                return null;
+            };
+        }catch (Exception e){
+            log.info(e.toString());
+            throw  new RuntimeException("上传失败:" + e.getMessage());
+        }
+        return ipaPath;
+    }
+
+    /**
+     * 自助分发上传apk
+     * @param apkPath
+     * @return
+     */
+    public String uploadSoftwareApk(String apkPath) {
+        try {
+            //是否使用七牛云
+            if(!this.qiniuyunAccessKey.equals("")){
+                log.info("使用七牛云");
+                apkPath = this.qiniuyunUrl + uploadQly(apkPath,"apk");
+                //删除ipa
+                new File(apkPath).delete();
+            }else if(!this.aliyunAccessKey.equals("")){
+                log.info("使用阿里云");
+                apkPath =  this.aliyunDownUrl + uploadAly(apkPath,"apk");
+                //删除ipa
+                new File(apkPath).delete();
+            }else {
+                log.info("不使用七牛云");
+                return null;
+            };
+        }catch (Exception e){
+            log.info(e.toString());
+            throw  new RuntimeException("上传失败:" + e.getMessage());
+        }
+        return apkPath;
+    }
+
 
     /**这里不能加事务否则状态无法读取
      *

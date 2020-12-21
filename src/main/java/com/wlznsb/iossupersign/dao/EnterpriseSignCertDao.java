@@ -46,10 +46,20 @@ public interface EnterpriseSignCertDao {
     int updateCertCount(Integer count, String md5);
 
     /**
+     * 修改证书所需共有池和备注
+     */
+    @Update("update enterprise_sign_cert set remark = #{remark} , count = #{count} where md5 = #{md5}")
+    Integer edit(String remark,Integer count, String md5);
+
+
+
+    /**
      * 修改备注
      */
     @Update("update enterprise_sign_cert set remark = #{remark}  where md5 = #{md5}")
     int updateCertRemark(String remark, String md5);
+
+
 
 
     /**
@@ -57,6 +67,10 @@ public interface EnterpriseSignCertDao {
      */
     @Select("select * from enterprise_sign_cert")
     List<EnterpriseSignCert> queryAllCert();
+
+
+
+
 
     /**
      * 查询证书是否存在

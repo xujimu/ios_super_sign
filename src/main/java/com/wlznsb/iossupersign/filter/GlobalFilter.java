@@ -24,6 +24,7 @@ public class GlobalFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse)servletResponse;
+
         if(request.getServletPath().indexOf("android") != -1){
             filterChain.doFilter(servletRequest, servletResponse);
         }
@@ -38,6 +39,8 @@ public class GlobalFilter implements Filter {
             if(time - time1 >= 0 &&  time - time1 < 3600000){
                filterChain.doFilter(servletRequest, servletResponse);
             }
+        }else {
+            filterChain.doFilter(servletRequest, servletResponse);
         }
     }
 

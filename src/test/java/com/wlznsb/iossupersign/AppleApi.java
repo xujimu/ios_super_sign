@@ -147,8 +147,23 @@ public class AppleApi {
     }
 
     @Test
-    public void  test7(){
+    public void  test7() throws Exception {
 
+        //获取HTTP请求的输入流
+        InputStream is = new FileInputStream( new File("C:\\Users\\xujimu\\Desktop\\123.plist"));
+        //已HTTP请求输入流建立一个BufferedReader对象
+        BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        //读取HTTP请求内容
+        String buffer = null;
+        while ((buffer = br.readLine()) != null) {
+            sb.append(buffer);
+        }
+        //去除xml多余信息
+        String content = sb.toString().substring(sb.toString().indexOf("<?xml"), sb.toString().indexOf("</plist>")+8);
+        String json =  org.json.XML.toJSONObject(content).toString();
+        log.info(json + "plist");
+        String url = new ObjectMapper().readTree(json).get("plist").get("dict").get("array").get("dict").get("array").get("dict").get(0).get("string").get(1).asText();
 
 
     }

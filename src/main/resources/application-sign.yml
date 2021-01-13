@@ -1,0 +1,75 @@
+debug: false
+spring:
+  servlet:
+    multipart:
+      max-file-size: 64000MB
+      max-request-size: 6400MB
+  datasource:
+    username: root
+    password: Mysql666..
+    url: jdbc:mysql://47.103.19.29 :3306/ios_super_sign?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  resources:
+    static-locations: file:/sign/temp,file:/sign/mode/software,file:/sign/mode/temp,file:/sign/mode/static/temp,file:/sign/mode/config,file:/sign/public,classpath:/static,classpath:/resources,classpath:/META-INF/resources
+  freemarker:
+    suffix: .ftlm
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+server:
+  port: 443
+  #tomcat证书和密码
+  ssl:
+    key-store: /sign/mode/cert.jks
+    key-password: D6s4YRwc
+  servlet:
+    context-path: /iosign
+http:
+  port: 80
+
+mybatis:
+  config-location: classpath:mybatis-config.xml
+
+#七牛云的参数,如果不使用请所有都留空
+qiniuyun:
+  accessKey:
+  secretKey: 
+  bucket: 
+  url: https://www.xxxx.com/
+
+
+#阿里云的参数,如果不使用请所有都留空
+aliyun:
+  accessKey:
+  secretKey: 
+  bucket: 
+  #  上传url
+  url: https://xxxxxxxxxxinternal.aliyuncs.com
+  #  下载url
+  downUrl: https://xxxxxxxxxxxxxxinternal.aliyuncs.com/
+
+#同时签名的数量根据服务器大小决定
+thread: 20
+
+
+logging:
+  level:
+    root: info
+    #com.wlznsb.iossupersign.dao: debug
+  file:
+    path: spring.log
+#域名用于免签封装
+domain: https://www.xxxx.com/
+#上传安卓扣除设备数
+apkCount: 0
+#免签封装扣除设备数
+signCount: 0
+
+#上传证书扣除设备数
+uploadCertCount: 0
+
+#自助分发需要扣除设备数
+sofware: 10
+
+
+

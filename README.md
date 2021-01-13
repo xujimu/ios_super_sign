@@ -166,5 +166,5 @@
 
 本项目前后端一体,所以没有好看的ui,有需要的可以自行克隆二开,开源不易如果对你有帮助的话请点个start吧！
 
-演示地址：https://iosign.wlznsb.cn/iosign 账号密码均为admin
+前端地址:https://github.com/xujimu/ios_super_sign_vue
 

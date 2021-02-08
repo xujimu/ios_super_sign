@@ -18,7 +18,7 @@ import java.io.File;
 @Component
 @Slf4j
 public class ApplicationRunnerImpl implements ApplicationRunner {
-    @Value("${server.ssl.key-password}")
+    @Value("${mqpassword}")
     private String password;
 
     @Override

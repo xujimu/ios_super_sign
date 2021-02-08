@@ -3,8 +3,10 @@ package com.wlznsb.iossupersign.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.wlznsb.iossupersign.dao.DomainDao;
 import com.wlznsb.iossupersign.dao.PackStatusDao;
 import com.wlznsb.iossupersign.dto.UserDto;
+import com.wlznsb.iossupersign.entity.Domain;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
 import org.apache.ibatis.annotations.Param;
@@ -20,6 +22,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,6 +37,11 @@ public class UserController {
     @Autowired
     private PackStatusDao packStatusDao;
 
+
+    @Autowired
+    private DomainDao domainDao;
+
+
     //登录
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public Map<String,Object> login(@RequestParam @NotEmpty String account, @RequestParam @NotEmpty String password, HttpServletRequest request){
@@ -45,6 +53,17 @@ public class UserController {
         map.put("code", 0);
         map.put("message", "登陆成功");
         map.put("data", user);
+        return map;
+    }
+
+    //查询所有域名
+    @RequestMapping(value = "/queryDomain",method = RequestMethod.GET)
+    public Map<String,Object> queryDomain(HttpServletRequest request){
+        Map<String,Object> map = new HashMap<String, Object>();
+        List<Domain> domains =  domainDao.queryAll();
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", domains);
         return map;
     }
 

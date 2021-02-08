@@ -2,8 +2,10 @@ package com.wlznsb.iossupersign.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.wlznsb.iossupersign.dao.DomainDao;
 import com.wlznsb.iossupersign.dao.UserDao;
 import com.wlznsb.iossupersign.entity.AppleIis;
+import com.wlznsb.iossupersign.entity.Domain;
 import com.wlznsb.iossupersign.entity.PackStatus;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +39,8 @@ public class AdminController {
     @Autowired
     private AppleIisServiceImpl appleIisService;
 
+    @Autowired
+    private DomainDao domainDao;
 
     //修改类型
     @RequestMapping(value = "/updateType",method = RequestMethod.POST)
@@ -46,6 +51,27 @@ public class AdminController {
         map.put("message", "修改成功");
         return map;
     }
+
+    //添加域名
+    @RequestMapping(value = "/addDomain",method = RequestMethod.POST)
+    public Map<String,Object> addDomain(@RequestParam @NotEmpty String domain, HttpServletRequest request){
+        Map<String,Object> map = new HashMap<String, Object>();
+        domainDao.add(new Domain(null,domain,new Date(),1));
+        map.put("code", 0);
+        map.put("message", "添加成功");
+        return map;
+    }
+
+    //删除域名
+    @RequestMapping(value = "/deleteDomain",method = RequestMethod.POST)
+    public Map<String,Object> deleteDomain(@RequestParam  Integer id, HttpServletRequest request){
+        Map<String,Object> map = new HashMap<String, Object>();
+        domainDao.dele(id);
+        map.put("code", 0);
+        map.put("message", "删除成功");
+        return map;
+    }
+
 
     //删除用户
     @RequestMapping(value = "/dele",method = RequestMethod.POST)

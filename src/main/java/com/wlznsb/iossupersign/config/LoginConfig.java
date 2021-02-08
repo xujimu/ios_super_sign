@@ -41,7 +41,7 @@ public class LoginConfig implements WebMvcConfigurer {
 //                excludePathPatterns("/**.ipa").excludePathPatterns("/**.plist").excludePathPatterns("/**.html");
 
         //过滤所有未登录用户
-        registry.addInterceptor(userLoginInterceptor).addPathPatterns("/user/updatePassword")
+        registry.addInterceptor(userLoginInterceptor).addPathPatterns("/user/updatePassword").addPathPatterns("/user/queryDomain")
                 .addPathPatterns("/user/queryDown").addPathPatterns("/admin/**").excludePathPatterns("/admin/distribute/**").addPathPatterns("/distribute/uploadIpa").addPathPatterns("/distribute/queryAccountAll")
                 .addPathPatterns("/distribute/deleIpa").addPathPatterns("/distribute/updateDownCodeStatus").addPathPatterns("/distribute/updateBuyDownCodeUrl").addPathPatterns("/distribute/addDownCode").
                 addPathPatterns("/distribute/queryAllDownCode").addPathPatterns("/distribute/downCert").addPathPatterns("/distribute/deleDownCode")

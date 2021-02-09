@@ -44,7 +44,7 @@ public class LoginConfig implements WebMvcConfigurer {
         registry.addInterceptor(userLoginInterceptor).addPathPatterns("/user/updatePassword").addPathPatterns("/user/queryDomain")
                 .addPathPatterns("/user/queryDown").addPathPatterns("/admin/**").excludePathPatterns("/admin/distribute/**").addPathPatterns("/distribute/uploadIpa").addPathPatterns("/distribute/queryAccountAll")
                 .addPathPatterns("/distribute/deleIpa").addPathPatterns("/distribute/updateDownCodeStatus").addPathPatterns("/distribute/updateBuyDownCodeUrl").addPathPatterns("/distribute/addDownCode").
-                addPathPatterns("/distribute/queryAllDownCode").addPathPatterns("/distribute/downCert").addPathPatterns("/distribute/deleDownCode")
+                addPathPatterns("/distribute/queryAllDownCode").addPathPatterns("/distribute/downCert").addPathPatterns("/distribute/deleDownCode").addPathPatterns("/distribute/updateDomain")
                 .addPathPatterns("/distribute/uploadImg").addPathPatterns("/distribute/updateIntroduce").
                 addPathPatterns("/iis/**").addPathPatterns("/distribute/uploadApk").addPathPatterns("/pack/**").excludePathPatterns("/pack/distribute/**").
                 addPathPatterns("/EnterpriseSign/**").

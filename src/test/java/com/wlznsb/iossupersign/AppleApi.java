@@ -82,7 +82,7 @@ public class AppleApi {
 
 //
 //            //p8路径
-            String p8Path = new File("C:\\Users\\xujimu\\Desktop\\a5bfcfba-0592-4103-8bf4-26155249e76f.p8").getAbsolutePath();
+            String p8Path = new File("C:\\Users\\Administrator\\Desktop\\123.p8").getAbsolutePath();
 //            log.info("p8路径:" + new File(p8Path).getAbsoluteFile());
 //            //key路径
 //            String keyPath = new File("C:\\Users\\xujimu\\Desktop\\123\\my.key").getAbsolutePath();
@@ -92,7 +92,7 @@ public class AppleApi {
 //            new File(certRoot).mkdirs();
             //写入p8这里的new file必须是绝对路径抽象路径无效
             //创建苹果api工具类
-            AppleApiUtil appleApiUtil = new AppleApiUtil("a5bfcfba-0592-4103-8bf4-26155249e76f", "2H85Q3Q5YW", p8Path);
+            AppleApiUtil appleApiUtil = new AppleApiUtil("0ec3a4b2-9353-4ebe-a88e-8351efd0bd87", "5P7DWTF4R6", p8Path);
             appleApiUtil.init();
 //            //获取证书工作目录
 //            String directoryPath = new File("C:\\Users\\xujimu\\Desktop\\123").getAbsolutePath();

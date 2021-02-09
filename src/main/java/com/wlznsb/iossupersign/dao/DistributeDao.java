@@ -74,6 +74,14 @@ public interface DistributeDao {
     int updateIntroduce(String introduce,String account,Integer id);
 
     /**
+     * 修改域名
+     * @return
+     */
+    @Update("update distribute set url = #{url} where account = #{account} and id = #{id}")
+    int updateDomain(String url,String account,Integer id);
+
+
+    /**
      * 修改images这是只是文字
      * @return
      */

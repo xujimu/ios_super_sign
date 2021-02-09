@@ -32,4 +32,9 @@ public class DomainDaoTest {
     public void query() {
         domainDao.queryAll();
     }
+
+    @Test
+    public void roundDomain() {
+        System.out.println( domainDao.randomDomain().getDomain());
+    }
 }

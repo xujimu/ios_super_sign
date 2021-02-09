@@ -43,6 +43,9 @@ public class DistributeController {
     @Autowired
     private DistrbuteServiceImpl distrbuteService;
 
+    @Autowired
+    private DomainDao domainDao;
+
     @Value("${apkCount}")
     private Integer apkCount;
 
@@ -161,7 +164,7 @@ public class DistributeController {
             String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").asText();
             if(null != udid && !udid.equals("")){
                 //创建状态
-                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,null,null,new Date(), null, null, "待验证", 1,id,tempContextUrl, IpUtils.getIpAddr(request),null);
+                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,null,null,new Date(), null, null, "待验证", 1,id,tempContextUrl.replace("http","https"), IpUtils.getIpAddr(request),null);
                 packStatusDao.add(packStatus);
                 //获取原来的分发地址
                 Distribute distribute = distributeDao.query(id);
@@ -325,12 +328,49 @@ public class DistributeController {
     public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa, HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
 //域名路径
-        String rootUrl = ServerUtil.getRootUrl(request);
+//        String rootUrl = ServerUtil.getRootUrl(request);
+        //随机域名
+        Domain domain =  domainDao.randomDomain();
         User user = (User)request.getSession().getAttribute("user");
-        Distribute distribute = distrbuteService.uploadIpa(ipa, user,rootUrl);
+        Distribute distribute;
+        //库里没有域名就是主域名
+        if(domain != null){
+            distribute = distrbuteService.uploadIpa(ipa, user,"https://" + domain.getDomain() + "/");
+        }else {
+            distribute = distrbuteService.uploadIpa(ipa, user,ServerUtil.getRootUrl(request));
+        }
+
         map.put("code", 0);
         map.put("message", "上传成功");
-        map.put("data", distribute);
+        return map;
+    }
+
+    //修改域名
+    @RequestMapping(value = "/updateDomain",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> updateDomain(@RequestParam Integer id,HttpServletRequest request,HttpServletResponse response) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+//域名路径
+//        String rootUrl = ServerUtil.getRootUrl(request);
+        User user = (User)request.getSession().getAttribute("user");
+        Distribute distribute =  distributeDao.query(id);
+        if(distribute != null){
+            String oldDomain = new  java.net.URL(distribute.getUrl()).getHost();
+            Domain domain = domainDao.randomNoDomain(oldDomain);
+            log.info("老域名" + oldDomain);
+            if(domain != null){
+                distributeDao.updateDomain(distribute.getUrl().replace(oldDomain,domain.getDomain()),user.getAccount(),id);
+            }else {
+                throw  new RuntimeException("暂时没有可用域名");
+            }
+        }else {
+            log.info("操作失败,应用不存在");
+            throw  new RuntimeException("操作失败,应用不存在");
+        }
+
+        //随机域名
+        map.put("code", 0);
+        map.put("message", "更换成功 点击复制地址即可查看新域名");
         return map;
     }
 

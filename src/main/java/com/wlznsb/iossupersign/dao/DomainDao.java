@@ -33,4 +33,17 @@ public interface DomainDao {
     List<Domain> queryAll();
 
 
+    /**
+     * 随机抽取一条域名
+     * @return
+     */
+    @Select("select * from domain order by rand() limit 1")
+    Domain randomDomain();
+
+    /**
+     * 随机抽取一条域名并指定不存在域名
+     * @return
+     */
+    @Select("select * from domain where domain != #{domain} order by rand() limit 1")
+    Domain randomNoDomain(String domain);
 }

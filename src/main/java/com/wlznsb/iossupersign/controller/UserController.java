@@ -56,14 +56,17 @@ public class UserController {
         return map;
     }
 
-    //查询所有域名
+
     @RequestMapping(value = "/queryDomain",method = RequestMethod.GET)
-    public Map<String,Object> queryDomain(HttpServletRequest request){
+    public Map<String,Object> queryDomain(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
-        List<Domain> domains =  domainDao.queryAll();
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page =  (Page)  domainDao.queryAll();;
         map.put("code", 0);
         map.put("message", "查询成功");
-        map.put("data", domains);
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
         return map;
     }
 

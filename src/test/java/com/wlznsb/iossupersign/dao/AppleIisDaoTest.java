@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.crypto.Cipher;
 import javax.naming.ldap.PagedResultsControl;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -45,7 +46,10 @@ class AppleIisDaoTest {
 
 
     @Test
-    void dele() {
+    void dele() throws MalformedURLException {
+        String test = "https://www.baidu.com";
+        java.net.URL  url = new  java.net.URL(test);
+        System.out.println(url.getHost());
     }
 
 

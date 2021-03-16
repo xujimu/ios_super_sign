@@ -306,7 +306,12 @@ public class DistrbuteServiceImpl{
                                     new File("/sign/mode/temp/" + nameIpa).delete();
                                 }else {
                                     log.info("不使用七牛云");
-                                    plist = plist.replace("urlRep", packStatus.getUrl()  + nameIpa);
+                                    if(SettingUtil.ipaDownUrl != null && !SettingUtil.ipaDownUrl.equals("")){
+                                        plist = plist.replace("urlRep", SettingUtil.ipaDownUrl  + nameIpa);
+                                    }else {
+                                        plist = plist.replace("urlRep", packStatus.getUrl()  + nameIpa);
+                                    }
+
                                     log.info("ipa路径:" + packStatus.getUrl()  + nameIpa);
                                 }
                                 //bundle要随机不然有时候没进度条
@@ -317,7 +322,10 @@ public class DistrbuteServiceImpl{
                                 plist = plist.replace("appnameRep", distribute.getAppName());
                                 String plistName = new Date().getTime() + ".plist";
                                 IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
-                                String plistUrl = "itms-services://?action=download-manifest&url=" +  packStatus.getUrl() + plistName;
+                                //如果没有指定下载地址就是默认的
+                                String plistUrl;
+
+                                plistUrl = "itms-services://?action=download-manifest&url=" +  packStatus.getUrl() + plistName;
                                 packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null, appleIis1.getIis(),appleIis1.getP12(),filePro,null, nameIpa,plistUrl , "点击下载", null,null,null,null,null), packStatus.getUuid());
                                 //删除配置文件
                                 log.info("删除配置文件");
@@ -379,7 +387,11 @@ public class DistrbuteServiceImpl{
                     new File("/sign/mode/temp/" + nameIpa).delete();
                 }else {
                     log.info("不使用七牛云");
-                    plist = plist.replace("urlRep", packStatus.getUrl()  + nameIpa);
+                    if(SettingUtil.ipaDownUrl != null && !SettingUtil.ipaDownUrl.equals("")){
+                        plist = plist.replace("urlRep", SettingUtil.ipaDownUrl  + nameIpa);
+                    }else {
+                        plist = plist.replace("urlRep", packStatus.getUrl()  + nameIpa);
+                    }
                     log.info("ipa路径:" + packStatus.getUrl()  + nameIpa);
                 }
                 //bundle要随机不然有时候没进度条
@@ -390,7 +402,9 @@ public class DistrbuteServiceImpl{
                 plist = plist.replace("appnameRep", distribute.getAppName());
                 String plistName = new Date().getTime() + ".plist";
                 IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
-                String plistUrl = "itms-services://?action=download-manifest&url=" +  packStatus.getUrl() + plistName;
+                String plistUrl;
+                //如果没有指定下载地址就是默认的
+                plistUrl = "itms-services://?action=download-manifest&url=" +  packStatus.getUrl() + plistName;
                 packStatusDao.update(new PackStatus(null, distribute.getAccount(), distribute.getPageName(), null, null,  packStatus.getIis(),packStatus.getP12Path(),packStatus.getMobilePath(),null, nameIpa,plistUrl , "点击下载", null,null,null,null,null), packStatus.getUuid());
                 //删除配置文件
                 log.info("打包完成");

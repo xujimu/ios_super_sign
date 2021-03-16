@@ -26,7 +26,7 @@
         <skipTests>true</skipTests>
     </properties>
 
-    <packaging>jar</packaging> 
+    <packaging>jar</packaging>
 
     <dependencies>
 
@@ -35,6 +35,7 @@
             <artifactId>okhttp</artifactId>
             <version>3.10.0</version>
         </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

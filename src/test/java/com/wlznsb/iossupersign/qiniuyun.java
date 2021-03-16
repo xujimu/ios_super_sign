@@ -15,6 +15,7 @@ import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
+import com.wlznsb.iossupersign.util.SettingUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
@@ -122,6 +123,12 @@ public class qiniuyun {
         ossClient.shutdown();
         log.info("阿里云上传时间:" + (System.currentTimeMillis() - time)/1000 + "秒");
     }
+
+    @Test
+    public  void  test3() throws InterruptedException {
+
+    }
+
 
     @Test
     public  void  test2() throws URISyntaxException {

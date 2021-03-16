@@ -1,5 +1,8 @@
 package com.wlznsb.iossupersign.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.dao.DomainDao;
@@ -10,6 +13,7 @@ import com.wlznsb.iossupersign.entity.PackStatus;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
+import com.wlznsb.iossupersign.util.SettingUtil;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -51,6 +55,32 @@ public class AdminController {
         map.put("message", "修改成功");
         return map;
     }
+
+    //修改设置
+    @RequestMapping(value = "/updateSetting",method = RequestMethod.POST)
+    public Map<String,Object> updateIpaDownUrl(@RequestParam  String  settingJson, HttpServletRequest request) throws JsonProcessingException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        JsonNode jsonNode = new ObjectMapper().readTree(settingJson);
+        SettingUtil.ipaDownUrl = jsonNode.get("IpaDownUrl").asText();
+        System.out.println(SettingUtil.ipaDownUrl);
+        map.put("code", 0);
+        map.put("message", "修改成功");
+        return map;
+    }
+
+
+    //查询设置
+    @RequestMapping(value = "/querySetting",method = RequestMethod.GET)
+    public Map<String,Object> querySetting(HttpServletRequest request){
+        Map<String,Object> map = new HashMap<String, Object>();
+        Map<String,Object> setting = new HashMap<String, Object>();
+        setting.put("IpaDownUrl",SettingUtil.ipaDownUrl);
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", setting);
+        return map;
+    }
+
 
     //添加域名
     @RequestMapping(value = "/addDomain",method = RequestMethod.POST)

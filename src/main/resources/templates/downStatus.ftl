@@ -76,7 +76,7 @@
             <strong>${distribute.appName}</strong>
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
-                <a class="btn btn-mini step2 blue"  href="javascript:void(0);" id="install_btn">排队中&nbsp;660</a>
+                <a class="btn btn-mini step2 blue"  href="javascript:void(0);" id="install_btn">排队中&nbsp;20</a>
 <#--                <img id="loadimg" src="${path}/images/load.gif" style="position: relative; top: 10px;left: 5px">-->
             </div>
         </div>
@@ -282,7 +282,7 @@
 <script type="text/javascript">
 
         window.onload = load;
-        timec = 660
+        timec = 20
         var c = 1
         var that = this
         var a =  window.setInterval(function(){

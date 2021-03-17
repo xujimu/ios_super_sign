@@ -76,7 +76,8 @@ public class DistributeController {
         if(distribute.getApk() != null){
             String time = Base64.getEncoder().encodeToString(Long.toString(new Date().getTime() * 1390).getBytes());
             time = Base64.getEncoder().encodeToString(time.getBytes());
-            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + time);
+
+//            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + time);
         }else {
             distribute.setApk("no");
         }

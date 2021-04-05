@@ -13,7 +13,8 @@ systemctl stop firewalld.service
 systemctl disable firewalld.service
 yum update -y  && chmod -R 777 /sign && yum install docker -y && systemctl start docker
 systemctl status docker
-docker run -v /opt:/opt  -v /var/lib/mysql/:/var/lib/mysql/  -v /sign:/sign -p 80:80 -p 3306:3306 -p 443:443 -tdi --privileged    --name sign -d  --restart always 2524931333/centos7xjm:expect  init -t
+//如果要在docker外使用数据库要注意映射
+docker run -v /opt:/opt  -v /sign:/sign  -p 8080:8080 -tdi --privileged    --name sign -d  --restart always 2524931333/centos7xjm:expect  init -t
 docker exec -it sign /bin/bash
 sh /root/mysqlinit.sh
 systemctl start mysqld

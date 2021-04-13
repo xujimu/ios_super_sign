@@ -39,6 +39,8 @@ public class DistrbuteServiceImpl{
     private String qiniuyunBucket;
     @Value("${qiniuyun.url}")
     private String qiniuyunUrl;
+    @Value("${qiniuyun.reg}")
+    private String qiniuyunReg;
 
     @Value("${aliyun.accessKey}")
     private String aliyunAccessKey;
@@ -485,8 +487,18 @@ public class DistrbuteServiceImpl{
      */
     public String uploadQly(String localFilePath,String suffix){
         Long time = System.currentTimeMillis();
-        Configuration cfg = new Configuration(Region.region2());
+        Configuration cfg;
+        //内网
+        if(this.qiniuyunReg.equals("huadong")){
+             cfg = new Configuration(Region.qvmRegion0());
+        }else if(this.qiniuyunReg.equals("huabei")){
+             cfg = new Configuration(Region.qvmRegion1());
+        }else {
+            cfg = new Configuration(Region.qvmRegion1());
+        }
+
         cfg.useHttpsDomains = false;
+
         UploadManager uploadManager = new UploadManager(cfg);
         String key = new Date().getTime() + "." + suffix;
         Auth auth = Auth.create(qiniuyunAccessKey, qiniuyunSecretKey);

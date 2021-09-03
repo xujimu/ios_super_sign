@@ -67,16 +67,20 @@ public class DistrbuteServiceImpl{
     private UserDao userDao;
 
     @Transactional
-    public Distribute uploadIpa(MultipartFile ipa, User user,String rootUrl) {
+    public Distribute uploadIpa(MultipartFile ipa, User user,String rootUrl,Integer appId) {
         Integer id = null;
         try {
             if(ipa.getSize() != 0){
+
                 //获取下一次的主键id
                 id = distributeDao.getId();
                 if(id == null){
                     id = 1;
                 }else {
                     id = id + 1;
+                }
+                if(null != appId){
+                    id = appId;
                 }
                 new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/").mkdirs();
                 //icon路径
@@ -98,7 +102,7 @@ public class DistrbuteServiceImpl{
                 }
                 String cmd = "unzip -oq " + ipaPath + " -d " + "/sign/temp/" + user.getAccount() + "/distribute/" + id + "/";
                 //log.info("解压命令" + cmd);
-               // log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
+                // log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
                 String name = mapIpa.get("displayName").toString();
                 String url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
@@ -110,8 +114,15 @@ public class DistrbuteServiceImpl{
                 RuntimeExec.runtimeExec("python ipin.py" );
                 RuntimeExec.runtimeExec("rm -rf ipin.py");
                 POSIXFactory.getPOSIX().chdir(initPath);
-                distributeDao.add(distribute);
+                if(null != appId){
+                    distributeDao.updateIpa(distribute);
+                }else {
+                    distributeDao.add(distribute);
+                }
+
                 return distribute;
+
+
             }else {
                 throw new RuntimeException("请不要上传空包");
             }
@@ -159,7 +170,6 @@ public class DistrbuteServiceImpl{
         }
         return 0;
     }
-
 
     /**
      * 自助分发上传ipa

@@ -17,6 +17,7 @@ import org.apache.ibatis.annotations.Param;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.UsesSunHttpServer;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileSystemUtils;
@@ -77,7 +78,7 @@ public class DistributeController {
             String time = Base64.getEncoder().encodeToString(Long.toString(new Date().getTime() * 1390).getBytes());
             time = Base64.getEncoder().encodeToString(time.getBytes());
 
-//            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + time);
+            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + time);
         }else {
             distribute.setApk("no");
         }
@@ -326,9 +327,10 @@ public class DistributeController {
     //上传ipa
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa, HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa, Integer id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-//域名路径
+        System.out.println("id" + id);
+        //域名路径
 //        String rootUrl = ServerUtil.getRootUrl(request);
         //随机域名
         Domain domain =  domainDao.randomDomain();
@@ -336,11 +338,10 @@ public class DistributeController {
         Distribute distribute;
         //库里没有域名就是主域名
         if(domain != null){
-            distribute = distrbuteService.uploadIpa(ipa, user,"https://" + domain.getDomain() + "/");
+            distribute = distrbuteService.uploadIpa(ipa, user,"https://" + domain.getDomain() + "/",id);
         }else {
-            distribute = distrbuteService.uploadIpa(ipa, user,ServerUtil.getRootUrl(request));
+            distribute = distrbuteService.uploadIpa(ipa, user,ServerUtil.getRootUrl(request),id);
         }
-
         map.put("code", 0);
         map.put("message", "上传成功");
         return map;
@@ -401,6 +402,7 @@ public class DistributeController {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = (User) request.getSession().getAttribute("user");
         distrbuteService.dele(user, id);
+
         map.put("code", 0);
         map.put("message", "删除成功");
         return map;

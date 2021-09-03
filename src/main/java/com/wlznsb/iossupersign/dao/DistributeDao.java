@@ -30,6 +30,9 @@ public interface DistributeDao {
     @Update("update distribute set apk = #{apk} where id = #{id}")
     int uploadApk(String apk,Integer id);
 
+    @Update("update distribute set app_name = #{distribute.appName} ,page_name = #{distribute.pageName}, version = #{distribute.version}  where id = #{distribute.id}")
+    int updateIpa(@Param("distribute") Distribute distribute);
+
     /**
      * 删除应用
      * @param id

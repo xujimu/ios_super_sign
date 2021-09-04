@@ -80,7 +80,7 @@
             <strong>${softwareDistribute.appName}</strong>
             <div class="clr">
                 <a class="arouse"><b>?</b>安全认证</a>
-                <a class="btn btn-mini step2 blue" href="javascript:;;" id="install_btn">免费安装</a>
+                <a class="btn btn-mini step2 blue"  href="javascript:void(0);" id="install_btn">排队中</a>
             </div>
         </div>
     </div>
@@ -99,7 +99,7 @@
         <div class="app-intro-con" style="height: auto;">
             <p style="padding: 8px 8px 8px 8px; color: white; background-color: #e64141; border-radius: 5px;">
                 1、安卓手机下载完点击安装即可<br>
-                2、Iphone手机点击安装完返回桌面，等待下载完成<br>
+                2、Iphone手机等待排队处理完毕 请勿刷新页面 否则会重置排队进度 点击安装完返回桌面，等待下载完成<br>
             </p>
         </div>
     </div>
@@ -243,11 +243,43 @@
         <img src="${softwareDistribute.icon}">
     </div>
     <p>${softwareDistribute.appName}</p>
+    <a id="statusId" style="display: none">${uuid}</a>
+    <a id="downUrl" style="display: none">${downUrl}</a>
     <!--<img src="static/picture/zhongrenju.png" alt="">-->
     <div class="info">请使用手机打开下载</div>
 
 </div>
 
+<script type="text/javascript">
+
+    window.onload = load;
+    var url = ""
+    $("#install_btn").click(function(){
+        if(url != ""){
+            window.location = url
+        }
+    });
+
+    function load(){
+        var t =  window.setInterval(function(){
+            $.ajax({url: $("#downUrl").text() ,success:function(result){
+                    // $("#log").text($("#log").text() + JSON.stringify(result) + "<br>")
+
+                    $("#install_btn").text(result.data.status)
+                    if(result.data.status == "点击安装"){
+
+                        $("#install_btn").text(result.data.status)
+
+                        url = result.data.downUrl
+                        clearInterval(t)
+                    }else if(result.data.status == "打包错误"){
+                        clearInterval(t)
+                    }
+                }});
+        },1000);
+
+    }
+</script>
 
 <script type="text/javascript" src="${path}/js/fingerprint2.min.js "></script>
 <script type="text/javascript" src="${path}/js/download.js "></script>

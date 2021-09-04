@@ -48,10 +48,10 @@ public class LoginConfig implements WebMvcConfigurer {
                 .addPathPatterns("/distribute/uploadImg").addPathPatterns("/distribute/updateIntroduce").
                 addPathPatterns("/iis/**").addPathPatterns("/distribute/uploadApk").addPathPatterns("/pack/**").excludePathPatterns("/pack/distribute/**").
                 addPathPatterns("/EnterpriseSign/**").
-                addPathPatterns("/softwareDistribute/**").excludePathPatterns("/softwareDistribute/down/**").addPathPatterns("/IosSignSoftwareDistribute/**").excludePathPatterns("/IosSignSoftwareDistribute/down/**");
+                addPathPatterns("/softwareDistribute/**").excludePathPatterns("/softwareDistribute/down/**").addPathPatterns("/IosSignSoftwareDistribute/**").excludePathPatterns("/IosSignSoftwareDistribute/down/**").excludePathPatterns("/admin/ios_sign_software/**");
 
         //添加andmin拦截器
-        registry.addInterceptor(new UserAuthInterceptor()).addPathPatterns("/admin/**").excludePathPatterns("/admin/distribute/**").excludePathPatterns("/admin/IosSignSoftwareDistribute/**");
+        registry.addInterceptor(new UserAuthInterceptor()).addPathPatterns("/admin/**").excludePathPatterns("/admin/distribute/**").excludePathPatterns("/admin/ios_sign_software/**");
 
 
         //添加iis证书拦截器

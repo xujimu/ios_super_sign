@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.dao.*;
-import com.wlznsb.iossupersign.entity.IosSignSoftwareDistribute;
-import com.wlznsb.iossupersign.entity.IosSignUdidCert;
-import com.wlznsb.iossupersign.entity.SoftwareDistribute;
-import com.wlznsb.iossupersign.entity.User;
+import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
 import com.wlznsb.iossupersign.util.*;
 import jnr.posix.POSIXFactory;
@@ -250,6 +247,8 @@ public class IosSignSoftwareDistributeController {
         return map;
     }
 
+    @Autowired
+    private IosSignSoftwareDistributeStatusDao distributeStatusDao;
     //下载页面
     @RequestMapping(value = "/down/{uuid}",method = RequestMethod.GET)
     public String down(Model model,HttpServletRequest request, @PathVariable String uuid) throws IOException {
@@ -262,46 +261,66 @@ public class IosSignSoftwareDistributeController {
         if(iosSignSoftwareDistribute == null){
             throw  new RuntimeException("应用不存在");
         }else {
+            String packUuid = MyUtil.getUuid();
+            IosSignSoftwareDistributeStatus ios = new IosSignSoftwareDistributeStatus(packUuid,iosSignUdidCert.getAccount(),
+                    iosSignSoftwareDistribute.getIosId(),iosSignUdidCert.getCertId(),iosSignSoftwareDistribute.getAppName(),
+                    iosSignSoftwareDistribute.getPageName(),
+                    iosSignSoftwareDistribute.getVersion(),"","排队中",new Date(),new Date());
+            distributeStatusDao.add(ios);
             log.info("应用存在");
-            if(iosSignSoftwareDistribute.getApk() == null){
-                iosSignSoftwareDistribute.setApk("no");
-            }
-            String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
-            //bundle要随机不然有时候没进度条
-            plist = plist.replace("bundleRep", uuid);
-            plist = plist.replace("versionRep", iosSignSoftwareDistribute.getVersion());
-            plist = plist.replace("iconRep", iosSignUdidCert.getP12Path());
-            plist = plist.replace("appnameRep",iosSignSoftwareDistribute.getAppName());
-            //对ipa签名
-            String uuidTemp = MyUtil.getUuid();
-            String signPath = "/sign/mode/temp/" + uuidTemp +".ipa";
-            String cmd = "/sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa();
+//            if(iosSignSoftwareDistribute.getApk() == null){
+//                iosSignSoftwareDistribute.setApk("no");
+//            }
+//            String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
+//            //bundle要随机不然有时候没进度条
+//            plist = plist.replace("bundleRep", uuid);
+//            plist = plist.replace("versionRep", iosSignSoftwareDistribute.getVersion());
+//            plist = plist.replace("iconRep", iosSignUdidCert.getP12Path());
+//            plist = plist.replace("appnameRep",iosSignSoftwareDistribute.getAppName());
+//            //对ipa签名
+//            String uuidTemp = MyUtil.getUuid();
+//            String signPath = "/sign/mode/temp/" + uuidTemp +".ipa";
+//            String cmd = "/sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa();
+//
+//            if(iosSignSoftwareDistribute.getAutoPageName() == 1){
+//                log.info("随机包名");
+//                cmd = "/sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa() + " -b " + new Date().getTime();
+//            }
+//            log.info("开始签名" + cmd);
+//            Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
+//            log.info("签名结果" + map1.get("status").toString());
+//            log.info("签名反馈" + map1.get("info").toString());
+//            log.info("签名命令" + cmd);
+//            //上传云端
+//            String ipaUrl = distrbuteService.uploadSoftwareIpa(signPath);
+//            if(null == ipaUrl){
+//                ipaUrl = rootUrl + uuidTemp + ".ipa";
+//            }
+//            plist = plist.replace("urlRep", ipaUrl);
+//            String plistName = uuidTemp + ".plist";
+//            IoHandler.writeTxt(new File("/sign/mode/temp/" +  plistName).getAbsolutePath(), plist);
+//            String plistUrl = "itms-services://?action=download-manifest&url=" +  rootUrl + plistName;
+            iosSignSoftwareDistribute.setUrl("");
 
-            if(iosSignSoftwareDistribute.getAutoPageName() == 1){
-                log.info("随机包名");
-                cmd = "/sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa() + " -b " + new Date().getTime();
-            }
-            log.info("开始签名" + cmd);
-            Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
-            log.info("签名结果" + map1.get("status").toString());
-            log.info("签名反馈" + map1.get("info").toString());
-            log.info("签名命令" + cmd);
-            //上传云端
-            String ipaUrl = distrbuteService.uploadSoftwareIpa(signPath);
-            if(null == ipaUrl){
-                ipaUrl = rootUrl + uuidTemp + ".ipa";
-            }
-            plist = plist.replace("urlRep", ipaUrl);
-            String plistName = uuidTemp + ".plist";
-            IoHandler.writeTxt(new File("/sign/mode/temp/" +  plistName).getAbsolutePath(), plist);
-            String plistUrl = "itms-services://?action=download-manifest&url=" +  rootUrl + plistName;
-            iosSignSoftwareDistribute.setIpa(plistUrl);
-            model.addAttribute("pro", rootUrl + "app.mobileprovision");
+            model.addAttribute("uuid", packUuid);
+            model.addAttribute("downUrl", rootUrl + "IosSignSoftwareDistribute/down/status/" + packUuid);
             model.addAttribute("softwareDistribute", iosSignSoftwareDistribute);
         }
         return "IosSignSoftwareDown";
     }
 
+
+    //查询打包状态
+    @RequestMapping(value = "/down/status/{uuid}",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,Object> downStatus(@PathVariable String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        IosSignSoftwareDistributeStatus ios =  distributeStatusDao.query(uuid);
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", ios);
+        return map;
+    }
 
     //更新ipa
     @RequestMapping(value = "/updateIpa",method = RequestMethod.POST)
@@ -368,6 +387,31 @@ public class IosSignSoftwareDistributeController {
 
         }else {
             page =  (Page) softwareDistributeDao.queryAccountAll(user.getAccount());
+        }
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
+        return map;
+    }
+
+    //查询单点分发记录
+    @RequestMapping(value = "/pack/queryAll",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,Object> pack(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = (User) request.getSession().getAttribute("user");
+
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page;
+
+        //管理查询所有
+        if(user.getType() == 1){
+            page =  (Page) distributeStatusDao.queryAll();
+
+        }else {
+            page =  (Page) distributeStatusDao.queryAccountAll(user.getAccount());
         }
         map.put("code", 0);
         map.put("message", "查询成功");

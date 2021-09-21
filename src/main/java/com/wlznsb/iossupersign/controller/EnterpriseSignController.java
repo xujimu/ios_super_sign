@@ -78,20 +78,20 @@ public class EnterpriseSignController {
             JsonNode jsonNode = new ObjectMapper().readTree(data);
             String name;
             try{
-                name = jsonNode.get("extra").get("name").asText();
+                name = jsonNode.get("data").get("name").asText();
             }catch (Exception e){
                 name = null;
             }
             //不等于null说明证书没问题
             if(name != null){
-                String expiredTimeS = jsonNode.get("extra").get("expired").asText();
+                String expiredTimeS = jsonNode.get("data").get("validEnd").asText();
                 SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date expiredTime = format.parse(expiredTimeS);
                 //写入moblic文件
                 String mobileProvisionPath =  new File("/sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5 + "/" + md5 + ".mobileprovision").getAbsolutePath();
                 mobileProvision.transferTo(new File(mobileProvisionPath));
                 EnterpriseSignCert enterpriseSignCert;
-                if(data.contains("revoke")){
+                if(jsonNode.get("data").get("status").asText().equals("revoked")){
                     enterpriseSignCert = new EnterpriseSignCert(null,user.getAccount(),name,p12Path,mobileProvisionPath,password,"掉签",count,remark,new Date(),expiredTime,md5);
                 }else {
                     if(System.currentTimeMillis() > expiredTime.getTime()){

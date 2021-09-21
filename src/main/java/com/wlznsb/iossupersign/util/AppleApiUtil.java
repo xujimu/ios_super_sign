@@ -458,13 +458,13 @@ public class AppleApiUtil {
                 .build();
         okhttp3.MediaType mediaType = okhttp3.MediaType.parse("text/plain");
         RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("file[cert]",p12Path,
+                .addFormDataPart("p12",p12Path,
                         RequestBody.create(okhttp3.MediaType.parse("application/octet-stream"),
                                 new File(p12Path)))
                 .addFormDataPart("password", password)
                 .build();
         Request request = new Request.Builder()
-                .url("https://www.pgyer.com/tools/certificate")
+                .url("https://check.signstack.cc:2052/checkcert")
                 .method("POST", body)
                 .build();
         Response response = client.newCall(request).execute();

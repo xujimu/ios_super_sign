@@ -1,7 +1,11 @@
 package com.wlznsb.iossupersign.dao;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wlznsb.iossupersign.entity.AppleIis;
+import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.IoHandler;
+import okhttp3.*;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.crypto.Cipher;
 import javax.naming.ldap.PagedResultsControl;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -46,15 +51,40 @@ class AppleIisDaoTest {
 
 
     @Test
-    void dele() throws MalformedURLException {
-        String test = "https://www.baidu.com";
-        java.net.URL  url = new  java.net.URL(test);
-        System.out.println(url.getHost());
+    void dele() throws IOException {
+        String p12Path = "C:\\Users\\Administrator\\Desktop\\q.p12";
+        String password = "1";
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        okhttp3.MediaType mediaType = okhttp3.MediaType.parse("text/plain");
+        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("p12",p12Path,
+                        RequestBody.create(okhttp3.MediaType.parse("application/octet-stream"),
+                                new File(p12Path)))
+                .addFormDataPart("password", password)
+                .build();
+        Request request = new Request.Builder()
+                .url("https://check.signstack.cc:2052/checkcert")
+                .method("POST", body)
+                .build();
+        Response response = client.newCall(request).execute();
+
+
+        if(response.code() == 200){
+            String res = response.body().string();
+            JsonNode jsonNode = new ObjectMapper().readTree(res);
+            System.out.println(jsonNode.get("data").get("name"));
+
+            System.out.println(res);
+        }else {
+
+
+        }
     }
 
+    @Test
+    void updateStatus() throws IOException {
 
-    void updateStatus() {
-        appleIisDao.updateStatus(0, "123");
     }
 
 

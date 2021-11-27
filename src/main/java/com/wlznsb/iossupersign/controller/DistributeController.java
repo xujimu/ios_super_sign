@@ -234,24 +234,24 @@ public class DistributeController {
             //判断要不要下载码
             if(distribute.getDownCode() == 1){
                 log.info("需要下载码");
-//                //这里暂时只使用最近的一条下载记录
-//                PackStatus packStatus = packStatusDao.queryUdidCert(udid,distribute.getAccount());
-//                //判断有没有下载记录
-//                if(null != packStatus){
-//                    log.info("查询到下载记录");
-//                    AppleIis appleIis =  appleIisDao.queryIss(packStatus.getIis());
-//                    AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis.getIis(),
-//                            appleIis.getKid(),appleIis.getP8());
-//                    if(appleApiUtil.init()){
-//                        packStatusDao.updateStatusExecS("排队中", packStatus.getIis(),packStatus.getDownCode(),packStatus.getP12Path(),packStatus.getMobilePath(),uuid,"待验证");
-//                        map.put("code",0);
-//                        map.put("message", "验证成功");
-//                        map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
-//                    }else {
-//                        appleIisDao.updateStatus(0,appleApiUtil.getIis());
-//                        throw new RuntimeException("证书失效");
-//                    }
-//                }else {
+                //这里暂时只使用最近的一条下载记录
+                PackStatus packStatus = packStatusDao.queryUdidCert(udid,distribute.getAccount());
+                //判断有没有下载记录
+                if(null != packStatus){
+                    log.info("查询到下载记录");
+                    AppleIis appleIis =  appleIisDao.queryIss(packStatus.getIis());
+                    AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis.getIis(),
+                            appleIis.getKid(),appleIis.getP8());
+                    if(appleApiUtil.init()){
+                        packStatusDao.updateStatusExecS("排队中", packStatus.getIis(),packStatus.getDownCode(),packStatus.getP12Path(),packStatus.getMobilePath(),uuid,"待验证");
+                        map.put("code",0);
+                        map.put("message", "验证成功");
+                        map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                    }else {
+                        appleIisDao.updateStatus(0,appleApiUtil.getIis());
+                        throw new RuntimeException("证书失效");
+                    }
+                }else {
                     log.info("未查询到下载记录");
                     if(null != downCode && !"".equals(downCode)){
                         DownCode downCode1 = downCodeDao.queryAccountDownCode(distribute.getAccount(),downCode);
@@ -271,38 +271,38 @@ public class DistributeController {
                     }else {
                         throw new RuntimeException("下载码不能为空");
                     }
-//                }
+                }
             }else {
                 //这里暂时只使用最近的一条下载记录
-//                PackStatus packStatus = packStatusDao.queryUdidCert(udid,distribute.getAccount());
-//                log.info("不需要下载码");
-//                //判断有没有下载记录
-//                if(null != packStatus) {
-//                    log.info("查询到下载记录");
-//                    AppleIis appleIis = appleIisDao.queryIss(packStatus.getIis());
-//                    AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis.getIis(),
-//                            appleIis.getKid(), appleIis.getP8());
-//                    if (appleApiUtil.init()) {
-//                        log.info("证书未失效");
-//                        packStatusDao.updateStatusExecS("排队中", packStatus.getIis(), packStatus.getDownCode(), packStatus.getP12Path(), packStatus.getMobilePath(), uuid, "待验证");
-//                        map.put("code", 0);
-//                        map.put("message", "验证成功");
-//                        map.put("statusUrl", rootUrl + "/distribute/getStatus?statusId=");
-//                    } else {
-//                        log.info("证书失效");
-//                        appleIisDao.updateStatus(0, appleApiUtil.getIis());
-//                        packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
-//                        map.put("code",0);
-//                        map.put("message", "验证成功");
-//                        map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
-//                    }
-//                }else {
-//                    log.info("未查到下载记录");
+                PackStatus packStatus = packStatusDao.queryUdidCert(udid,distribute.getAccount());
+                log.info("不需要下载码");
+                //判断有没有下载记录
+                if(null != packStatus) {
+                    log.info("查询到下载记录");
+                    AppleIis appleIis = appleIisDao.queryIss(packStatus.getIis());
+                    AppleApiUtil appleApiUtil = new AppleApiUtil(appleIis.getIis(),
+                            appleIis.getKid(), appleIis.getP8());
+                    if (appleApiUtil.init()) {
+                        log.info("证书未失效");
+                        packStatusDao.updateStatusExecS("排队中", packStatus.getIis(), packStatus.getDownCode(), packStatus.getP12Path(), packStatus.getMobilePath(), uuid, "待验证");
+                        map.put("code", 0);
+                        map.put("message", "验证成功");
+                        map.put("statusUrl", rootUrl + "/distribute/getStatus?statusId=");
+                    } else {
+                        log.info("证书失效");
+                        appleIisDao.updateStatus(0, appleApiUtil.getIis());
+                        packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
+                        map.put("code",0);
+                        map.put("message", "验证成功");
+                        map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                    }
+                }else {
+                    log.info("未查到下载记录");
                     packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
                     map.put("code",0);
                     map.put("message", "验证成功");
                     map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
-//                }
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -537,7 +537,7 @@ public class DistributeController {
         User user = (User) request.getSession().getAttribute("user");
         try {
             PackStatus packStatus = packStatusDao.queryDownCert(id, user.getAccount());
-            String  tempName = new Date().getTime() + "证书密码123456.zip";
+            String  tempName = new Date().getTime() + "证书密码123456.tar";
             String  mobilePath = new File(packStatus.getMobilePath()).getParent();
             String  mobilename = new File(packStatus.getMobilePath()).getName();
             String  p12Path = new File(packStatus.getP12Path()).getParent();

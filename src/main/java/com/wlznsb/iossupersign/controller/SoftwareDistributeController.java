@@ -1,17 +1,17 @@
 package com.wlznsb.iossupersign.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.wlznsb.iossupersign.dao.*;
+import com.wlznsb.iossupersign.annotation.PxCheckLogin;
+import com.wlznsb.iossupersign.mapper.*;
 import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
+import com.wlznsb.iossupersign.service.UserServiceImpl;
 import com.wlznsb.iossupersign.util.*;
 import jnr.posix.POSIXFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -22,9 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotEmpty;
 import java.io.*;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +33,7 @@ import java.util.Map;
 @Validated
 @Slf4j
 @CrossOrigin(allowCredentials="true")
+@PxCheckLogin
 public class SoftwareDistributeController {
 
     @Autowired
@@ -50,17 +49,21 @@ public class SoftwareDistributeController {
     @Autowired
     private UserDao userDao;
 
+
+    @Autowired
+    private UserServiceImpl userService;
+
     @Autowired
     private DistrbuteServiceImpl distrbuteService;
 
     //上传ipa
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa,HttpServletRequest request) throws IOException {
+    public Map<String,Object> uploadIpa(String token,@RequestParam MultipartFile ipa,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //域名路径
         String rootUrl = ServerUtil.getRootUrl(request);
-        User user = (User)request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         String uuid = MyUtil.getUuid();
         //创建目录
         new File("/sign/mode/software/" + uuid).mkdirs();
@@ -125,6 +128,7 @@ public class SoftwareDistributeController {
 
     //下载页面
     @RequestMapping(value = "/down/{uuid}",method = RequestMethod.GET)
+    @PxCheckLogin(value = false)
     public String down(Model model,HttpServletRequest request, @PathVariable String uuid) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         SoftwareDistribute softwareDistribute =  softwareDistributeDao.queryUuid(uuid);
@@ -150,10 +154,10 @@ public class SoftwareDistributeController {
     //上传apk也可以更新
     @RequestMapping(value = "/uploadApk",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadApk(@RequestParam MultipartFile apk,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadApk(String token,@RequestParam MultipartFile apk,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         String apkPath = new File("/sign/mode/software/" + uuid + "/" + uuid + ".apk").getAbsolutePath();
         apk.transferTo(new File(apkPath));
         String apkUrl = distrbuteService.uploadSoftwareApk(apkPath);
@@ -169,10 +173,10 @@ public class SoftwareDistributeController {
     //更新ipa
     @RequestMapping(value = "/updateIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadIpa(String token,@RequestParam MultipartFile ipa,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         String ipaPath = new File("/sign/mode/software/" + uuid + "/" + uuid + ".ipa").getAbsolutePath();
         ipa.transferTo(new File(ipaPath));
         String  ipaUrl = distrbuteService.uploadSoftwareIpa(ipaPath);
@@ -206,9 +210,9 @@ public class SoftwareDistributeController {
     //上传apk也可以更新
     @RequestMapping(value = "/uploadIntroduce",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIntroduce(@RequestParam @Length(max = 200,message = "最多200个字符") String introduce, @RequestParam String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadIntroduce(String token,@RequestParam @Length(max = 200,message = "最多200个字符") String introduce, @RequestParam String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         softwareDistributeDao.updateIntroduce(introduce,uuid,user.getAccount());
         map.put("code", 0);
         map.put("message", "修改成功");
@@ -218,9 +222,9 @@ public class SoftwareDistributeController {
     //查询分发记录
     @RequestMapping(value = "/queryAll",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> queryAll(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+    public Map<String,Object> queryAll(String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
 
         PageHelper.startPage(pageNum,pageSize);
         Page<User> page;
@@ -249,9 +253,9 @@ public class SoftwareDistributeController {
      */
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> delete(@RequestParam  String uuid,HttpServletRequest request) throws Exception {
+    public Map<String,Object> delete(String token,@RequestParam  String uuid,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         Integer res;
         if(user.getType() == 1){
             res  = softwareDistributeDao.adminDelete(uuid);

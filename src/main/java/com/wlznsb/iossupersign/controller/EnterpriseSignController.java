@@ -4,17 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.wlznsb.iossupersign.dao.EnterpriseSignCertDao;
-import com.wlznsb.iossupersign.dao.PackStatusEnterpriseSignDao;
-import com.wlznsb.iossupersign.dao.UserDao;
+import com.wlznsb.iossupersign.annotation.PxCheckLogin;
+import com.wlznsb.iossupersign.mapper.EnterpriseSignCertDao;
+import com.wlznsb.iossupersign.mapper.PackStatusEnterpriseSignDao;
+import com.wlznsb.iossupersign.mapper.UserDao;
 import com.wlznsb.iossupersign.entity.EnterpriseSignCert;
 import com.wlznsb.iossupersign.entity.PackStatusEnterpriseSign;
 import com.wlznsb.iossupersign.entity.User;
+import com.wlznsb.iossupersign.service.UserServiceImpl;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
 import com.wlznsb.iossupersign.util.MyUtil;
 import com.wlznsb.iossupersign.util.ServerUtil;
-import jnr.ffi.annotations.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.validator.constraints.Range;
@@ -24,10 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotEmpty;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +39,7 @@ import java.util.Map;
 @Validated
 @CrossOrigin(allowCredentials="true")
 @Slf4j
+@PxCheckLogin
 public class EnterpriseSignController {
 
     @Autowired
@@ -52,11 +51,14 @@ public class EnterpriseSignController {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private UserServiceImpl userService;
+
     //上传证书
     @RequestMapping(value = "/uploadCert",method = RequestMethod.POST)
-    public Map<String,Object> uploadCert(@RequestParam  MultipartFile mobileProvision, @RequestParam MultipartFile p12, @RequestParam  String password, @RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count,@RequestParam  String remark, HttpServletRequest request) throws Exception {
+    public Map<String,Object> uploadCert(String token,@RequestParam  MultipartFile mobileProvision, @RequestParam MultipartFile p12, @RequestParam  String password, @RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count,@RequestParam  String remark, HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         if (user.getType() == 1){
             //获取文件md5
             String md5 =  DigestUtils.md5Hex(p12.getInputStream());
@@ -121,9 +123,9 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/deleteCert",method = RequestMethod.POST)
-    public Map<String,Object> deleteCert(@RequestParam  String md5,HttpServletRequest request) throws Exception {
+    public Map<String,Object> deleteCert(String token,@RequestParam  String md5,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         if (user.getType() == 1){
             //删除数据
             enterpriseSignCertDao.deleteCert(md5);
@@ -146,7 +148,7 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/queryAllCert",method = RequestMethod.GET)
-    public Map<String,Object> queryAllCert(@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
+    public Map<String,Object> queryAllCert(String token,@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         PageHelper.startPage(pageNum,pageSize);
         Page<User> page =  (Page) enterpriseSignCertDao.queryAllCert();
@@ -168,9 +170,9 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/edit",method = RequestMethod.POST)
-    public Map<String,Object> edit(@RequestParam String remark,@RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count, @RequestParam  String md5,HttpServletRequest request) throws Exception {
+    public Map<String,Object> edit(String token,@RequestParam String remark,@RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count, @RequestParam  String md5,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         if(user.getType() == 1){
             enterpriseSignCertDao.edit(remark,count, md5);
             map.put("code", 0);
@@ -189,9 +191,9 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
-    public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa, @RequestParam String md5,HttpServletRequest request) throws Exception {
+    public Map<String,Object> uploadIpa(String token,@RequestParam MultipartFile ipa, @RequestParam String md5,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         EnterpriseSignCert enterpriseSignCert = enterpriseSignCertDao.queryMd5(md5);
         User user1 =  userDao.queryAccount(user.getAccount());
         String ipaPath = new File("/sign/mode/temp/unsigned_sign" + MyUtil.getUuid() + ".ipa").getAbsolutePath();
@@ -231,9 +233,9 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/queryAccountPack",method = RequestMethod.GET)
-    public Map<String,Object> queryAccountPack(@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
+    public Map<String,Object> queryAccountPack(String token,@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         PageHelper.startPage(pageNum,pageSize);
         Page<User> page;
         //管理员则查询所有用户打包

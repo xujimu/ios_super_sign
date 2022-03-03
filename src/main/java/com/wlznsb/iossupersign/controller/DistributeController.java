@@ -1,26 +1,22 @@
 package com.wlznsb.iossupersign.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.wlznsb.iossupersign.dao.*;
+import com.wlznsb.iossupersign.annotation.PxCheckLogin;
+import com.wlznsb.iossupersign.mapper.*;
 import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
+import com.wlznsb.iossupersign.service.UserServiceImpl;
 import com.wlznsb.iossupersign.util.*;
-import jnr.ffi.annotations.In;
-import jnr.posix.POSIXFactory;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.ibatis.annotations.Param;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.UsesSunHttpServer;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +33,7 @@ import java.util.*;
 @Validated
 @Slf4j
 @CrossOrigin(allowCredentials="true")
+@PxCheckLogin
 public class DistributeController {
 
     private Map<String,Integer> tempUuid = new HashMap<>();
@@ -67,6 +64,7 @@ public class DistributeController {
 
     //下载页面,没有使用业务层
     @RequestMapping(value = "/down/{base64Id}",method = RequestMethod.GET)
+    @PxCheckLogin(value = false)
     public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
         String rootUrl = ServerUtil.getRootUrl(request);
@@ -105,6 +103,7 @@ public class DistributeController {
     //获取描述文件,没有使用业务层
     @GetMapping
     @RequestMapping("/getMobile")
+    @PxCheckLogin(value = false)
     public void getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //临时存放,保证每次描述文件url都是动态的
@@ -137,6 +136,7 @@ public class DistributeController {
 
     //301回调
     @RequestMapping(value = "/getUdid")
+    @PxCheckLogin(value = false)
     public void getUdid(@RequestParam String tempuuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Integer id = tempUuid.get(tempuuid);
         if(id != null){
@@ -190,6 +190,7 @@ public class DistributeController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping(value = "/downStatus/{base64Id}/{statusId}/{uuid}/{udid}")
+    @PxCheckLogin(value = false)
     public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id, @PathVariable String statusId, @PathVariable String uuid, @PathVariable String udid) throws JsonProcessingException, UnsupportedEncodingException {
 
         //域名
@@ -224,6 +225,7 @@ public class DistributeController {
     //判断是否需要下载码,如果有就需要带下载码
     @RequestMapping(value = "/exec/{id}/{uuid}/{udid}")
     @ResponseBody
+    @PxCheckLogin(value = false)
     public Map<String,Object> exec(String downCode, @PathVariable String uuid, @PathVariable Integer id, HttpServletRequest request, @PathVariable String udid) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         try {
@@ -314,6 +316,7 @@ public class DistributeController {
     //查询打包状态,没有使用业务层
     @RequestMapping(value = "/getStatus")
     @ResponseBody
+    @PxCheckLogin(value = false)
     public Map<String,Object> getStatus(String statusId,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         PackStatus packStatus =  packStatusDao.query(statusId);
@@ -324,17 +327,20 @@ public class DistributeController {
     }
 
 
+    @Autowired
+    private UserServiceImpl userService;
+
     //上传ipa
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(@RequestParam MultipartFile ipa, Integer id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadIpa(String token,@RequestParam MultipartFile ipa, Integer id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         System.out.println("id" + id);
         //域名路径
 //        String rootUrl = ServerUtil.getRootUrl(request);
         //随机域名
         Domain domain =  domainDao.randomDomain();
-        User user = (User)request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         Distribute distribute;
         //库里没有域名就是主域名
         if(domain != null){
@@ -350,11 +356,11 @@ public class DistributeController {
     //修改域名
     @RequestMapping(value = "/updateDomain",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> updateDomain(@RequestParam Integer id,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> updateDomain(String token,@RequestParam Integer id,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
 //域名路径
 //        String rootUrl = ServerUtil.getRootUrl(request);
-        User user = (User)request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         Distribute distribute =  distributeDao.query(id);
         if(distribute != null){
             String oldDomain = new  java.net.URL(distribute.getUrl()).getHost();
@@ -380,9 +386,9 @@ public class DistributeController {
     //上传apk
     @RequestMapping(value = "/uploadApk",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadApk(@RequestParam MultipartFile apk,@RequestParam int id,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadApk(String token,@RequestParam MultipartFile apk,@RequestParam int id,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         try {
             System.out.println(userDao.addCount(user.getAccount(), -this.apkCount));;
         }catch (Exception e){
@@ -398,9 +404,9 @@ public class DistributeController {
     //删除ipa,没有使用业务层
     @RequestMapping(value = "/deleIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> deleIpa(@RequestParam  int id,HttpServletRequest request) throws IOException {
+    public Map<String,Object> deleIpa(String token,@RequestParam  int id,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         distrbuteService.dele(user, id);
 
         map.put("code", 0);
@@ -412,9 +418,9 @@ public class DistributeController {
     //查询ipa
     @RequestMapping(value = "/queryAccountAll",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> queryAccountAll(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize) throws IOException {
+    public Map<String,Object> queryAccountAll(String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         Page<User> page;
         //如果是管理员就查询所有
         if(user.getType() == 0){
@@ -436,9 +442,9 @@ public class DistributeController {
     //修改简介
     @RequestMapping(value = "/updateIntroduce",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> updateIntroduce(@RequestParam @NotEmpty String introduce, @RequestParam Integer id, HttpServletRequest request) throws IOException {
+    public Map<String,Object> updateIntroduce(String token,@RequestParam @NotEmpty String introduce, @RequestParam Integer id, HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         distributeDao.updateIntroduce(introduce, user.getAccount(), id);
         map.put("code", 0);
         map.put("message", "修改成功");
@@ -448,9 +454,9 @@ public class DistributeController {
     //上传轮播图
     @RequestMapping(value = "/uploadImg",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> updateIntroduce(@RequestParam MultipartFile img1,@RequestParam MultipartFile img2,@RequestParam MultipartFile img3,MultipartFile img4, @RequestParam Integer id, HttpServletRequest request) throws IOException {
+    public Map<String,Object> updateIntroduce(String token,@RequestParam MultipartFile img1,@RequestParam MultipartFile img2,@RequestParam MultipartFile img3,MultipartFile img4, @RequestParam Integer id, HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         String path = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/img").getAbsolutePath();
         //这里没做非空判断
         img1.transferTo(new File(path + "1.png"));
@@ -466,9 +472,9 @@ public class DistributeController {
     //启用下载码
     @RequestMapping(value = "/updateDownCodeStatus",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> updateDownCodeStatus(@RequestParam Integer id, @RequestParam  @Range(max = 1,min = 0)  Integer downCode, HttpServletRequest request) throws IOException {
+    public Map<String,Object> updateDownCodeStatus(String token,@RequestParam Integer id, @RequestParam  @Range(max = 1,min = 0)  Integer downCode, HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         distributeDao.updateDownCode(user.getAccount(), id, downCode);
         map.put("code", 0);
         map.put("message", "操作成功");
@@ -479,9 +485,9 @@ public class DistributeController {
     //修改下载码购买地址
     @RequestMapping(value = "/updateBuyDownCodeUrl",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> updateBuyDownCodeUrl(@RequestParam Integer id,@NotEmpty @RequestParam String url, HttpServletRequest request) throws IOException {
+    public Map<String,Object> updateBuyDownCodeUrl(String token,@RequestParam Integer id,@NotEmpty @RequestParam String url, HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         distributeDao.updateBuyDownCodeUrl(user.getAccount(), id, url);
         map.put("code", 0);
         map.put("message", "操作成功");
@@ -491,9 +497,9 @@ public class DistributeController {
     //添加下载码
     @RequestMapping(value = "/addDownCode",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> addDownCode(HttpServletRequest request, @RequestParam @Range(max = 100000,min = 1) Integer num) throws IOException {
+    public Map<String,Object> addDownCode(String token,HttpServletRequest request, @RequestParam @Range(max = 100000,min = 1) Integer num) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         distrbuteService.addDownCode(user,num);
         map.put("code", 0);
         map.put("message", "操作成功");
@@ -503,9 +509,9 @@ public class DistributeController {
     //查询所有下载码
     @RequestMapping(value = "/queryAllDownCode",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> queryAllDownCode(@RequestParam Integer pageNum,@RequestParam  Integer pageSize,HttpServletRequest request)  {
+    public Map<String,Object> queryAllDownCode(String token,@RequestParam Integer pageNum,@RequestParam  Integer pageSize,HttpServletRequest request)  {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         PageHelper.startPage(pageNum,pageSize);
         Page page = (Page) downCodeDao.queryAccountAllDownCode(user.getAccount());
         map.put("code", 0);
@@ -519,9 +525,9 @@ public class DistributeController {
     //删除下载码
     @RequestMapping(value = "/deleDownCode",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> deleDownCode(@RequestParam Integer id,HttpServletRequest request) throws IOException {
+    public Map<String,Object> deleDownCode(String token,@RequestParam Integer id,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         downCodeDao.deleDownCode(user.getAccount(), id);
         map.put("code", 0);
         map.put("message", "操作成功");
@@ -531,10 +537,10 @@ public class DistributeController {
     //下载证书
     @RequestMapping(value = "/downCert",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> downCert(@RequestParam Integer id,HttpServletRequest request) throws IOException {
+    public Map<String,Object> downCert(String token,@RequestParam Integer id,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         try {
             PackStatus packStatus = packStatusDao.queryDownCert(id, user.getAccount());
             String  tempName = new Date().getTime() + "证书密码123456.tar";

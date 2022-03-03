@@ -1,8 +1,8 @@
 package com.wlznsb.iossupersign.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wlznsb.iossupersign.dao.AppleIisDao;
-import com.wlznsb.iossupersign.dao.UserDao;
+import com.wlznsb.iossupersign.mapper.AppleIisDao;
+import com.wlznsb.iossupersign.mapper.UserDao;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.util.AppleApiUtil;

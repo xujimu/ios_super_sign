@@ -1,14 +1,19 @@
 package com.wlznsb.iossupersign.service;
 
-import com.wlznsb.iossupersign.dao.UserDao;
+import com.alibaba.fastjson.JSON;
+import com.qiniu.util.Json;
+import com.wlznsb.iossupersign.constant.RedisKey;
+import com.wlznsb.iossupersign.mapper.UserDao;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -17,6 +22,7 @@ public class UserServiceImpl {
 
     @Autowired
     private UserDao userDao;
+
 
     @Transactional
     public UserDto register(User user) {
@@ -38,6 +44,19 @@ public class UserServiceImpl {
         }
     }
 
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+
+
+    public User getUser(String token){
+        String users = redisTemplate.opsForValue().get(String.format(RedisKey.USER_TOKEN, token));
+        User user = JSON.parseObject(users,User.class);
+        return user;
+    }
+
+
     @Transactional
     public UserDto login(String account, String password) {
         try {
@@ -46,7 +65,12 @@ public class UserServiceImpl {
                 throw new RuntimeException("账号不存在");
             }else {
                 if(user.getPassword().equals(password)){
+                    String token = UUID.randomUUID().toString();
+                    user.setToken(token);
+                    redisTemplate.opsForValue().set(String.format(RedisKey.USER_TOKEN, token), JSON.toJSONString(user));
+
                     return new UserDto(0, "登陆成功", user);
+
                 }else {
                     throw new RuntimeException("密码错误");
                 }

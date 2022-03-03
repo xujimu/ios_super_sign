@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.wlznsb.iossupersign.dao.DomainDao;
-import com.wlznsb.iossupersign.dao.UserDao;
-import com.wlznsb.iossupersign.entity.AppleIis;
+import com.wlznsb.iossupersign.annotation.PxCheckAdmin;
+import com.wlznsb.iossupersign.mapper.DomainDao;
+import com.wlznsb.iossupersign.mapper.UserDao;
 import com.wlznsb.iossupersign.entity.Domain;
-import com.wlznsb.iossupersign.entity.PackStatus;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
@@ -21,17 +20,15 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/admin")
 @Validated
 @CrossOrigin(allowCredentials="true")
+@PxCheckAdmin
 public class AdminController {
 
     @Autowired
@@ -45,6 +42,8 @@ public class AdminController {
 
     @Autowired
     private DomainDao domainDao;
+
+
 
     //修改类型
     @RequestMapping(value = "/updateType",method = RequestMethod.POST)
@@ -148,6 +147,7 @@ public class AdminController {
         map.put("message", "操作成功");
         return map;
     }
+
 
 
     /**

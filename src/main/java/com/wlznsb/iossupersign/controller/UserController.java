@@ -3,32 +3,27 @@ package com.wlznsb.iossupersign.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.wlznsb.iossupersign.dao.DomainDao;
-import com.wlznsb.iossupersign.dao.PackStatusDao;
+import com.wlznsb.iossupersign.annotation.PxCheckLogin;
+import com.wlznsb.iossupersign.mapper.DomainDao;
+import com.wlznsb.iossupersign.mapper.PackStatusDao;
 import com.wlznsb.iossupersign.dto.UserDto;
-import com.wlznsb.iossupersign.entity.Domain;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/user")
 @Validated
 @CrossOrigin(allowCredentials="true")
+@PxCheckLogin
 public class UserController {
 
     @Autowired
@@ -42,8 +37,10 @@ public class UserController {
     private DomainDao domainDao;
 
 
+
     //登录
     @RequestMapping(value = "/login",method = RequestMethod.POST)
+    @PxCheckLogin(value = false)
     public Map<String,Object> login(@RequestParam @NotEmpty String account, @RequestParam @NotEmpty String password, HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
         UserDto userDto = userService.login(account, password);
@@ -72,9 +69,10 @@ public class UserController {
 
     //注册
     @RequestMapping(value = "/register",method = RequestMethod.POST)
+    @PxCheckLogin(value = false)
     public Map<String,Object> register(@RequestParam @NotEmpty String account,@RequestParam @NotEmpty String password){
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = new User(null,account,password,new Date(),0,0);
+        User user = new User(null,account,password,new Date(),0,0,null);
         UserDto userDto = userService.register(user);
         user.setPassword(null);
         map.put("code", 0);
@@ -95,9 +93,9 @@ public class UserController {
 
     //修改密码
     @RequestMapping(value = "/updatePassword",method = RequestMethod.POST)
-    public Map<String,Object> updatePassword(@RequestParam @NotEmpty String password,@RequestParam @NotEmpty String newPassword,HttpServletRequest request){
+    public Map<String,Object> updatePassword(String token,@RequestParam @NotEmpty String password,@RequestParam @NotEmpty String newPassword,HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         userService.updatePassword(user.getAccount(),password,newPassword);
         request.getSession().removeAttribute("user");
         map.put("code", 0);
@@ -107,9 +105,9 @@ public class UserController {
 
     //查询下载记录
     @RequestMapping(value = "/queryDown",method = RequestMethod.GET)
-    public Map<String,Object> queryDown(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+    public Map<String,Object> queryDown(String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
-        User user = (User) request.getSession().getAttribute("user");
+        User user = userService.getUser(token);
         PageHelper.startPage(pageNum,pageSize);
         Page<User> page =  (Page) packStatusDao.queryDown(user.getAccount());
         map.put("code", 0);

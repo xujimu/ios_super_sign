@@ -3,10 +3,12 @@ package com.wlznsb.iossupersign.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.wlznsb.iossupersign.dao.PackStatusIosApkDao;
-import com.wlznsb.iossupersign.dao.UserDao;
+import com.wlznsb.iossupersign.annotation.PxCheckLogin;
+import com.wlznsb.iossupersign.mapper.PackStatusIosApkDao;
+import com.wlznsb.iossupersign.mapper.UserDao;
 import com.wlznsb.iossupersign.entity.PackStatusIosApk;
 import com.wlznsb.iossupersign.entity.User;
+import com.wlznsb.iossupersign.service.UserServiceImpl;
 import com.wlznsb.iossupersign.util.IoHandler;
 import com.wlznsb.iossupersign.util.ServerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import java.util.Map;
 @Validated
 @Slf4j
 @CrossOrigin(allowCredentials="true")
+@PxCheckLogin
 public class PackIosApkController {
 
     @Autowired
@@ -36,15 +39,18 @@ public class PackIosApkController {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private UserServiceImpl userService;
+
     //提交打包信息
     @ResponseBody
     @RequestMapping(value = "/submit" ,method = RequestMethod.POST)
-    public Map<String, Object> submit(HttpServletRequest request
+    public Map<String, Object> submit(String token,HttpServletRequest request
             , String statusJson, MultipartFile icon, MultipartFile startIcon) {
         Map<String, Object> map = new HashMap<String, Object>();
         try {
             ObjectMapper mapper = new ObjectMapper();
-            User user = (User) request.getSession().getAttribute("user");
+            User user = userService.getUser(token);
             //将json序列化为对象
             PackStatusIosApk packStatusIosApk =  mapper.readValue(statusJson, PackStatusIosApk.class);
             //图标路径
@@ -130,8 +136,8 @@ public class PackIosApkController {
     //提交打包信息
     @ResponseBody
     @RequestMapping(value = "/queryAccountAll" ,method = RequestMethod.GET)
-    public Map<String, Object> query(HttpServletRequest request, @RequestParam Integer pageNum, @RequestParam  Integer pageSize) {
-        User user = (User) request.getSession().getAttribute("user");
+    public Map<String, Object> query(String token,HttpServletRequest request, @RequestParam Integer pageNum, @RequestParam  Integer pageSize) {
+        User user = userService.getUser(token);
         Map<String,Object> map = new HashMap<String, Object>();
         packStatusIosApkDao.queryUserAll(user.getAccount());
         PageHelper.startPage(pageNum,pageSize);
@@ -147,6 +153,7 @@ public class PackIosApkController {
 
     //分发
     @RequestMapping(value = "/distribute/{id}" ,method = RequestMethod.GET)
+    @PxCheckLogin(value = false)
     public String distribute(HttpServletRequest request, @PathVariable Integer id) {
         PackStatusIosApk packStatusIosApk = packStatusIosApkDao.queryId(id);
 

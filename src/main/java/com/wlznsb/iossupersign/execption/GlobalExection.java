@@ -23,6 +23,7 @@ public class GlobalExection {
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseBody
     public Map<String,Object> RuntimeException(RuntimeException e){
+
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("code", 3);
         System.out.println(e.toString() + "1");
@@ -31,4 +32,17 @@ public class GlobalExection {
         return map;
     }
 
+    //其他返回状态码异常
+    @ExceptionHandler(ResRunException.class)
+    @ResponseBody
+    public Map<String,Object> codeException(ResRunException e) {
+        e.printStackTrace();
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("code", e.getCode());
+        System.out.println(e.toString() + "1");
+        map.put("message", e.getMessage());
+        map.put("data", e.getData());
+        e.printStackTrace();
+        return map;
+    }
 }

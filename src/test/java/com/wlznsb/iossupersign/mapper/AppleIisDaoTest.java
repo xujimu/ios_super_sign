@@ -1,8 +1,13 @@
 package com.wlznsb.iossupersign.mapper;
 
+import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.io.file.FileWriter;
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wlznsb.iossupersign.common.TimeLockInfo;
 import com.wlznsb.iossupersign.entity.TestEntity;
+import com.wlznsb.iossupersign.util.AutoIdUtil;
 import okhttp3.*;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +16,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 
@@ -28,9 +37,13 @@ class AppleIisDaoTest {
     private TestMapper testMapper;
 
     @Test
-    void add() {
-        TestEntity testEntity = testMapper.selectById(1);
-        System.out.println(testEntity);
+    void add() throws ParseException {
+
+       Date date = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy").parse("Wed Mar 01 10:47:12 CST 2017");
+
+        System.out.println(date.getTime());
+//        TestEntity testEntity = testMapper.selectById(1);
+//        System.out.println(testEntity);
 //        Date day=new Date();
 //        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //        System.out.println(df.format(day));
@@ -76,12 +89,18 @@ class AppleIisDaoTest {
 
     @Test
     void updateStatus() throws IOException {
-        System.out.println(UUID.randomUUID().toString());
+        TimeLockInfo timeLockInfo = new TimeLockInfo();
+        timeLockInfo.setRequest_url("WQEQW");
+
+        File file = new File("./sign/mode/temp/sign.info");
+        FileWriter fileWriter = new FileWriter(file.getAbsolutePath());
+
+        fileWriter.write(JSON.toJSONString(timeLockInfo));
     }
 
-
+    @Test
     void updateStart() {
-        appleIisDao.updateStart(0, "123");
+        Integer id = Integer.valueOf(AutoIdUtil.get().nextId());
     }
 
 
@@ -90,7 +109,10 @@ class AppleIisDaoTest {
     }
 
 
-    void query() {
+    void query() throws FileNotFoundException {
+
+
+
 
     }
 

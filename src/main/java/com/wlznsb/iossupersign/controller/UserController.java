@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,11 +42,10 @@ public class UserController {
     //登录
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     @PxCheckLogin(value = false)
-    public Map<String,Object> login(@RequestParam @NotEmpty String account, @RequestParam @NotEmpty String password, HttpServletRequest request){
+    public Map<String,Object> login(@RequestParam @NotEmpty String account, @RequestParam @NotEmpty String password, HttpServletRequest request, HttpServletResponse response){
         Map<String,Object> map = new HashMap<String, Object>();
         UserDto userDto = userService.login(account, password);
         User user = userDto.getUser();
-        request.getSession().setAttribute("user", user);
         user.setPassword(null);
         map.put("code", 0);
         map.put("message", "登陆成功");
@@ -53,6 +53,17 @@ public class UserController {
         return map;
     }
 
+    //获取资料
+    @RequestMapping(value = "/get_info",method = RequestMethod.GET)
+    public Map<String,Object> get_info(@RequestHeader String token, HttpServletRequest request){
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = userService.getUserInfo(token);
+        user.setPassword(null);
+        map.put("code", 0);
+        map.put("message", "获取成功");
+        map.put("data", user);
+        return map;
+    }
 
     @RequestMapping(value = "/queryDomain",method = RequestMethod.GET)
     public Map<String,Object> queryDomain(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
@@ -93,7 +104,7 @@ public class UserController {
 
     //修改密码
     @RequestMapping(value = "/updatePassword",method = RequestMethod.POST)
-    public Map<String,Object> updatePassword(String token,@RequestParam @NotEmpty String password,@RequestParam @NotEmpty String newPassword,HttpServletRequest request){
+    public Map<String,Object> updatePassword(@RequestHeader String token,@RequestParam @NotEmpty String password,@RequestParam @NotEmpty String newPassword,HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         userService.updatePassword(user.getAccount(),password,newPassword);
@@ -105,7 +116,7 @@ public class UserController {
 
     //查询下载记录
     @RequestMapping(value = "/queryDown",method = RequestMethod.GET)
-    public Map<String,Object> queryDown(String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+    public Map<String,Object> queryDown(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         PageHelper.startPage(pageNum,pageSize);

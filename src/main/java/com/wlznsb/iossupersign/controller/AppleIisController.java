@@ -40,7 +40,7 @@ public class AppleIisController {
     private UserServiceImpl userService;
 
     @RequestMapping(value = "/addIis",method = RequestMethod.POST)
-    public Map<String,Object> addIis(String token,@RequestParam @NotEmpty String iis, @RequestParam @NotEmpty String kid,@RequestParam  MultipartFile p8, HttpServletRequest request){
+    public Map<String,Object> addIis(@RequestHeader String token,@RequestParam @NotEmpty String iis, @RequestParam @NotEmpty String kid,@RequestParam  MultipartFile p8, HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         appleIisService.add(iis, kid, p8,user);
@@ -50,7 +50,7 @@ public class AppleIisController {
     }
 
     @RequestMapping(value = "/deleIis",method = RequestMethod.POST)
-    public Map<String,Object> deleIis(String token,@RequestParam @NotEmpty String iis,HttpServletRequest request){
+    public Map<String,Object> deleIis(@RequestHeader String token,@RequestParam @NotEmpty String iis,HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         appleIisService.dele(iis,user);
@@ -60,7 +60,7 @@ public class AppleIisController {
     }
 
     @RequestMapping(value = "/updateStartOrStatus",method = RequestMethod.POST)
-    public Map<String,Object> updateStartOrStatus(String token,@RequestParam @NotEmpty String type, @RequestParam @NotEmpty String iis, @RequestParam @Range(max = 1,message = "参数错误") int s, HttpServletRequest request){
+    public Map<String,Object> updateStartOrStatus(@RequestHeader String token,@RequestParam @NotEmpty String type, @RequestParam @NotEmpty String iis, @RequestParam @Range(max = 1,message = "参数错误") int s, HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         appleIisService.updateStartOrStatus(type, iis, s,user);
@@ -72,7 +72,7 @@ public class AppleIisController {
 
 
     @RequestMapping(value = "/queryAccount",method = RequestMethod.GET)
-    public Map<String,Object> queryAccount(String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+    public Map<String,Object> queryAccount(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         PageHelper.startPage(pageNum,pageSize);

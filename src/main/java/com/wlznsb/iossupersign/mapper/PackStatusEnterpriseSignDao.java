@@ -19,7 +19,8 @@ public interface PackStatusEnterpriseSignDao {
     @Insert("insert into pack_status_enterprise_sign() values(#{packStatusEnterpriseSign.id},#{packStatusEnterpriseSign.certId}," +
             "#{packStatusEnterpriseSign.certName},#{packStatusEnterpriseSign.account},#{packStatusEnterpriseSign.createTime}," +
             "#{packStatusEnterpriseSign.appName},#{packStatusEnterpriseSign.pageName},#{packStatusEnterpriseSign.version}," +
-            "#{packStatusEnterpriseSign.status},#{packStatusEnterpriseSign.downUrl},#{packStatusEnterpriseSign.ipaPath},#{packStatusEnterpriseSign.url})")
+            "#{packStatusEnterpriseSign.status},#{packStatusEnterpriseSign.downUrl},#{packStatusEnterpriseSign.ipaPath},#{packStatusEnterpriseSign.url}" +
+            ",#{packStatusEnterpriseSign.isTimeLock},#{packStatusEnterpriseSign.lockTimeFinish},#{packStatusEnterpriseSign.lockRequestUrl})")
     Integer add(@Param("packStatusEnterpriseSign") PackStatusEnterpriseSign packStatusEnterpriseSign);
 
 
@@ -28,7 +29,7 @@ public interface PackStatusEnterpriseSignDao {
      * 修改打包状态
      */
     @Update("update pack_status_enterprise_sign set status = #{status} , down_url = #{downUrl}  where id = #{id}")
-    int updateStatus(String status,String downUrl,Integer id);
+    int updateStatus(String status,String downUrl,String id);
 
 
     /**

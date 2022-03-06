@@ -5,17 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.annotation.PxCheckLogin;
+
+import com.wlznsb.iossupersign.common.QueryTimeLockAns;
+import com.wlznsb.iossupersign.entity.PackStatusEnterpriseSignEntity;
 import com.wlznsb.iossupersign.mapper.EnterpriseSignCertDao;
 import com.wlznsb.iossupersign.mapper.PackStatusEnterpriseSignDao;
+import com.wlznsb.iossupersign.mapper.PackStatusEnterpriseSignMapper;
 import com.wlznsb.iossupersign.mapper.UserDao;
 import com.wlznsb.iossupersign.entity.EnterpriseSignCert;
 import com.wlznsb.iossupersign.entity.PackStatusEnterpriseSign;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
-import com.wlznsb.iossupersign.util.AppleApiUtil;
-import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
-import com.wlznsb.iossupersign.util.MyUtil;
-import com.wlznsb.iossupersign.util.ServerUtil;
+import com.wlznsb.iossupersign.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.validator.constraints.Range;
@@ -24,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -56,7 +58,7 @@ public class EnterpriseSignController {
 
     //上传证书
     @RequestMapping(value = "/uploadCert",method = RequestMethod.POST)
-    public Map<String,Object> uploadCert(String token,@RequestParam  MultipartFile mobileProvision, @RequestParam MultipartFile p12, @RequestParam  String password, @RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count,@RequestParam  String remark, HttpServletRequest request) throws Exception {
+    public Map<String,Object> uploadCert(@RequestHeader String token,@RequestParam  MultipartFile mobileProvision, @RequestParam MultipartFile p12, @RequestParam  String password, @RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count,@RequestParam  String remark, HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         if (user.getType() == 1){
@@ -123,7 +125,7 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/deleteCert",method = RequestMethod.POST)
-    public Map<String,Object> deleteCert(String token,@RequestParam  String md5,HttpServletRequest request) throws Exception {
+    public Map<String,Object> deleteCert(@RequestHeader String token,@RequestParam  String md5,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         if (user.getType() == 1){
@@ -148,7 +150,7 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/queryAllCert",method = RequestMethod.GET)
-    public Map<String,Object> queryAllCert(String token,@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
+    public Map<String,Object> queryAllCert(@RequestHeader String token,@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         PageHelper.startPage(pageNum,pageSize);
         Page<User> page =  (Page) enterpriseSignCertDao.queryAllCert();
@@ -170,7 +172,7 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/edit",method = RequestMethod.POST)
-    public Map<String,Object> edit(String token,@RequestParam String remark,@RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count, @RequestParam  String md5,HttpServletRequest request) throws Exception {
+    public Map<String,Object> edit(@RequestHeader String token,@RequestParam String remark,@RequestParam @Range(min = 0,max = 999999,message = "扣除共有池数超出范围") Integer count, @RequestParam  String md5,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         if(user.getType() == 1){
@@ -191,13 +193,20 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
-    public Map<String,Object> uploadIpa(String token,@RequestParam MultipartFile ipa, @RequestParam String md5,HttpServletRequest request) throws Exception {
+    public Map<String,Object> uploadIpa(@RequestHeader String token,@RequestParam MultipartFile ipa, @RequestParam String md5, @RequestParam Integer isTimeLock,@RequestParam Date lockFinishTime,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         EnterpriseSignCert enterpriseSignCert = enterpriseSignCertDao.queryMd5(md5);
         User user1 =  userDao.queryAccount(user.getAccount());
         String ipaPath = new File("/sign/mode/temp/unsigned_sign" + MyUtil.getUuid() + ".ipa").getAbsolutePath();
         ipa.transferTo(new File(ipaPath));
+
+        String unzipPath = "/sign/mode/temp/unsigned_sign" + MyUtil.getUuid() + "/";
+
+        String cmd = "unzip -oq " + ipaPath + " -d " + unzipPath;
+        log.info("解压命令" + cmd);
+        log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
+
         String iconPath = new File("/sign/mode/temp/img" + MyUtil.getUuid() + ".png").getAbsolutePath();
         //读取信息
         Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA(ipaPath,iconPath);
@@ -206,13 +215,15 @@ public class EnterpriseSignController {
         }
         log.info("用户现有共有池:" + user1.getCount());
         log.info("证书所需:" + enterpriseSignCert.getCount());
+
+        String id = MyUtil.getUuid();
         //判断共有池是否充足
         if(user1.getCount() >= enterpriseSignCert.getCount()){
             userDao.addCount(user.getAccount(), enterpriseSignCert.getCount());
             PackStatusEnterpriseSign packStatusEnterpriseSign = new PackStatusEnterpriseSign(
-                    null,enterpriseSignCert.getId(),enterpriseSignCert.getName(),user.getAccount(),new Date(),
+                    id,enterpriseSignCert.getId(),enterpriseSignCert.getName(),user.getAccount(),new Date(),
                     mapIpa.get("displayName").toString(),mapIpa.get("package").
-                    toString(),mapIpa.get("versionName").toString(),"排队中",null,ipaPath,ServerUtil.getRootUrl(request));
+                    toString(),mapIpa.get("versionName").toString(),"排队中",null,unzipPath + "Payload/" + mapIpa.get("name") + ".app",ServerUtil.getRootUrl(request),isTimeLock,lockFinishTime,ServerUtil.getRootUrl(request) + "/EnterpriseSign/query_time_lock?id=" + id);
             packStatusEnterpriseSignDao.add(packStatusEnterpriseSign);
             map.put("code", 0);
             map.put("message", "提交成功-请前往企业签名-打包状态查看");
@@ -220,6 +231,66 @@ public class EnterpriseSignController {
             map.put("code", 1);
             map.put("message", "共有池不足!");
         }
+        return map;
+    }
+
+
+
+    @Resource
+    private PackStatusEnterpriseSignMapper statusEnterpriseSignMapper;
+
+    /**
+     * 修改时间锁
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/update_time_lock",method = RequestMethod.POST)
+    public Map<String,Object> update_time_lock(@RequestParam String id,@RequestHeader String token,@RequestParam String lockTimeFinish,HttpServletRequest request) throws Exception {
+        Map<String,Object> map = new HashMap<String, Object>();
+        PackStatusEnterpriseSignEntity packStatusEnterpriseSignEntity = statusEnterpriseSignMapper.selectById(id);
+        User user = userService.getUserInfo(token);
+        if(null != packStatusEnterpriseSignEntity && packStatusEnterpriseSignEntity.getAccount().equals(user.getAccount())){
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = df.parse(lockTimeFinish);
+            packStatusEnterpriseSignEntity.setLockTimeFinish(date);
+            statusEnterpriseSignMapper.updateById(packStatusEnterpriseSignEntity);
+        }
+        map.put("code", 0);
+        map.put("message", "修改成功");
+        return map;
+    }
+
+    /**
+     * 查询时间锁
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PxCheckLogin(value = false)
+    @RequestMapping(value = "/query_time_lock",method = RequestMethod.GET)
+    public Map<String,Object> query_time_lock(@RequestParam String id,HttpServletRequest request) throws Exception {
+        Map<String,Object> map = new HashMap<String, Object>();
+        PackStatusEnterpriseSignEntity packStatusEnterpriseSignEntity = statusEnterpriseSignMapper.selectById(id);
+        QueryTimeLockAns ans = new QueryTimeLockAns();
+
+        ans.setTimeLockFinish(packStatusEnterpriseSignEntity.getLockTimeFinish());
+
+        if(packStatusEnterpriseSignEntity.getLockTimeFinish().getTime() > System.currentTimeMillis()){
+            ans.setStatus(0);
+            ans.setToast("未到期");
+        }else {
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String dateString = formatter.format(packStatusEnterpriseSignEntity.getLockTimeFinish());
+
+            ans.setStatus(1);
+            ans.setToast("您的应用已到期" + dateString);
+        }
+
+        map.put("code", 0);
+        map.put("message", "修改成功");
+        map.put("data", ans);
         return map;
     }
 
@@ -233,7 +304,7 @@ public class EnterpriseSignController {
      * @throws Exception
      */
     @RequestMapping(value = "/queryAccountPack",method = RequestMethod.GET)
-    public Map<String,Object> queryAccountPack(String token,@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
+    public Map<String,Object> queryAccountPack(@RequestHeader String token,@RequestParam Integer pageNum, @RequestParam  Integer pageSize,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         PageHelper.startPage(pageNum,pageSize);

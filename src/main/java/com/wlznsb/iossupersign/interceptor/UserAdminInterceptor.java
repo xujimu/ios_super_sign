@@ -6,6 +6,7 @@ import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.execption.ResRunException;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -28,7 +29,7 @@ public class UserAdminInterceptor extends HandlerInterceptorAdapter {
     //过滤未登录用户
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String token = request.getParameter("token");
+        String token = request.getHeader("token");
 
         if (handler instanceof HandlerMethod) {
 

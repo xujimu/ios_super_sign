@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.SettingsMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.SettingsEntity">
+            <result property="timeLockRequestUrl" column="time_lock_request_url" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        time_lock_request_url
+    </sql>
+</mapper>

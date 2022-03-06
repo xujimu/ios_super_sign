@@ -18,7 +18,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <!--    打包跳过单元测试-->
+        <!--    打包跳过单测试-->
         <skipTests>true</skipTests>
     </properties>
 
@@ -130,6 +130,12 @@
             <version>1.23</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.7.22</version>
+        </dependency>
 <!--XML转json-->
         <dependency>
             <groupId>org.json</groupId>

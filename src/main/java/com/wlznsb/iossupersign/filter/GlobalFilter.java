@@ -30,7 +30,7 @@ public class GlobalFilter implements Filter {
         }
         //设置apk5分钟有效
         if(request.getServletPath().indexOf("distribute") != -1){
-            String token = request.getParameter("token");
+            String token = request.getHeader("token");
             String detime = new String(Base64.getDecoder().decode(token));
             detime =  new String(Base64.getDecoder().decode(detime.getBytes()));
             Long time = new Date().getTime();

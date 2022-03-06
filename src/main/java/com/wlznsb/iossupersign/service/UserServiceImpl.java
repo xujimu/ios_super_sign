@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.io.File;
 import java.util.UUID;
@@ -56,6 +57,15 @@ public class UserServiceImpl {
         return user;
     }
 
+    public User getUserInfo(String token){
+        String users = redisTemplate.opsForValue().get(String.format(RedisKey.USER_TOKEN, token));
+        User user = JSON.parseObject(users,User.class);
+        User user1 = userDao.queryAccount(user.getAccount());
+        user.setToken(token);
+
+        redisTemplate.opsForValue().set(String.format(RedisKey.USER_TOKEN, token), JSON.toJSONString(user1));
+        return user;
+    }
 
     @Transactional
     public UserDto login(String account, String password) {

@@ -178,6 +178,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="Maven: com.googlecode.plist:dd-plist:1.23" level="project" />
+    <orderEntry type="library" name="Maven: cn.hutool:hutool-all:5.7.22" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20180130" level="project" />
     <orderEntry type="library" name="Maven: com.qiniu:qiniu-java-sdk:7.2.29" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.12" level="project" />

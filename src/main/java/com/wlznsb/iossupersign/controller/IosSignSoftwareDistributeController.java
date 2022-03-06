@@ -65,7 +65,7 @@ public class IosSignSoftwareDistributeController {
     //上传ipa
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(String token,@RequestParam(value = "ipa") MultipartFile ipa,
+    public Map<String,Object> uploadIpa(@RequestHeader String token,@RequestParam(value = "ipa") MultipartFile ipa,
                                         @RequestParam(value = "certId") String certId,
                                         @RequestParam(value = "introduce") String introduce,
                                         HttpServletRequest request) throws IOException {
@@ -123,7 +123,7 @@ public class IosSignSoftwareDistributeController {
     //上传证书
     @RequestMapping(value = "/uploadCert",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(String token,@RequestParam(value = "mobileprovision")
+    public Map<String,Object> uploadIpa(@RequestHeader String token,@RequestParam(value = "mobileprovision")
                                                 MultipartFile mobileprovision,
                                         @RequestParam(value = "p12") MultipartFile p12,
                                         @RequestParam(value = "password") String password,
@@ -155,7 +155,7 @@ public class IosSignSoftwareDistributeController {
 
     @RequestMapping(value = "/queryAllCert",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> queryAllCert(String token,@RequestParam Integer pageNum,@RequestParam  Integer pageSize,
+    public Map<String,Object> queryAllCert(@RequestHeader String token,@RequestParam Integer pageNum,@RequestParam  Integer pageSize,
                                         HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //域名路径
@@ -173,7 +173,7 @@ public class IosSignSoftwareDistributeController {
 
     @RequestMapping(value = "/queryAllIpa",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> queryAllIpa(String token,@RequestParam Integer pageNum,@RequestParam  Integer pageSize,
+    public Map<String,Object> queryAllIpa(@RequestHeader String token,@RequestParam Integer pageNum,@RequestParam  Integer pageSize,
                                            HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //域名路径
@@ -193,7 +193,7 @@ public class IosSignSoftwareDistributeController {
     //修改证书
     @RequestMapping(value = "/updateIpaCertId",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> updateIpaCertId(String token,@RequestParam(value = "certId") String certId,@RequestParam(value = "iosId") String iosId,HttpServletRequest request) throws IOException {
+    public Map<String,Object> updateIpaCertId(@RequestHeader String token,@RequestParam(value = "certId") String certId,@RequestParam(value = "iosId") String iosId,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //域名路径
         String rootUrl = ServerUtil.getRootUrl(request);
@@ -206,7 +206,7 @@ public class IosSignSoftwareDistributeController {
 
     @RequestMapping(value = "/deleteIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> deleteIpa(String token,@RequestParam(value = "iosId") String iosId,HttpServletRequest request) throws IOException {
+    public Map<String,Object> deleteIpa(@RequestHeader String token,@RequestParam(value = "iosId") String iosId,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //域名路径
         String rootUrl = ServerUtil.getRootUrl(request);
@@ -223,7 +223,7 @@ public class IosSignSoftwareDistributeController {
 
     @RequestMapping(value = "/updateIpaAutoPageName",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> updateIpaAutoPageName(String token,@RequestParam(value = "iosId") String iosId, @RequestParam(value = "status") @Range(max = 1,min = 0)   Integer status, HttpServletRequest request) throws IOException {
+    public Map<String,Object> updateIpaAutoPageName(@RequestHeader String token,@RequestParam(value = "iosId") String iosId, @RequestParam(value = "status") @Range(max = 1,min = 0)   Integer status, HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //域名路径
         String rootUrl = ServerUtil.getRootUrl(request);
@@ -237,7 +237,7 @@ public class IosSignSoftwareDistributeController {
 
     @RequestMapping(value = "/deleteCert",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> deleteCert(String token,@RequestParam(value = "certId") String certId,HttpServletRequest request) throws IOException {
+    public Map<String,Object> deleteCert(@RequestHeader String token,@RequestParam(value = "certId") String certId,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //域名路径
         String rootUrl = ServerUtil.getRootUrl(request);
@@ -257,7 +257,7 @@ public class IosSignSoftwareDistributeController {
     //下载页面
     @RequestMapping(value = "/down/{uuid}",method = RequestMethod.GET)
     @PxCheckLogin(value = false)
-    public String down(Model model,String token,HttpServletRequest request, @PathVariable String uuid) throws IOException {
+    public String down(Model model,@RequestHeader String token,HttpServletRequest request, @PathVariable String uuid) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         IosSignSoftwareDistribute iosSignSoftwareDistribute =  iosSignSoftwareDistributeDao.query(uuid);
         IosSignUdidCert iosSignUdidCert = iosSignUdidCertDao.query(iosSignSoftwareDistribute.getCertId());
@@ -332,7 +332,7 @@ public class IosSignSoftwareDistributeController {
     //更新ipa
     @RequestMapping(value = "/updateIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(String token,@RequestParam MultipartFile ipa,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadIpa(@RequestHeader String token,@RequestParam MultipartFile ipa,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
@@ -369,7 +369,7 @@ public class IosSignSoftwareDistributeController {
     //上传apk也可以更新
     @RequestMapping(value = "/uploadIntroduce",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIntroduce(String token,@RequestParam @Length(max = 200,message = "最多200个字符") String introduce, @RequestParam String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadIntroduce(@RequestHeader String token,@RequestParam @Length(max = 200,message = "最多200个字符") String introduce, @RequestParam String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         softwareDistributeDao.updateIntroduce(introduce,uuid,user.getAccount());
@@ -381,7 +381,7 @@ public class IosSignSoftwareDistributeController {
     //查询分发记录
     @RequestMapping(value = "/queryAll",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> queryAll(String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+    public Map<String,Object> queryAll(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
 
@@ -406,7 +406,7 @@ public class IosSignSoftwareDistributeController {
     //查询单点分发记录
     @RequestMapping(value = "/pack/queryAll",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> pack(String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+    public Map<String,Object> pack(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
 
@@ -437,7 +437,7 @@ public class IosSignSoftwareDistributeController {
      */
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> delete(String token,@RequestParam  String uuid,HttpServletRequest request) throws Exception {
+    public Map<String,Object> delete(@RequestHeader String token,@RequestParam  String uuid,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         Integer res;

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.PackStatusEnterpriseSignMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.PackStatusEnterpriseSignEntity">
+            <id property="id" column="id" jdbcType="VARCHAR"/>
+            <result property="certId" column="cert_id" jdbcType="INTEGER"/>
+            <result property="certName" column="cert_name" jdbcType="VARCHAR"/>
+            <result property="account" column="account" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="appName" column="app_name" jdbcType="VARCHAR"/>
+            <result property="pageName" column="page_name" jdbcType="VARCHAR"/>
+            <result property="version" column="version" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="downUrl" column="down_url" jdbcType="VARCHAR"/>
+            <result property="ipaPath" column="ipa_path" jdbcType="VARCHAR"/>
+            <result property="url" column="url" jdbcType="VARCHAR"/>
+            <result property="isTimeLock" column="is_time_lock" jdbcType="INTEGER"/>
+            <result property="lockTimeFinish" column="lock_time_finish" jdbcType="TIMESTAMP"/>
+            <result property="lockRequestUrl" column="lock_request_url" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,cert_id,cert_name,
+        account,create_time,app_name,
+        page_name,version,status,
+        down_url,ipa_path,url,
+        is_time_lock,lock_time_finish,lock_request_url
+    </sql>
+</mapper>

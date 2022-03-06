@@ -59,7 +59,7 @@ public class SoftwareDistributeController {
     //上传ipa
     @RequestMapping(value = "/uploadIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(String token,@RequestParam MultipartFile ipa,HttpServletRequest request) throws IOException {
+    public Map<String,Object> uploadIpa(@RequestHeader String token,@RequestParam MultipartFile ipa,HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //域名路径
         String rootUrl = ServerUtil.getRootUrl(request);
@@ -154,7 +154,7 @@ public class SoftwareDistributeController {
     //上传apk也可以更新
     @RequestMapping(value = "/uploadApk",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadApk(String token,@RequestParam MultipartFile apk,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadApk(@RequestHeader String token,@RequestParam MultipartFile apk,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
@@ -173,7 +173,7 @@ public class SoftwareDistributeController {
     //更新ipa
     @RequestMapping(value = "/updateIpa",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIpa(String token,@RequestParam MultipartFile ipa,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadIpa(@RequestHeader String token,@RequestParam MultipartFile ipa,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
@@ -210,7 +210,7 @@ public class SoftwareDistributeController {
     //上传apk也可以更新
     @RequestMapping(value = "/uploadIntroduce",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> uploadIntroduce(String token,@RequestParam @Length(max = 200,message = "最多200个字符") String introduce, @RequestParam String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Map<String,Object> uploadIntroduce(@RequestHeader String token,@RequestParam @Length(max = 200,message = "最多200个字符") String introduce, @RequestParam String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         softwareDistributeDao.updateIntroduce(introduce,uuid,user.getAccount());
@@ -222,7 +222,7 @@ public class SoftwareDistributeController {
     //查询分发记录
     @RequestMapping(value = "/queryAll",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> queryAll(String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+    public Map<String,Object> queryAll(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
 
@@ -253,7 +253,7 @@ public class SoftwareDistributeController {
      */
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> delete(String token,@RequestParam  String uuid,HttpServletRequest request) throws Exception {
+    public Map<String,Object> delete(@RequestHeader String token,@RequestParam  String uuid,HttpServletRequest request) throws Exception {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         Integer res;

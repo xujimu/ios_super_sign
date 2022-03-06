@@ -34,7 +34,7 @@ public class UserLoginInterceptor extends HandlerInterceptorAdapter {
     }
     //判断是否登录
     private boolean isLogin(HttpServletRequest request,HttpServletResponse response){
-        String token =  request.getParameter("token");
+        String token =  request.getHeader("token");
         if(null != token){
             String useInfo = stringRedisTemplate.opsForValue().get(String.format(RedisKey.USER_TOKEN,token));
             if(null == useInfo || "".equals(useInfo)){

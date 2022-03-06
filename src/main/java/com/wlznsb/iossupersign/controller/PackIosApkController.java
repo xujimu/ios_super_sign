@@ -45,7 +45,7 @@ public class PackIosApkController {
     //提交打包信息
     @ResponseBody
     @RequestMapping(value = "/submit" ,method = RequestMethod.POST)
-    public Map<String, Object> submit(String token,HttpServletRequest request
+    public Map<String, Object> submit(@RequestHeader String token,HttpServletRequest request
             , String statusJson, MultipartFile icon, MultipartFile startIcon) {
         Map<String, Object> map = new HashMap<String, Object>();
         try {
@@ -136,7 +136,7 @@ public class PackIosApkController {
     //提交打包信息
     @ResponseBody
     @RequestMapping(value = "/queryAccountAll" ,method = RequestMethod.GET)
-    public Map<String, Object> query(String token,HttpServletRequest request, @RequestParam Integer pageNum, @RequestParam  Integer pageSize) {
+    public Map<String, Object> query(@RequestHeader String token,HttpServletRequest request, @RequestParam Integer pageNum, @RequestParam  Integer pageSize) {
         User user = userService.getUser(token);
         Map<String,Object> map = new HashMap<String, Object>();
         packStatusIosApkDao.queryUserAll(user.getAccount());

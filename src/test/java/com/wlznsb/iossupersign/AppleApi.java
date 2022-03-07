@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign;
 
 
+import cn.hutool.core.util.ZipUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wlznsb.iossupersign.entity.AppleIis;
@@ -34,6 +35,10 @@ import java.util.zip.ZipInputStream;
 @Slf4j
 public class AppleApi {
 
+
+    public static void main(String[] args) {
+
+    }
 
     @Value("${thread}")
     private   Integer thread;

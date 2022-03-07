@@ -1,5 +1,6 @@
 package com.wlznsb.iossupersign.mapper;
 
+import cn.hutool.core.util.ZipUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.entity.User;
@@ -44,9 +45,7 @@ class UserDaoTest {
 
     @Test
     void addAccount() {
-        PageHelper.startPage(1,1);
-        Page<User> page =  (Page) userDao.queryAll();
-        System.out.println(page);
+        ZipUtil.zip("C:\\Users\\Administrator\\Desktop\\4","C:\\Users\\Administrator\\Desktop\\123.ipa");
 
 //        System.out.println(new File("C:\\sign\\mode\\my.key").getParent());
 //        Integer id = 0;

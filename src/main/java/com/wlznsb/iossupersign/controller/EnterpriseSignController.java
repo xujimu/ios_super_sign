@@ -198,16 +198,17 @@ public class EnterpriseSignController {
         User user = userService.getUser(token);
         EnterpriseSignCert enterpriseSignCert = enterpriseSignCertDao.queryMd5(md5);
         User user1 =  userDao.queryAccount(user.getAccount());
-        String ipaPath = new File("/sign/mode/temp/unsigned_sign" + MyUtil.getUuid() + ".ipa").getAbsolutePath();
+        String uuid = MyUtil.getUuid();
+        String ipaPath = new File("/sign/mode/temp/unsigned_sign" + uuid + ".ipa").getAbsolutePath();
         ipa.transferTo(new File(ipaPath));
 
-        String unzipPath = "/sign/mode/temp/unsigned_sign" + MyUtil.getUuid() + "/";
+        String unzipPath = "/sign/mode/temp/unsigned_sign" + uuid + "/";
 
         String cmd = "unzip -oq " + ipaPath + " -d " + unzipPath;
         log.info("解压命令" + cmd);
         log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
 
-        String iconPath = new File("/sign/mode/temp/img" + MyUtil.getUuid() + ".png").getAbsolutePath();
+        String iconPath = new File("/sign/mode/temp/img" + uuid + ".png").getAbsolutePath();
         //读取信息
         Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA(ipaPath,iconPath);
         if(mapIpa.get("code") != null){
@@ -216,14 +217,13 @@ public class EnterpriseSignController {
         log.info("用户现有共有池:" + user1.getCount());
         log.info("证书所需:" + enterpriseSignCert.getCount());
 
-        String id = MyUtil.getUuid();
         //判断共有池是否充足
         if(user1.getCount() >= enterpriseSignCert.getCount()){
             userDao.addCount(user.getAccount(), enterpriseSignCert.getCount());
             PackStatusEnterpriseSign packStatusEnterpriseSign = new PackStatusEnterpriseSign(
-                    id,enterpriseSignCert.getId(),enterpriseSignCert.getName(),user.getAccount(),new Date(),
+                    uuid,enterpriseSignCert.getId(),enterpriseSignCert.getName(),user.getAccount(),new Date(),
                     mapIpa.get("displayName").toString(),mapIpa.get("package").
-                    toString(),mapIpa.get("versionName").toString(),"排队中",null,unzipPath + "Payload/" + mapIpa.get("name") + ".app",ServerUtil.getRootUrl(request),isTimeLock,lockFinishTime,ServerUtil.getRootUrl(request) + "/EnterpriseSign/query_time_lock?id=" + id);
+                    toString(),mapIpa.get("versionName").toString(),"排队中",null,unzipPath + "Payload/" + mapIpa.get("name") + ".app",ServerUtil.getRootUrl(request),isTimeLock,lockFinishTime,ServerUtil.getRootUrl(request) + "EnterpriseSign/query_time_lock?id=" + uuid);
             packStatusEnterpriseSignDao.add(packStatusEnterpriseSign);
             map.put("code", 0);
             map.put("message", "提交成功-请前往企业签名-打包状态查看");

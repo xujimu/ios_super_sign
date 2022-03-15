@@ -110,9 +110,9 @@ public class DistributeController {
         String uuid = ServerUtil.getUuid();
         //域名
         String tempContextUrl = ServerUtil.getRootUrl(request);
-        String keyPath = new File("/sign/mode/cert/key.key").getAbsolutePath();
-        String rootPath = new File("/sign/mode/cert/root.crt").getAbsolutePath();
-        String serverPath = new File("/sign/mode/cert/server.crt").getAbsolutePath();;
+        String keyPath = new File("/sign/mode/cert/cert.key").getAbsolutePath();
+        String rootPath = new File("/sign/mode/cert/cert.pem").getAbsolutePath();
+        String serverPath = new File("/sign/mode/cert/cert.pem").getAbsolutePath();;
         //模板
         String moblicPath =new File("/sign/mode/udid.mobileconfig").getAbsolutePath();
         //随机

@@ -461,10 +461,10 @@ public class AppleApiUtil {
                 .addFormDataPart("p12",p12Path,
                         RequestBody.create(okhttp3.MediaType.parse("application/octet-stream"),
                                 new File(p12Path)))
-                .addFormDataPart("password", password)
+                .addFormDataPart("password",password)
                 .build();
         Request request = new Request.Builder()
-                .url("https://check.signstack.cc:2052/checkcert")
+                .url("https://cer.bssji.com/CheckCert")
                 .method("POST", body)
                 .build();
         Response response = client.newCall(request).execute();

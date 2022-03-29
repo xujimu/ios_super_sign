@@ -126,7 +126,7 @@ public class GetIpaInfoUtil {
             parameters = (NSString) rootDict.get("CFBundleVersion");
             map.put("versionCode", parameters.toString());
             //应用名称
-            parameters = (NSString) rootDict.objectForKey("CFBundleName");
+            parameters = (NSString) rootDict.objectForKey("CFBundleExecutable");
             map.put("name", parameters.toString());
             //应用展示的名称
             parameters = (NSString) rootDict.objectForKey("CFBundleDisplayName");

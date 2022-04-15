@@ -16,6 +16,7 @@
     <description>Demo project for Spring Boot</description>
 
 
+
     <properties>
         <java.version>11</java.version>
         <!--    打包跳过单测试-->
@@ -23,6 +24,7 @@
     </properties>
 
     <packaging>jar</packaging>
+
 
     <dependencies>
 
@@ -304,6 +306,8 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.5.0</version>
+
 <!--                引入第三方jar需要设置为true不然打成jar包不会把第三方jar放进去-->
                 <configuration>
                     <includeSystemScope>true</includeSystemScope>

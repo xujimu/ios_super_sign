@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.CertInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.CertInfoEntity">
+            <id property="certId" column="cert_id" jdbcType="VARCHAR"/>
+            <result property="p12Path" column="p12_path" jdbcType="VARCHAR"/>
+            <result property="certName" column="cert_name" jdbcType="VARCHAR"/>
+            <result property="p12Password" column="p12_password" jdbcType="VARCHAR"/>
+            <result property="certStatus" column="cert_status" jdbcType="INTEGER"/>
+            <result property="topic" column="topic" jdbcType="VARCHAR"/>
+            <result property="serialNumber" column="serial_number" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+            <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="mobileConfigPath" column="mobile_config_path" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        cert_id,p12_path,cert_name,
+        p12_password,cert_status,topic,
+        serial_number,create_time,start_time,
+        end_time,remark,mobile_config_path
+    </sql>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from cert_info
+    </select>
+</mapper>

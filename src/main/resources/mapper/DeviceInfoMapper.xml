@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.DeviceInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.DeviceInfoEntity">
+            <id property="deviceId" column="device_id" jdbcType="VARCHAR"/>
+            <result property="certId" column="cert_id" jdbcType="VARCHAR"/>
+            <result property="token" column="token" jdbcType="VARCHAR"/>
+            <result property="udid" column="udid" jdbcType="VARCHAR"/>
+            <result property="unlockToken" column="unlock_token" jdbcType="VARCHAR"/>
+            <result property="magic" column="magic" jdbcType="VARCHAR"/>
+            <result property="topic" column="topic" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        device_id,cert_id,token,
+        udid,unlock_token,magic,
+        topic,create_time,update_time,
+        status,remark
+    </sql>
+</mapper>

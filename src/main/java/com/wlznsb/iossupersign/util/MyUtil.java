@@ -2,6 +2,7 @@ package com.wlznsb.iossupersign.util;
 
 import lombok.extern.slf4j.Slf4j;
 
+import okhttp3.OkHttpClient;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -16,7 +17,29 @@ public class MyUtil {
 
 
 
+    public static OkHttpClient okHttpClient;
 
+    /**
+     * 获取okttp
+     * @return
+     */
+    public static OkHttpClient getOkHttpClient() {
+        if(null == okHttpClient){
+            okHttpClient = new OkHttpClient().newBuilder().build();
+        }
+        return okHttpClient;
+    }
+
+    /**
+     * MultipartFile 文件写入 目录不存在自动创建文件夹
+     * @param multipartFile
+     * @return
+     */
+    public static void MultipartFileWrite(MultipartFile multipartFile,String path) throws IOException {
+
+        cn.hutool.core.io.FileUtil.writeBytes(multipartFile.getBytes(),new File(path).getAbsolutePath());
+
+    }
 
     /**
      * 获取uuid

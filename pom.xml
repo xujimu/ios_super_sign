@@ -111,6 +111,13 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!--        aop-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <version>2.3.2.RELEASE</version>
+        </dependency>
         <!--      参数校验注解@NotNull-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

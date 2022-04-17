@@ -6,29 +6,39 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.annotation.PxCheckAdmin;
-import com.wlznsb.iossupersign.mapper.DomainDao;
-import com.wlznsb.iossupersign.mapper.UserDao;
+import com.wlznsb.iossupersign.entity.CertInfoEntity;
+import com.wlznsb.iossupersign.execption.ResRunException;
+import com.wlznsb.iossupersign.mapper.*;
 import com.wlznsb.iossupersign.entity.Domain;
 import com.wlznsb.iossupersign.entity.User;
 import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
+import com.wlznsb.iossupersign.util.MyUtil;
 import com.wlznsb.iossupersign.util.SettingUtil;
+import okhttp3.*;
+import okhttp3.RequestBody;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/admin")
 @Validated
 @CrossOrigin(allowCredentials="true")
-@PxCheckAdmin
+
 public class AdminController {
 
     @Autowired
@@ -43,6 +53,134 @@ public class AdminController {
     @Autowired
     private DomainDao domainDao;
 
+    @Resource
+    private CertInfoMapper certInfoMapper;
+
+    @Resource
+    private DeviceCommandTaskMapper deviceCommandTaskMapper;
+
+    @Resource
+    private DeviceInfoMapper deviceInfoMapper;
+
+
+    /**
+     * 查询所有的iis证书
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/queryIisAll",method = RequestMethod.GET)
+    public Map<String,Object> queryIisAll(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+        Map<String,Object> map = new HashMap<String, Object>();
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page =  (Page) appleIisService.queryAll();
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
+        return map;
+    }
+
+
+    @Value("${mdmUrl}")
+    private String mdmUrl;
+
+    /**
+     * mdm证书上传
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/uploadMdmCert",method = RequestMethod.POST)
+    public Map<String,Object> uploadMdmCert(@RequestParam MultipartFile p12, @RequestParam  String password,@RequestParam  String remark) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+
+
+        OkHttpClient client = MyUtil.getOkHttpClient();
+
+        File filePath = new File("/sign/mdm/" + MyUtil.getUuid() + ".p12");
+
+        MyUtil.MultipartFileWrite(p12,filePath.getAbsolutePath());
+
+
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("p12",filePath.getAbsolutePath(),
+                        RequestBody.create(MediaType.parse("application/octet-stream"),
+                                filePath))
+                .addFormDataPart("password",password)
+                .addFormDataPart("remark",remark)
+                .build();
+        Request request = new Request.Builder()
+                .url( mdmUrl + "/cert/upload_cert")
+                .method("POST", body)
+                .build();
+        Response response = client.newCall(request).execute();
+
+        //序列化返回
+        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+
+        if(jsonNode.get("code").asText().equals("200")){
+            map.put("code", 0);
+            map.put("message", "上传成功");
+        }else {
+            throw new RuntimeException("操作失败:" + jsonNode.get("msg").asText());
+        }
+
+        return map;
+    }
+
+    /**
+     * 删除mdm证书
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/deleteMdmCert",method = RequestMethod.POST)
+    public Map<String,Object> deleteMdmCert(@RequestParam  String certId) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+
+        OkHttpClient client = MyUtil.getOkHttpClient();
+
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody requestBody = RequestBody.create(mediaType, "");
+        Request request = new Request.Builder()
+                .url(mdmUrl + "/cert/deleteCert?certId=" + certId)
+                .method("POST", requestBody)
+                .build();
+        Response response = client.newCall(request).execute();
+
+
+        //序列化返回
+        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+
+
+        if(jsonNode.get("code").asText().equals("200")){
+            map.put("code", 0);
+            map.put("message", "删除成功");
+        }else {
+            throw new RuntimeException("操作失败:" + jsonNode.get("msg").asText());
+        }
+
+        return map;
+    }
+
+    /**
+     * 查询mdm证书
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/queryMdmCert",method = RequestMethod.GET)
+    public Map<String,Object> queryMdmCert(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+        Map<String,Object> map = new HashMap<String, Object>();
+        PageHelper.startPage(pageNum,pageSize);
+        Page<CertInfoEntity> page = (Page) certInfoMapper.selectAll();
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page);
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
+        return map;
+    }
 
 
     //修改类型
@@ -113,23 +251,6 @@ public class AdminController {
     }
 
 
-    /**
-     * 查询所有的iis证书
-     * @param request
-     * @return
-     */
-    @RequestMapping(value = "/queryIisAll",method = RequestMethod.GET)
-    public Map<String,Object> queryIisAll(HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
-        Map<String,Object> map = new HashMap<String, Object>();
-        PageHelper.startPage(pageNum,pageSize);
-        Page<User> page =  (Page) appleIisService.queryAll();
-        map.put("code", 0);
-        map.put("message", "查询成功");
-        map.put("data", page.getResult());
-        map.put("pages", page.getPages());
-        map.put("total", page.getTotal());
-        return map;
-    }
 
 
     /**

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.MdmPackStatusMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.MdmPackStatusEntity">
+            <id property="id" column="id" jdbcType="VARCHAR"/>
+            <result property="account" column="account" jdbcType="VARCHAR"/>
+            <result property="pageName" column="page_name" jdbcType="VARCHAR"/>
+            <result property="uuid" column="uuid" jdbcType="VARCHAR"/>
+            <result property="udid" column="udid" jdbcType="VARCHAR"/>
+            <result property="iis" column="iis" jdbcType="VARCHAR"/>
+            <result property="p12Path" column="p12_path" jdbcType="VARCHAR"/>
+            <result property="mobilePath" column="mobile_path" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="ipa" column="ipa" jdbcType="VARCHAR"/>
+            <result property="plist" column="plist" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="signOff" column="sign_off" jdbcType="INTEGER"/>
+            <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+            <result property="url" column="url" jdbcType="VARCHAR"/>
+            <result property="ip" column="ip" jdbcType="VARCHAR"/>
+            <result property="downCode" column="down_code" jdbcType="VARCHAR"/>
+            <result property="deviceId" column="device_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,account,page_name,
+        uuid,udid,iis,
+        p12_path,mobile_path,create_time,
+        ipa,plist,status,
+        sign_off,app_id,url,
+        ip,down_code,device_id
+    </sql>
+</mapper>

@@ -62,6 +62,8 @@ public class DistributeController {
     @Autowired
     private DownCodeDao downCodeDao;
 
+
+
     //下载页面,没有使用业务层
     @RequestMapping(value = "/down/{base64Id}",method = RequestMethod.GET)
     @PxCheckLogin(value = false)
@@ -110,21 +112,21 @@ public class DistributeController {
         String uuid = ServerUtil.getUuid();
         //域名
         String tempContextUrl = ServerUtil.getRootUrl(request);
-        String keyPath = new File("/sign/mode/cert/cert.key").getAbsolutePath();
-        String rootPath = new File("/sign/mode/cert/cert.pem").getAbsolutePath();
-        String serverPath = new File("/sign/mode/cert/cert.pem").getAbsolutePath();;
+        String keyPath = new File("./sign/mode/cert/cert.key").getAbsolutePath();
+        String rootPath = new File("./sign/mode/cert/cert.pem").getAbsolutePath();
+        String serverPath = new File("./sign/mode/cert/cert.pem").getAbsolutePath();;
         //模板
-        String moblicPath =new File("/sign/mode/udid.mobileconfig").getAbsolutePath();
+        String moblicPath =new File("./sign/mode/udid.mobileconfig").getAbsolutePath();
         //随机
         Long round = new Date().getTime();
         //未签名
-        String moblicNoSignPath = new File("/sign/mode/temp/" + round + "no.mobileconfig").getAbsolutePath();
+        String moblicNoSignPath = new File("./sign/mode/temp/" + round + "no.mobileconfig").getAbsolutePath();
         String temp = IoHandler.readTxt(moblicPath);
         temp = temp.replace("urlRep", tempContextUrl + "distribute/getUdid?tempuuid=" + uuid);
         temp = temp.replace("nameRep",name + " -- 点击右上角安装");
         IoHandler.writeTxt(moblicNoSignPath, temp);
         //已签名
-        String moblicSignPath = new File("/sign/mode/temp/" + round + ".mobileconfig").getAbsolutePath();
+        String moblicSignPath = new File("./sign/mode/temp/" + round + ".mobileconfig").getAbsolutePath();
         String cmd =" openssl smime -sign -in " + moblicNoSignPath + " -out " + moblicSignPath + " -signer " + serverPath + " -inkey " + keyPath + " -certfile " + rootPath + " -outform der -nodetach ";
         RuntimeExec.runtimeExec(cmd);
         //写入map
@@ -451,13 +453,26 @@ public class DistributeController {
         return map;
     }
 
+    //修改简介
+    @RequestMapping(value = "/updateLanguage",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> updateLanguage(@RequestHeader String token,@RequestParam @NotEmpty String language, @RequestParam Integer id, HttpServletRequest request) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = userService.getUser(token);
+        distributeDao.updateLanguage(language, user.getAccount(), id);
+        map.put("code", 0);
+        map.put("message", "修改成功");
+        return map;
+    }
+
+
     //上传轮播图
     @RequestMapping(value = "/uploadImg",method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> updateIntroduce(@RequestHeader String token,@RequestParam MultipartFile img1,@RequestParam MultipartFile img2,@RequestParam MultipartFile img3,MultipartFile img4, @RequestParam Integer id, HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
-        String path = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/img").getAbsolutePath();
+        String path = new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/img").getAbsolutePath();
         //这里没做非空判断
         img1.transferTo(new File(path + "1.png"));
         img2.transferTo(new File(path + "2.png"));
@@ -549,7 +564,7 @@ public class DistributeController {
             String  p12Path = new File(packStatus.getP12Path()).getParent();
             String  p12name = new File(packStatus.getP12Path()).getName();
 
-            String cmd = " tar -cvf  /sign/mode/temp/" + tempName + " -C " + p12Path + " " + p12name + " -C " + mobilePath + " " + mobilename;
+            String cmd = " tar -cvf  ./sign/mode/temp/" + tempName + " -C " + p12Path + " " + p12name + " -C " + mobilePath + " " + mobilename;
             log.info("打包命令" + cmd);
             RuntimeExec.runtimeExec(cmd);
             map.put("code", 0);

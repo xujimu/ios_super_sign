@@ -24,9 +24,9 @@ public class ApplicationRunnerImpl implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         //自动转换jks为apache证书
-//        if(!new File("/sign/mode/cert/server.crt").exists()){
-//            String cmd = "/sign/mode/cert.sh /sign/mode/cert.jks " + password +
-//                    " /sign/mode/p12.p12 /sign/mode/cert/server.crt /sign/mode/cert/root.crt /sign/mode/cert/key.key";
+//        if(!new File("./sign/mode/cert/server.crt").exists()){
+//            String cmd = "./sign/mode/cert.sh ./sign/mode/cert.jks " + password +
+//                    " ./sign/mode/p12.p12 ./sign/mode/cert/server.crt ./sign/mode/cert/root.crt ./sign/mode/cert/key.key";
 //            log.info("执行命令" + cmd);
 //            RuntimeExec.runtimeExec(cmd);
 //

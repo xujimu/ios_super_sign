@@ -19,6 +19,23 @@ public class MyUtil {
 
     public static OkHttpClient okHttpClient;
 
+
+    /**
+     * ipa里面的图片转换
+     * @param inputPath ./data/123.png
+     * @param outPath ./data/1.png
+     * @return
+     * @throws IOException
+     */
+    public static void getIpaImg(String inputPath,String outPath) throws IOException {
+
+        new IPngConverter(new File(inputPath), new File(outPath)).convert();
+
+
+    };
+
+
+
     /**
      * 获取okttp
      * @return

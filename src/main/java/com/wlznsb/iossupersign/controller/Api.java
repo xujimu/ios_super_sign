@@ -33,12 +33,12 @@ public class Api {
     public Map<String,Object> addIis(@RequestParam @NotEmpty String iis, @RequestParam @NotEmpty String kid,@RequestParam  MultipartFile p8, HttpServletRequest request) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         String time = String.valueOf(new Date().getTime());
-        new File("/sign/mode/temp/" + time).mkdirs();
+        new File("./sign/mode/temp/" + time).mkdirs();
         //p8路径
-        String p8Path = new File("/sign/mode/temp/" + time + "/" + "p.p8").getAbsolutePath();
+        String p8Path = new File("./sign/mode/temp/" + time + "/" + "p.p8").getAbsolutePath();
         log.info("p8路径:" + new File(p8Path).getAbsoluteFile());
         //key路径
-        String keyPath = new File("/sign/mode/my.key").getAbsolutePath();
+        String keyPath = new File("./sign/mode/my.key").getAbsolutePath();
         log.info("key路径:" + keyPath);
 
         //写入p8这里的new file必须是绝对路径抽象路径无效
@@ -46,7 +46,7 @@ public class Api {
         //创建苹果api工具类
         AppleApiUtil appleApiUtil = new AppleApiUtil(iis, kid, p8Path);
         //获取证书工作目录
-        String directoryPath = new File("/sign/mode/temp/" + time + "/").getAbsolutePath();
+        String directoryPath = new File("./sign/mode/temp/" + time + "/").getAbsolutePath();
         log.info("证书工作目录:" + directoryPath);
         if(appleApiUtil.init()){
             //删除所有证书

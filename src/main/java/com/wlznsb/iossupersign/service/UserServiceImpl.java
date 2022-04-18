@@ -33,7 +33,7 @@ public class UserServiceImpl {
             }else {
                 if(userDao.addAccount(user) == 1){
                     //创建个人目录
-                    new File("/sign/temp/" + user.getAccount() + "/distribute").mkdirs();
+                    new File("./sign/temp/" + user.getAccount() + "/distribute").mkdirs();
                     return new UserDto(0, "注册成功", user);
                 }else {
                     throw new RuntimeException("注册失败");

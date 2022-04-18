@@ -97,7 +97,7 @@ public class AdminController {
 
         OkHttpClient client = MyUtil.getOkHttpClient();
 
-        File filePath = new File("/sign/mdm/" + MyUtil.getUuid() + ".p12");
+        File filePath = new File("./sign/mdm/" + MyUtil.getUuid() + ".p12");
 
         MyUtil.MultipartFileWrite(p12,filePath.getAbsolutePath());
 

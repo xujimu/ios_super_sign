@@ -49,20 +49,20 @@ public class AppleIisServiceImpl{
                     }
                 }
                 //p8路径
-                String p8Path = new File("/sign/temp/" + user.getAccount() + "/cert/" + iis + "/" + iis +  ".p8").getAbsolutePath();
+                String p8Path = new File("./sign/temp/" + user.getAccount() + "/cert/" + iis + "/" + iis +  ".p8").getAbsolutePath();
                 log.info("p8路径:" + new File(p8Path).getAbsoluteFile());
                 //key路径
-                String keyPath = new File("/sign/mode/my.key").getAbsolutePath();
+                String keyPath = new File("./sign/mode/my.key").getAbsolutePath();
                 log.info("key路径:" + keyPath);
                 //创建证书目录
-                certRoot = new File("/sign/temp/" + user.getAccount() + "/cert/" + iis).getAbsolutePath();
+                certRoot = new File("./sign/temp/" + user.getAccount() + "/cert/" + iis).getAbsolutePath();
                 new File(certRoot).mkdirs();
                 //写入p8这里的new file必须是绝对路径抽象路径无效
                 p8.transferTo(new File(p8Path));
                 //创建苹果api工具类
                 AppleApiUtil appleApiUtil = new AppleApiUtil(iis, kid, p8Path);
                 //获取证书工作目录
-                String directoryPath = new File("/sign/temp/" + user.getAccount() + "/cert/" + iis + "/").getAbsolutePath();
+                String directoryPath = new File("./sign/temp/" + user.getAccount() + "/cert/" + iis + "/").getAbsolutePath();
                 log.info("证书工作目录:" + directoryPath);
                 if(appleApiUtil.init()){
                     //删除所有证书
@@ -112,7 +112,7 @@ public class AppleIisServiceImpl{
             AppleIis appleIis = appleIisDao.query(user.getAccount(),iis);
             if(appleIis != null){
                 appleIisDao.dele(user.getAccount(),iis);
-                File file = new File("/sign/temp/" + appleIis.getAccount() + "/cert/" + appleIis.getIis()).getAbsoluteFile();
+                File file = new File("./sign/temp/" + appleIis.getAccount() + "/cert/" + appleIis.getIis()).getAbsoluteFile();
                 System.out.println(file.getAbsolutePath());
                 FileSystemUtils.deleteRecursively(file);
                 System.out.println(file);

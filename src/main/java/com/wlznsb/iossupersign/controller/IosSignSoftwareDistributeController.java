@@ -74,7 +74,7 @@ public class IosSignSoftwareDistributeController {
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
         String uuid = MyUtil.getUuid();
-        String mkdir = "/sign/temp/" + user.getAccount() + "/ios_sign_software/app/" + uuid + "/";
+        String mkdir = "./sign/temp/" + user.getAccount() + "/ios_sign_software/app/" + uuid + "/";
         new File(mkdir).mkdirs();
         //icon路径
         String iconPath = new File(mkdir + uuid + ".png").getAbsolutePath();
@@ -111,7 +111,7 @@ public class IosSignSoftwareDistributeController {
         //备份当前目录
         String initPath = RuntimeExec.runtimeExec("pwd").get("info").toString();
         POSIXFactory.getPOSIX().chdir(pyPath);
-        RuntimeExec.runtimeExec("cp -rf /sign/mode/ipin.py " + pyPath );
+        RuntimeExec.runtimeExec("cp -rf ./sign/mode/ipin.py " + pyPath );
         RuntimeExec.runtimeExec("python ipin.py" );
         RuntimeExec.runtimeExec("rm -rf ipin.py");
         POSIXFactory.getPOSIX().chdir(initPath);
@@ -135,7 +135,7 @@ public class IosSignSoftwareDistributeController {
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
         String uuid = MyUtil.getUuid();
-        String mkdir = "/sign/temp/" + user.getAccount() + "/ios_sign_software/cert/" + uuid + "/";
+        String mkdir = "./sign/temp/" + user.getAccount() + "/ios_sign_software/cert/" + uuid + "/";
         new File(mkdir).mkdirs();
         //写入mobileprovision
         String mobileprovisionPath = new File(mkdir + uuid + ".mobileprovision").getAbsolutePath();
@@ -213,7 +213,7 @@ public class IosSignSoftwareDistributeController {
         User user = userService.getUser(token);
         Integer count =  iosSignSoftwareDistributeDao.delete(iosId,user.getAccount());
         if (count != 0) {
-            File file = new File("/sign/temp/" + user.getAccount() + "/ios_sign_software/app/" + iosId ).getAbsoluteFile();
+            File file = new File("./sign/temp/" + user.getAccount() + "/ios_sign_software/app/" + iosId ).getAbsoluteFile();
             FileSystemUtils.deleteRecursively(file);
         }
         map.put("code", 0);
@@ -244,7 +244,7 @@ public class IosSignSoftwareDistributeController {
         User user = userService.getUser(token);
         Integer count =  iosSignUdidCertDao.delete(certId,user.getAccount());
         if (count != 0) {
-            File file = new File("/sign/temp/" + user.getAccount() + "/ios_sign_software/cert/" + certId ).getAbsoluteFile();
+            File file = new File("./sign/temp/" + user.getAccount() + "/ios_sign_software/cert/" + certId ).getAbsoluteFile();
             FileSystemUtils.deleteRecursively(file);
         }
         map.put("code", 0);
@@ -277,7 +277,7 @@ public class IosSignSoftwareDistributeController {
 //            if(iosSignSoftwareDistribute.getApk() == null){
 //                iosSignSoftwareDistribute.setApk("no");
 //            }
-//            String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
+//            String plist = IoHandler.readTxt(new File("./sign/mode/install.plist").getAbsolutePath());
 //            //bundle要随机不然有时候没进度条
 //            plist = plist.replace("bundleRep", uuid);
 //            plist = plist.replace("versionRep", iosSignSoftwareDistribute.getVersion());
@@ -285,12 +285,12 @@ public class IosSignSoftwareDistributeController {
 //            plist = plist.replace("appnameRep",iosSignSoftwareDistribute.getAppName());
 //            //对ipa签名
 //            String uuidTemp = MyUtil.getUuid();
-//            String signPath = "/sign/mode/temp/" + uuidTemp +".ipa";
-//            String cmd = "/sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa();
+//            String signPath = "./sign/mode/temp/" + uuidTemp +".ipa";
+//            String cmd = "./sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa();
 //
 //            if(iosSignSoftwareDistribute.getAutoPageName() == 1){
 //                log.info("随机包名");
-//                cmd = "/sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa() + " -b " + new Date().getTime();
+//                cmd = "./sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa() + " -b " + new Date().getTime();
 //            }
 //            log.info("开始签名" + cmd);
 //            Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
@@ -304,7 +304,7 @@ public class IosSignSoftwareDistributeController {
 //            }
 //            plist = plist.replace("urlRep", ipaUrl);
 //            String plistName = uuidTemp + ".plist";
-//            IoHandler.writeTxt(new File("/sign/mode/temp/" +  plistName).getAbsolutePath(), plist);
+//            IoHandler.writeTxt(new File("./sign/mode/temp/" +  plistName).getAbsolutePath(), plist);
 //            String plistUrl = "itms-services://?action=download-manifest&url=" +  rootUrl + plistName;
             iosSignSoftwareDistribute.setUrl("");
 
@@ -336,13 +336,13 @@ public class IosSignSoftwareDistributeController {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
-        String ipaPath = new File("/sign/mode/software/" + uuid + "/" + uuid + ".ipa").getAbsolutePath();
+        String ipaPath = new File("./sign/mode/software/" + uuid + "/" + uuid + ".ipa").getAbsolutePath();
         ipa.transferTo(new File(ipaPath));
         String  ipaUrl = distrbuteService.uploadSoftwareIpa(ipaPath);
         //不等于null说明需要修改plist文件
         if(ipaUrl != null){
             log.info("需要修改plist");
-            File plistFile = new File("/sign/mode/software/" + uuid + "/" + uuid + ".plist");
+            File plistFile = new File("./sign/mode/software/" + uuid + "/" + uuid + ".plist");
             InputStream is = new FileInputStream(plistFile);
             //已HTTP请求输入流建立一个BufferedReader对象
             BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
@@ -448,8 +448,8 @@ public class IosSignSoftwareDistributeController {
         }
         if(res == 1){
             //清空目录
-            MyUtil.deleteDir("/sign/mode/software/" + uuid);
-            new File("/sign/mode/software/" + uuid).delete();
+            MyUtil.deleteDir("./sign/mode/software/" + uuid);
+            new File("./sign/mode/software/" + uuid).delete();
             map.put("code", 0);
             map.put("message", "删除成功");
         }

@@ -13,6 +13,7 @@ import com.qiniu.util.Auth;
 import com.wlznsb.iossupersign.mapper.*;
 import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.util.*;
+import jnr.ffi.annotations.In;
 import jnr.posix.POSIXFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ public class DistrbuteServiceImpl{
     private UserDao userDao;
 
     @Transactional
-    public Distribute uploadIpa(MultipartFile ipa, User user,String rootUrl,Integer appId) {
+    public Distribute uploadIpa(MultipartFile ipa, User user, String rootUrl, Integer appId) {
         Integer id = null;
         try {
             if(ipa.getSize() != 0){
@@ -81,15 +82,15 @@ public class DistrbuteServiceImpl{
                 if(null != appId){
                     id = appId;
                 }
-                new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/").mkdirs();
+                new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/").mkdirs();
                 //icon路径
-                String iconPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".png").getAbsolutePath();
+                String iconPath = new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".png").getAbsolutePath();
                 //ipa路径
-                String ipaPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".ipa").getAbsolutePath();
+                String ipaPath = new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".ipa").getAbsolutePath();
                 //ipa解压路径
-                String ipaUnzipPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/Payload").getAbsolutePath();
+                String ipaUnzipPath = new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/Payload").getAbsolutePath();
                 //python就来
-                String pyPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/").getAbsolutePath();
+                String pyPath = new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/").getAbsolutePath();
                 //写出
                 System.out.println(ipaPath);
                 ipa.transferTo(new File(ipaPath));
@@ -99,20 +100,16 @@ public class DistrbuteServiceImpl{
                 if(mapIpa.get("code") != null){
                     throw new RuntimeException("无法读取包信息");
                 }
-                String cmd = "unzip -oq " + ipaPath + " -d " + "/sign/temp/" + user.getAccount() + "/distribute/" + id + "/";
+                String cmd = "unzip -oq " + ipaPath + " -d " + "./sign/temp/" + user.getAccount() + "/distribute/" + id + "/";
                 //log.info("解压命令" + cmd);
                 // log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
                 String name = mapIpa.get("displayName").toString();
                 String url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null);
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"中文");
                 //备份当前目录
-                String initPath = RuntimeExec.runtimeExec("pwd").get("info").toString();
-                POSIXFactory.getPOSIX().chdir(pyPath);
-                RuntimeExec.runtimeExec("cp -rf /sign/mode/ipin.py " + pyPath );
-                RuntimeExec.runtimeExec("python ipin.py" );
-                RuntimeExec.runtimeExec("rm -rf ipin.py");
-                POSIXFactory.getPOSIX().chdir(initPath);
+                MyUtil.getIpaImg("./sign/temp/" + user.getAccount() + "/distribute/" + id  + "/" + id +  ".png","./sign/temp/" + user.getAccount() + "/distribute/" + id  + "/" + id +  ".png");
+
                 if(null != appId){
                     distributeDao.updateIpa(distribute);
                 }else {
@@ -143,7 +140,7 @@ public class DistrbuteServiceImpl{
     public int uploadApk(MultipartFile apk,User user, Integer id) {
         try {
             if(apk.getSize() != 0){
-                String aokPath = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id + "/" + id + ".apk").getAbsolutePath();
+                String aokPath = new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/" + id + ".apk").getAbsolutePath();
                 apk.transferTo(new File(aokPath));
                 //是否使用七牛云
                 if(!this.qiniuyunAccessKey.equals("")){
@@ -281,15 +278,15 @@ public class DistrbuteServiceImpl{
                         //查询id,查不到就添加
                         if(addUuid != null){
                             packStatusDao.updateStatus("注册配置文件", packStatus.getUuid());
-                            Map<String,String> map = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, ServerUtil.getUuid(),new File("/sign/mode/temp").getAbsolutePath());
+                            Map<String,String> map = appleApiUtil.addProfiles(appleIis1.getIdentifier(),appleIis1.getCertId(), addUuid, ServerUtil.getUuid(),new File("./sign/mode/temp").getAbsolutePath());
                             //如果pro文件创建成功
                             if(map != null){
                                 String filePro = map.get("filePath");
                                 //包名
                                 String nameIpa = new Date().getTime() + ".ipa";
                                 //临时目录
-                                String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
-                                String cmd = "/sign/mode/zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 1 " + distribute.getIpa();
+                                String temp = new File("./sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
+                                String cmd = "./sign/mode/zsign -k " + appleIis1.getP12() + " -p 123456 -m " + filePro + " -o " + temp + " -z 1 " + distribute.getIpa();
                                 log.info("开始签名" + cmd);
                                 packStatusDao.updateStatus("正在签名", packStatus.getUuid());
                                 Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
@@ -302,19 +299,19 @@ public class DistrbuteServiceImpl{
                                     throw  new RuntimeException("签名失败");
                                 }
                                 //获取plist
-                                String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
+                                String plist = IoHandler.readTxt(new File("./sign/mode/install.plist").getAbsolutePath());
                                 packStatusDao.updateStatus("准备下载",  packStatus.getUuid());
                                 //是否使用七牛云
                                 if(!this.qiniuyunAccessKey.equals("")){
                                     log.info("使用七牛云");
                                     plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp,"ipa"));
                                     //删除ipa
-                                    new File("/sign/mode/temp/" + nameIpa).delete();
+                                    new File("./sign/mode/temp/" + nameIpa).delete();
                                 }else if(!this.aliyunAccessKey.equals("")){
                                     log.info("使用阿里云");
                                     plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp,"ipa"));
                                     //删除ipa
-                                    new File("/sign/mode/temp/" + nameIpa).delete();
+                                    new File("./sign/mode/temp/" + nameIpa).delete();
                                 }else {
                                     log.info("不使用七牛云");
                                     if(SettingUtil.ipaDownUrl != null && !SettingUtil.ipaDownUrl.equals("")){
@@ -332,7 +329,7 @@ public class DistrbuteServiceImpl{
                                 plist = plist.replace("iconRep", iconPath);
                                 plist = plist.replace("appnameRep", distribute.getAppName());
                                 String plistName = new Date().getTime() + ".plist";
-                                IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
+                                IoHandler.writeTxt(new File("./sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
                                 //如果没有指定下载地址就是默认的
                                 String plistUrl;
 
@@ -369,8 +366,8 @@ public class DistrbuteServiceImpl{
                 //包名
                 String nameIpa = new Date().getTime() + ".ipa";
                 //临时目录
-                String temp = new File("/sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
-                String cmd = "/sign/mode/zsign -k " + packStatus.getP12Path() + " -p 123456 -m " + packStatus.getMobilePath() + " -o " + temp + " -z 1 " + distribute.getIpa();
+                String temp = new File("./sign/mode/temp").getAbsolutePath() + "/" + nameIpa;
+                String cmd = "./sign/mode/zsign -k " + packStatus.getP12Path() + " -p 123456 -m " + packStatus.getMobilePath() + " -o " + temp + " -z 1 " + distribute.getIpa();
                 log.info("开始签名" + cmd);
                 packStatusDao.updateStatus("正在签名", packStatus.getUuid());
                 Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
@@ -383,19 +380,19 @@ public class DistrbuteServiceImpl{
                     throw  new RuntimeException("签名失败");
                 }
                 //获取plist
-                String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
+                String plist = IoHandler.readTxt(new File("./sign/mode/install.plist").getAbsolutePath());
                 packStatusDao.updateStatus("准备下载",  packStatus.getUuid());
                 //是否使用七牛云
                 if(!this.qiniuyunAccessKey.equals("")){
                     log.info("使用七牛云");
                     plist = plist.replace("urlRep", this.qiniuyunUrl + uploadQly(temp,"ipa"));
                     //删除ipa
-                    new File("/sign/mode/temp/" + nameIpa).delete();
+                    new File("./sign/mode/temp/" + nameIpa).delete();
                 }else if(!this.aliyunAccessKey.equals("")){
                     log.info("使用阿里云");
                     plist = plist.replace("urlRep", this.aliyunDownUrl + uploadAly(temp,"ipa"));
                     //删除ipa
-                    new File("/sign/mode/temp/" + nameIpa).delete();
+                    new File("./sign/mode/temp/" + nameIpa).delete();
                 }else {
                     log.info("不使用七牛云");
                     if(SettingUtil.ipaDownUrl != null && !SettingUtil.ipaDownUrl.equals("")){
@@ -412,7 +409,7 @@ public class DistrbuteServiceImpl{
                 plist = plist.replace("iconRep", iconPath);
                 plist = plist.replace("appnameRep", distribute.getAppName());
                 String plistName = new Date().getTime() + ".plist";
-                IoHandler.writeTxt(new File("/sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
+                IoHandler.writeTxt(new File("./sign/mode/temp").getAbsolutePath() + "/" + plistName, plist);
                 String plistUrl;
                 //如果没有指定下载地址就是默认的
                 plistUrl = "itms-services://?action=download-manifest&url=" +  packStatus.getUrl() + plistName;
@@ -451,14 +448,14 @@ public class DistrbuteServiceImpl{
                 Distribute distribute = distributeDao.query(id);
                 if(distribute != null){
                     distributeDao.dele(distribute.getAccount(), id);
-                    File file = new File("/sign/temp/" + distribute.getAccount() + "/distribute/" + id).getAbsoluteFile();
+                    File file = new File("./sign/temp/" + distribute.getAccount() + "/distribute/" + id).getAbsoluteFile();
                     FileSystemUtils.deleteRecursively(file);
                 }else {
                     throw  new RuntimeException("应用不存在");
                 }
             }else {
                 if(distributeDao.dele(user.getAccount(), id) == 1){
-                    File file = new File("/sign/temp/" + user.getAccount() + "/distribute/" + id).getAbsoluteFile();
+                    File file = new File("./sign/temp/" + user.getAccount() + "/distribute/" + id).getAbsoluteFile();
                     System.out.println(file.getAbsolutePath());
                     FileSystemUtils.deleteRecursively(file);
                 }else {

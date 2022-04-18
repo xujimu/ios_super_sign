@@ -22,7 +22,7 @@ public interface DistributeDao {
     @Insert("insert into distribute() values(#{distribute.id},#{distribute.account},#{distribute.appName}," +
             "#{distribute.pageName},#{distribute.version},#{distribute.icon}" +
             ",#{distribute.ipa},#{distribute.apk},#{distribute.url},#{distribute.createTime},#{distribute.introduce}," +
-            "#{distribute.images},#{distribute.downCode},#{distribute.buyDownCodeUrl})")
+            "#{distribute.images},#{distribute.downCode},#{distribute.buyDownCodeUrl},#{distribute.language})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int add(@Param("distribute") Distribute distribute);
 
@@ -75,6 +75,14 @@ public interface DistributeDao {
      */
     @Update("update distribute set introduce = #{introduce} where  account = #{account} and id = #{id}")
     int updateIntroduce(String introduce,String account,Integer id);
+
+
+    /**
+     * 修改简介
+     * @return
+     */
+    @Update("update distribute set language = #{language} where  account = #{account} and id = #{id}")
+    int updateLanguage(String language,String account,Integer id);
 
     /**
      * 修改域名

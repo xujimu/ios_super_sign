@@ -66,29 +66,29 @@ public class SoftwareDistributeController {
         User user = userService.getUser(token);
         String uuid = MyUtil.getUuid();
         //创建目录
-        new File("/sign/mode/software/" + uuid).mkdirs();
+        new File("./sign/mode/software/" + uuid).mkdirs();
         //icon路径
-        String iconPath = new File("/sign/mode/software/" + uuid + "/" + uuid + ".png").getAbsolutePath();
+        String iconPath = new File("./sign/mode/software/" + uuid + "/" + uuid + ".png").getAbsolutePath();
         //iconUrl
         String iconUrl = rootUrl + uuid + "/" + uuid + ".png";
         //ipa路径
-        String ipaPath = new File("/sign/mode/software/" + uuid + "/" + uuid + ".ipa").getAbsolutePath();
+        String ipaPath = new File("./sign/mode/software/" + uuid + "/" + uuid + ".ipa").getAbsolutePath();
         //python就来
-        String pyPath = new File("/sign/mode/software/" + uuid + "/").getAbsolutePath();
+        String pyPath = new File("./sign/mode/software/" + uuid + "/").getAbsolutePath();
         //写出
         ipa.transferTo(new File(ipaPath));
         //读取信息
         Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA(ipaPath,iconPath);
         if(mapIpa.get("code") != null){
             new File(ipaPath).delete();
-            new File("/sign/mode/software/" + uuid).delete();
+            new File("./sign/mode/software/" + uuid).delete();
             throw new RuntimeException("无法读取包信息");
         }
         try {
             System.out.println(userDao.addCount(user.getAccount(), -this.sofware));;
         }catch (Exception e){
             new File(ipaPath).delete();
-            new File("/sign/mode/software/" + uuid).delete();
+            new File("./sign/mode/software/" + uuid).delete();
             throw  new RuntimeException("共有池不足,自助需要扣除共有池" + this.sofware + "台");
         }
         String ipaUrl =  distrbuteService.uploadSoftwareIpa(ipaPath);
@@ -98,7 +98,7 @@ public class SoftwareDistributeController {
         }
         String name = mapIpa.get("displayName").toString();
         //获取plist
-        String plist = IoHandler.readTxt(new File("/sign/mode/install.plist").getAbsolutePath());
+        String plist = IoHandler.readTxt(new File("./sign/mode/install.plist").getAbsolutePath());
         //bundle要随机不然有时候没进度条
         plist = plist.replace("bundleRep", uuid);
         plist = plist.replace("versionRep", mapIpa.get("versionName").toString());
@@ -106,7 +106,7 @@ public class SoftwareDistributeController {
         plist = plist.replace("appnameRep",name);
         plist = plist.replace("urlRep", ipaUrl);
         String plistName = uuid + ".plist";
-        IoHandler.writeTxt(new File("/sign/mode/software/" + uuid + "/" + plistName).getAbsolutePath(), plist);
+        IoHandler.writeTxt(new File("./sign/mode/software/" + uuid + "/" + plistName).getAbsolutePath(), plist);
         String plistUrl = "itms-services://?action=download-manifest&url=" +  rootUrl + uuid + "/" + plistName;
         log.info("ipaurl路径" + ipaUrl);
         String url = rootUrl + "softwareDistribute/down/"  + uuid;
@@ -116,7 +116,7 @@ public class SoftwareDistributeController {
         //备份当前目录
         String initPath = RuntimeExec.runtimeExec("pwd").get("info").toString();
         POSIXFactory.getPOSIX().chdir(pyPath);
-        RuntimeExec.runtimeExec("cp -rf /sign/mode/ipin.py " + pyPath );
+        RuntimeExec.runtimeExec("cp -rf ./sign/mode/ipin.py " + pyPath );
         RuntimeExec.runtimeExec("python ipin.py" );
         RuntimeExec.runtimeExec("rm -rf ipin.py");
         POSIXFactory.getPOSIX().chdir(initPath);
@@ -158,7 +158,7 @@ public class SoftwareDistributeController {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
-        String apkPath = new File("/sign/mode/software/" + uuid + "/" + uuid + ".apk").getAbsolutePath();
+        String apkPath = new File("./sign/mode/software/" + uuid + "/" + uuid + ".apk").getAbsolutePath();
         apk.transferTo(new File(apkPath));
         String apkUrl = distrbuteService.uploadSoftwareApk(apkPath);
         if(apkUrl == null){
@@ -177,13 +177,13 @@ public class SoftwareDistributeController {
         Map<String,Object> map = new HashMap<String, Object>();
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
-        String ipaPath = new File("/sign/mode/software/" + uuid + "/" + uuid + ".ipa").getAbsolutePath();
+        String ipaPath = new File("./sign/mode/software/" + uuid + "/" + uuid + ".ipa").getAbsolutePath();
         ipa.transferTo(new File(ipaPath));
         String  ipaUrl = distrbuteService.uploadSoftwareIpa(ipaPath);
         //不等于null说明需要修改plist文件
         if(ipaUrl != null){
             log.info("需要修改plist");
-            File plistFile = new File("/sign/mode/software/" + uuid + "/" + uuid + ".plist");
+            File plistFile = new File("./sign/mode/software/" + uuid + "/" + uuid + ".plist");
             InputStream is = new FileInputStream(plistFile);
             //已HTTP请求输入流建立一个BufferedReader对象
             BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
@@ -264,8 +264,8 @@ public class SoftwareDistributeController {
         }
         if(res == 1){
             //清空目录
-            MyUtil.deleteDir("/sign/mode/software/" + uuid);
-            new File("/sign/mode/software/" + uuid).delete();
+            MyUtil.deleteDir("./sign/mode/software/" + uuid);
+            new File("./sign/mode/software/" + uuid).delete();
             map.put("code", 0);
             map.put("message", "删除成功");
         }

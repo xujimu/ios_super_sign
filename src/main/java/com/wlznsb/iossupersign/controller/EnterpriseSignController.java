@@ -65,7 +65,7 @@ public class EnterpriseSignController {
             //获取文件md5
             String md5 =  DigestUtils.md5Hex(p12.getInputStream());
             log.info("证书md5" + md5);
-            String p12Path =  new File("/sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5 + "/" + md5 + ".p12").getAbsolutePath();
+            String p12Path =  new File("./sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5 + "/" + md5 + ".p12").getAbsolutePath();
             //判断是否上传过
             EnterpriseSignCert enterpriseSignCert1 = enterpriseSignCertDao.queryMd5(md5);
             if(enterpriseSignCert1 != null){
@@ -74,7 +74,7 @@ public class EnterpriseSignController {
                 return map;
             }
             //创建证书目录
-            String certDir = new File("/sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5).getAbsolutePath();
+            String certDir = new File("./sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5).getAbsolutePath();
             new File(certDir).mkdirs();
             p12.transferTo(new File(p12Path));
             //检查证书
@@ -92,7 +92,7 @@ public class EnterpriseSignController {
                 SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date expiredTime = format.parse(expiredTimeS);
                 //写入moblic文件
-                String mobileProvisionPath =  new File("/sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5 + "/" + md5 + ".mobileprovision").getAbsolutePath();
+                String mobileProvisionPath =  new File("./sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5 + "/" + md5 + ".mobileprovision").getAbsolutePath();
                 mobileProvision.transferTo(new File(mobileProvisionPath));
                 EnterpriseSignCert enterpriseSignCert;
                 if(jsonNode.get("data").get("status").asText().equals("revoked")){
@@ -132,8 +132,8 @@ public class EnterpriseSignController {
             //删除数据
             enterpriseSignCertDao.deleteCert(md5);
             //清空目录
-            MyUtil.deleteDir("/sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5);
-            new File("/sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5).delete();
+            MyUtil.deleteDir("./sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5);
+            new File("./sign/temp/" + user.getAccount() + "/enterprise_cert/" + md5).delete();
             map.put("code", 0);
             map.put("message", "删除成功");
         }
@@ -199,16 +199,16 @@ public class EnterpriseSignController {
         EnterpriseSignCert enterpriseSignCert = enterpriseSignCertDao.queryMd5(md5);
         User user1 =  userDao.queryAccount(user.getAccount());
         String uuid = MyUtil.getUuid();
-        String ipaPath = new File("/sign/mode/temp/unsigned_sign" + uuid + ".ipa").getAbsolutePath();
+        String ipaPath = new File("./sign/mode/temp/unsigned_sign" + uuid + ".ipa").getAbsolutePath();
         ipa.transferTo(new File(ipaPath));
 
-        String unzipPath = "/sign/mode/temp/unsigned_sign" + uuid + "/";
+        String unzipPath = "./sign/mode/temp/unsigned_sign" + uuid + "/";
 
         String cmd = "unzip -oq " + ipaPath + " -d " + unzipPath;
         log.info("解压命令" + cmd);
         log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
 
-        String iconPath = new File("/sign/mode/temp/img" + uuid + ".png").getAbsolutePath();
+        String iconPath = new File("./sign/mode/temp/img" + uuid + ".png").getAbsolutePath();
         //读取信息
         Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA(ipaPath,iconPath);
         if(mapIpa.get("code") != null){

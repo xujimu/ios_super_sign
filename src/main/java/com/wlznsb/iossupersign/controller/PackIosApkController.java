@@ -54,7 +54,7 @@ public class PackIosApkController {
             //将json序列化为对象
             PackStatusIosApk packStatusIosApk =  mapper.readValue(statusJson, PackStatusIosApk.class);
             //图标路径
-            String iconFile = new File("/sign/mode/temp/" + ServerUtil.getUuid() + ".png").getAbsolutePath();
+            String iconFile = new File("./sign/mode/temp/" + ServerUtil.getUuid() + ".png").getAbsolutePath();
             //拿应用图标的base64
             String base64Icon = Base64.getEncoder().encodeToString(icon.getBytes());
             //写出
@@ -63,16 +63,16 @@ public class PackIosApkController {
             String iconStartFile;
             if(null != startIcon && startIcon.getSize() != 0){
                 //获取启动图最终写出路径
-                iconStartFile = new File("/sign/mode/temp/" + ServerUtil.getUuid() + ".png").getAbsolutePath();;
+                iconStartFile = new File("./sign/mode/temp/" + ServerUtil.getUuid() + ".png").getAbsolutePath();;
                 //写出图片
                 startIcon.transferTo(new File(iconStartFile));
             }else {
                 iconStartFile = null;
             }
             //定义demo.txt路径
-            String demoPath = new File("/sign/mode/static/mode/ios/demo.txt").getAbsolutePath();
+            String demoPath = new File("./sign/mode/static/mode/ios/demo.txt").getAbsolutePath();
             //写出moblie文件路径
-            String mobilePath = new File("/sign/mode/temp/" + ServerUtil.getUuid() + ".mobileconfig").getAbsolutePath();
+            String mobilePath = new File("./sign/mode/temp/" + ServerUtil.getUuid() + ".mobileconfig").getAbsolutePath();
             //获取demo资源并进行替换
             String demo = IoHandler.readTxt(demoPath);
             //替换demo
@@ -98,9 +98,9 @@ public class PackIosApkController {
             if(!("".equals(packStatusIosApk.getServerCert()) |
                     "".equals(packStatusIosApk.getRootCert()) |
                     "".equals(packStatusIosApk.getKeyCert()))){
-                String serverCrt = new File("/sign/mode/temp/" + ServerUtil.getUuid() + "server.crt").getAbsolutePath();
-                String rootCrt =  new File("/sign/mode/temp/" + ServerUtil.getUuid() + "root.crt").getAbsolutePath();
-                String key = new File("/sign/mode/temp/" + ServerUtil.getUuid() + "key.key").getAbsolutePath();
+                String serverCrt = new File("./sign/mode/temp/" + ServerUtil.getUuid() + "server.crt").getAbsolutePath();
+                String rootCrt =  new File("./sign/mode/temp/" + ServerUtil.getUuid() + "root.crt").getAbsolutePath();
+                String key = new File("./sign/mode/temp/" + ServerUtil.getUuid() + "key.key").getAbsolutePath();
                 IoHandler.writeTxt(serverCrt, packStatusIosApk.getServerCert());
                 IoHandler.writeTxt(rootCrt,packStatusIosApk.getRootCert());
                 IoHandler.writeTxt(key, packStatusIosApk.getKeyCert());

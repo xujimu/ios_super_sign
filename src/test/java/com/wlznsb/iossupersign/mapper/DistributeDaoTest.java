@@ -22,7 +22,7 @@ class DistributeDaoTest {
 
     @Test
     void add() {
-       // Distribute distribute = new Distribute(null, "123", "123", "123", "111", "123", "123", "","123",new Date(), "你好", "1", 0, "123");
+       // Distribute distribute = new Distribute(null, "superdown.html", "superdown.html", "superdown.html", "111", "superdown.html", "superdown.html", "","superdown.html",new Date(), "你好", "1", 0, "superdown.html");
       //  System.out.println(distributeDao.add(distribute));
         //System.out.println(distribute.getId());;
     }

@@ -54,9 +54,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
 
         //过滤所有未登录用户
-        registry.addInterceptor(getUserLoginInterceptor()).addPathPatterns(pathList).excludePathPatterns("/admin/distribute/**").excludePathPatterns("/admin/ios_sign_software/**");
+        registry.addInterceptor(getUserLoginInterceptor()).addPathPatterns(pathList).excludePathPatterns("/admin/distribute/**");
 
-        registry.addInterceptor(getUserAdminInterceptor()).addPathPatterns(pathList).excludePathPatterns("/admin/distribute/**").excludePathPatterns("/admin/ios_sign_software/**");;
+        registry.addInterceptor(getUserAdminInterceptor()).addPathPatterns(pathList).excludePathPatterns("/admin/distribute/**");;
 
 //        //已登录用户进行角色判断
 //        registry.addInterceptor(UserRoleInterceptor()).addPathPatterns(pathList);

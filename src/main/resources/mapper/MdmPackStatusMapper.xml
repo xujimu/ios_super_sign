@@ -33,4 +33,11 @@
         sign_off,app_id,url,
         ip,down_code,device_id
     </sql>
+    <select id="selectOneByDeviceId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mdm_pack_status
+        where
+        device_id = #{deviceId,jdbcType=VARCHAR}
+    </select>
 </mapper>

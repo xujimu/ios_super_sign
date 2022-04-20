@@ -24,4 +24,11 @@
         topic,create_time,update_time,
         status,remark
     </sql>
+    <select id="selectOneByDeviceId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from device_info
+        where
+        device_id = #{deviceId,jdbcType=VARCHAR}
+    </select>
 </mapper>

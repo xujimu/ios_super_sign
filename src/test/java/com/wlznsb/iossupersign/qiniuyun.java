@@ -118,7 +118,7 @@ public class qiniuyun {
         String accessKeyId = aliyunAccessKey;
         String accessKeySecret = aliyunSecretKey;
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucket, "123.ipa", new File("C:\\Users\\xujimu\\Desktop\\123.ipa"));
+        PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucket, "superdown.html.ipa", new File("C:\\Users\\xujimu\\Desktop\\superdown.html.ipa"));
         ossClient.putObject(putObjectRequest);
         ossClient.shutdown();
         log.info("阿里云上传时间:" + (System.currentTimeMillis() - time)/1000 + "秒");

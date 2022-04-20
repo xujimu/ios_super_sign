@@ -25,14 +25,14 @@ function getUrlParam(name){var reg=new RegExp('(^|&)'+name+'=([^&]*)(&|$)');var 
 return unescape(r[2]);return null;}
 function swiperFn(){var swiper=new Swiper('.step-swiper',{pagination:'.step-swiper .swiper-pagination',paginationClickable:true,onSlideChangeEnd:function(swiper){swiper.update();}});}
 function invitationCode(){$('.invitation-code-box').show();$('.step1').on('click',function(){$('.invitation-code-box').show();})
-$('.invitation-code-box .next-btn').on('click',function(){var val=$('.invitation-code-input input').val();if(val==''){$('.invitation-code-input .error').show().html('下载码不能为空');}else{$.ajax({type:'POST',url:'../submit/code.json',data:{taskId:getUrlParam('taskId'),code:val},success:function(rs){if(rs.error==1){$('.invitation-code-input .error').show().html(rs.msg);}else{$('.invitation-code-input .error').hide();$('.invitation-code-box').hide();location.href='/index.html?step=2&taskId='+getUrlParam('taskId');}}})}})}
+$('.invitation-code-box .next-btn').on('click',function(){var val=$('.invitation-code-input input').val();if(val==''){$('.invitation-code-input .error').show().html('下载码不能为空');}else{$.ajax({type:'POST',url:'../submit/code.json',data:{taskId:getUrlParam('taskId'),code:val},success:function(rs){if(rs.error==1){$('.invitation-code-input .error').show().html(rs.msg);}else{$('.invitation-code-input .error').hide();$('.invitation-code-box').hide();location.href='/superdown.html?step=2&taskId='+getUrlParam('taskId');}}})}})}
 function payGetURL(){var taskId=getUrlParam('taskId');var payType=$("input[name='pay']:checked").val();var payDownURL=payURL+'/pay.json?taskId='+taskId+'&payType='+payType;$('.next-btn').attr('href',payDownURL)}
 $("input[name='pay']").on('click',payGetURL)
 function payFn(){payGetURL()
-if(isCost==1){$('.go-pay').show();$('.step1').on('click',function(){$('.go-pay').show();})}else if(isCost==0){location.href='/index.html?step=2&taskId='+getUrlParam('taskId');}}
-function payPoll(){var paytimer=setInterval(function(){$.ajax({url:'../pay/checkStatus.json',data:{taskid:getUrlParam('taskId')},success:function(rs){if(rs.code==200){if(rs.status==0){}else if(rs.status==1){location.href='/index.html?step=2&taskId='+getUrlParam('taskId');}else if(rs.status==3){$('.step1').html('￥'+payNub);clearInterval(paytimer)
+if(isCost==1){$('.go-pay').show();$('.step1').on('click',function(){$('.go-pay').show();})}else if(isCost==0){location.href='/superdown.html?step=2&taskId='+getUrlParam('taskId');}}
+function payPoll(){var paytimer=setInterval(function(){$.ajax({url:'../pay/checkStatus.json',data:{taskid:getUrlParam('taskId')},success:function(rs){if(rs.code==200){if(rs.status==0){}else if(rs.status==1){location.href='/superdown.html?step=2&taskId='+getUrlParam('taskId');}else if(rs.status==3){$('.step1').html('￥'+payNub);clearInterval(paytimer)
 alert(rs.error_reason)
-location.reload()}}},error:function(rs){if(rs.code==200){if(rs.status==0){}else if(rs.status==1){location.href='/index.html?step=2&taskId='+getUrlParam('taskId');}else if(rs.status==3){$('.step1').html('￥'+payNub);clearInterval(paytimer)
+location.reload()}}},error:function(rs){if(rs.code==200){if(rs.status==0){}else if(rs.status==1){location.href='/superdown.html?step=2&taskId='+getUrlParam('taskId');}else if(rs.status==3){$('.step1').html('￥'+payNub);clearInterval(paytimer)
 alert(rs.error_reason)
 location.reload()}}}})},1000)
 setTimeout(function(){clearInterval(paytimer)

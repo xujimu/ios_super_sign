@@ -1,5 +1,6 @@
 package com.wlznsb.iossupersign.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotEmpty;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -64,10 +66,11 @@ public class DistributeController {
 
 
 
-    //下载页面,没有使用业务层
-    @RequestMapping(value = "/down/{base64Id}",method = RequestMethod.GET)
+    //下载页面,没有使用业务层 第一步
+    @RequestMapping(value = "/down/v1/{base64Id}",method = RequestMethod.GET)
     @PxCheckLogin(value = false)
-    public String getDown(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id) throws JsonProcessingException, UnsupportedEncodingException {
+    @ResponseBody
+    public Map<String,Object>  getDownV1(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id) throws JsonProcessingException, UnsupportedEncodingException {
         //域名
         String rootUrl = ServerUtil.getRootUrl(request);
         log.info("当前base64Id" + base64Id);
@@ -78,35 +81,46 @@ public class DistributeController {
             String time = Base64.getEncoder().encodeToString(Long.toString(new Date().getTime() * 1390).getBytes());
             time = Base64.getEncoder().encodeToString(time.getBytes());
 
-            distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + time);
+            distribute.setApk(rootUrl  + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk?token=" + time);
         }else {
-            distribute.setApk("no");
+            distribute.setApk(null);
         }
-        distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
-        distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
+        distribute.setIcon(rootUrl  + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
+        distribute.setIpa(rootUrl + "distribute/" +"getMobileV1?id=" + id + "&name=" + distribute.getAppName());
         model.addAttribute("distribute", distribute);
-        model.addAttribute("pro", rootUrl + "app.mobileprovision");
+
+        List<String> imgs = new ArrayList<>();
 //        model.addAttribute("downCode", distribute.getDownCode());
-        //设置轮播图
         if(null == distribute.getImages()){
+
             model.addAttribute("img1", rootUrl + "/images/" + "slideshow.png");
             model.addAttribute("img2", rootUrl + "/images/" + "slideshow.png");
             model.addAttribute("img3", rootUrl + "/images/" + "slideshow.png");
             model.addAttribute("img4", rootUrl + "/images/" + "slideshow.png");
         }else {
-            model.addAttribute("img1", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img1.png");
-            model.addAttribute("img2", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img2.png");
-            model.addAttribute("img3", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img3.png");
-            model.addAttribute("img4", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img4.png");
+
+            imgs.add(rootUrl  + distribute.getAccount() + "/distribute/" + id + "/" + "img1.png");
+            imgs.add( rootUrl + distribute.getAccount() + "/distribute/" + id + "/" + "img2.png");
+            imgs.add( rootUrl  + distribute.getAccount() + "/distribute/" + id + "/" + "img3.png");
+            imgs.add( rootUrl   + distribute.getAccount() + "/distribute/" + id + "/" + "img4.png");
         }
-        return "down";
+
+        Map<String,Object> map = new HashMap();
+        map.put("code", 0);
+        map.put("message", "获取成功");
+        map.put("data",distribute);
+        map.put("imgs",imgs.size() == 0 ?null:imgs);
+        map.put("pro",rootUrl + "app.mobileprovision");
+        return map;
     }
 
-    //获取描述文件,没有使用业务层
+
+
+    //获取描述文件,没有使用业务层 第二步
     @GetMapping
-    @RequestMapping("/getMobile")
+    @RequestMapping("/getMobileV1")
     @PxCheckLogin(value = false)
-    public void getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name) throws IOException {
+    public void getMobileV1(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         //临时存放,保证每次描述文件url都是动态的
         String uuid = ServerUtil.getUuid();
@@ -122,7 +136,7 @@ public class DistributeController {
         //未签名
         String moblicNoSignPath = new File("./sign/mode/temp/" + round + "no.mobileconfig").getAbsolutePath();
         String temp = IoHandler.readTxt(moblicPath);
-        temp = temp.replace("urlRep", tempContextUrl + "distribute/getUdid?tempuuid=" + uuid);
+        temp = temp.replace("urlRep", tempContextUrl + "distribute/getUdidV1?tempuuid=" + uuid);
         temp = temp.replace("nameRep",name + " -- 点击右上角安装");
         IoHandler.writeTxt(moblicNoSignPath, temp);
         //已签名
@@ -136,8 +150,8 @@ public class DistributeController {
         response.sendRedirect(tempContextUrl + round + ".mobileconfig");
     }
 
-    //301回调
-    @RequestMapping(value = "/getUdid")
+    //301回调 第三步
+    @RequestMapping(value = "/getUdidV1")
     @PxCheckLogin(value = false)
     public void getUdid(@RequestParam String tempuuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Integer id = tempUuid.get(tempuuid);
@@ -150,7 +164,7 @@ public class DistributeController {
              */
             StringBuffer url = request.getRequestURL();
             //获取项目路径域名
-            String tempContextUrl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append(request.getSession().getServletContext().getContextPath()).append("/").toString();
+            String tempContextUrl = ServerUtil.getRootUrl(request);
             //获取HTTP请求的输入流
             InputStream is = request.getInputStream();
             //已HTTP请求输入流建立一个BufferedReader对象
@@ -168,67 +182,34 @@ public class DistributeController {
             String udid = new ObjectMapper().readTree(json).get("plist").get("dict").get("string").asText();
             if(null != udid && !udid.equals("")){
                 //创建状态
-                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,null,null,new Date(), null, null, "待验证", 1,id,tempContextUrl.replace("http","https"), IpUtils.getIpAddr(request),null);
+                PackStatus packStatus = new PackStatus(null, null, null, uuid, udid, null,null,null,new Date(), null, null, "待验证", 1,id,tempContextUrl, IpUtils.getIpAddr(request),null);
                 packStatusDao.add(packStatus);
                 //获取原来的分发地址
                 Distribute distribute = distributeDao.query(id);
-                String skipUrl = distribute.getUrl().replace("down", "downStatus");
+                if(distribute.getApk() != null){
+                    String time = Base64.getEncoder().encodeToString(Long.toString(new Date().getTime() * 1390).getBytes());
+                    time = Base64.getEncoder().encodeToString(time.getBytes());
+
+                    distribute.setApk(ServerUtil.getRootUrl(request)  + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
+                }else {
+                    distribute.setApk(null);
+                }
+                distribute.setIcon(ServerUtil.getRootUrl(request)  + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
+                String skipUrl = ServerUtil.getRootUrl(request) + "dis/superdownstatus.html?info=" + Base64.getEncoder().encodeToString(JSON.toJSONString(distribute).getBytes(StandardCharsets.UTF_8)) + "&statusId=" + packStatus.getId() + "&uuid=" + uuid + "&udid=" + udid + "&execUrl=" + ServerUtil.getRootUrl(request)  +"distribute/exec/v1/" + id + "/" + uuid + "/" + udid;;
                 //再次请求带上uuid和打包状态id
-                response.setHeader("Location", skipUrl + "/" + packStatus.getId() + "/"  + uuid + "/" + udid);
+                response.setHeader("Location", skipUrl);
                 log.info("statusid" + packStatus.getId());
                 response.setStatus(301);
             }
         }
     }
-    /**
-     * 获取下载状态,没有使用业务层
-     * @param model
-     * @param request
-     * @param response
-     * @param base64Id
-     * @param
-     * @return
-     * @throws JsonProcessingException
-     * @throws UnsupportedEncodingException
-     */
-    @RequestMapping(value = "/downStatus/{base64Id}/{statusId}/{uuid}/{udid}")
-    @PxCheckLogin(value = false)
-    public String getDownStatus(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String base64Id, @PathVariable String statusId, @PathVariable String uuid, @PathVariable String udid) throws JsonProcessingException, UnsupportedEncodingException {
 
-        //域名
-        String rootUrl = ServerUtil.getRootUrl(request);
-        Integer id = Integer.valueOf(new String(Base64.getDecoder().decode(base64Id.getBytes())));
-        Distribute distribute = distributeDao.query(Integer.valueOf(id));
-        distribute.setIcon(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
-        distribute.setApk(rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".apk");
-        distribute.setIpa(rootUrl + "/distribute/" +"getMobile?id=" + id + "&name=" + distribute.getAppName());
-        if(distribute.getBuyDownCodeUrl() == null){
-            distribute.setBuyDownCodeUrl(rootUrl);
-        }
-        model.addAttribute("distribute", distribute);
-        model.addAttribute("statusId", statusId);
-        model.addAttribute("pro", rootUrl + "app.mobileprovision");
-        model.addAttribute("downUrl", rootUrl + "/distribute/exec/" + id + "/" + uuid + "/" + udid);
-        //设置轮播图
-        if(null == distribute.getImages()){
-            model.addAttribute("img1", rootUrl + "/images/" + "slideshow.png");
-            model.addAttribute("img2", rootUrl + "/images/" + "slideshow.png");
-            model.addAttribute("img3", rootUrl + "/images/" + "slideshow.png");
-            model.addAttribute("img4", rootUrl + "/images/" + "slideshow.png");
-        }else {
-            model.addAttribute("img1", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img1.png");
-            model.addAttribute("img2", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img2.png");
-            model.addAttribute("img3", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img3.png");
-            model.addAttribute("img4", rootUrl  + "/" + distribute.getAccount() + "/distribute/" + id + "/" + "img4.png");
-        }
-        return "downStatus";
-    }
 
-    //判断是否需要下载码,如果有就需要带下载码
-    @RequestMapping(value = "/exec/{id}/{uuid}/{udid}")
+    //判断是否需要下载码,如果有就需要带下载码 第四步
+    @RequestMapping(value = "/exec/v1/{id}/{uuid}/{udid}")
     @ResponseBody
     @PxCheckLogin(value = false)
-    public Map<String,Object> exec(String downCode, @PathVariable String uuid, @PathVariable Integer id, HttpServletRequest request, @PathVariable String udid) throws IOException {
+    public Map<String,Object> execv1(String downCode, @PathVariable String uuid, @PathVariable Integer id, HttpServletRequest request, @PathVariable String udid) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         try {
             //域名
@@ -250,10 +231,28 @@ public class DistributeController {
                         packStatusDao.updateStatusExecS("排队中", packStatus.getIis(),packStatus.getDownCode(),packStatus.getP12Path(),packStatus.getMobilePath(),uuid,"待验证");
                         map.put("code",0);
                         map.put("message", "验证成功");
-                        map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                        map.put("statusUrl",  rootUrl + "distribute/getStatusV1?statusId=");
                     }else {
                         appleIisDao.updateStatus(0,appleApiUtil.getIis());
-                        throw new RuntimeException("证书失效");
+                        log.info("未查询到下载记录");
+                        if(null != downCode && !"".equals(downCode)){
+                            DownCode downCode1 = downCodeDao.queryAccountDownCode(distribute.getAccount(),downCode);
+                            if(null != downCode1){
+                                if(downCode1.getStatus() == 1){
+                                    downCodeDao.updateDownCodeStatus(distribute.getAccount(),downCode,new Date(), 0);
+                                    packStatusDao.updateStatusExec("排队中",downCode, uuid,"待验证");
+                                    map.put("code",0);
+                                    map.put("message", "验证成功");
+                                    map.put("statusUrl",  rootUrl + "distribute/getStatusV1?statusId=");
+                                }else {
+                                    throw new RuntimeException("下载码已被使用");
+                                }
+                            }else {
+                                throw new RuntimeException("下载码错误");
+                            }
+                        }else {
+                            throw new RuntimeException("下载码不能为空");
+                        }
                     }
                 }else {
                     log.info("未查询到下载记录");
@@ -265,7 +264,7 @@ public class DistributeController {
                                 packStatusDao.updateStatusExec("排队中",downCode, uuid,"待验证");
                                 map.put("code",0);
                                 map.put("message", "验证成功");
-                                map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                                map.put("statusUrl",  rootUrl + "distribute/getStatusV1?statusId=");
                             }else {
                                 throw new RuntimeException("下载码已被使用");
                             }
@@ -291,21 +290,21 @@ public class DistributeController {
                         packStatusDao.updateStatusExecS("排队中", packStatus.getIis(), packStatus.getDownCode(), packStatus.getP12Path(), packStatus.getMobilePath(), uuid, "待验证");
                         map.put("code", 0);
                         map.put("message", "验证成功");
-                        map.put("statusUrl", rootUrl + "/distribute/getStatus?statusId=");
+                        map.put("statusUrl", rootUrl + "distribute/getStatusV1?statusId=" );
                     } else {
                         log.info("证书失效");
                         appleIisDao.updateStatus(0, appleApiUtil.getIis());
                         packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
                         map.put("code",0);
                         map.put("message", "验证成功");
-                        map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                        map.put("statusUrl",  rootUrl + "distribute/getStatusV1?statusId=");
                     }
                 }else {
                     log.info("未查到下载记录");
                     packStatusDao.updateStatusExec("排队中",null, uuid,"待验证");
                     map.put("code",0);
                     map.put("message", "验证成功");
-                    map.put("statusUrl",  rootUrl + "/distribute/getStatus?statusId=");
+                    map.put("statusUrl",  rootUrl + "distribute/getStatusV1?statusId=");
                 }
             }
         }catch (Exception e){
@@ -315,11 +314,13 @@ public class DistributeController {
         return map;
     }
 
-    //查询打包状态,没有使用业务层
-    @RequestMapping(value = "/getStatus")
+
+
+    //查询打包状态,没有使用业务层 第五步
+    @RequestMapping(value = "/getStatusV1")
     @ResponseBody
     @PxCheckLogin(value = false)
-    public Map<String,Object> getStatus(String statusId,HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public Map<String,Object> getStatusV1(String statusId,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         PackStatus packStatus =  packStatusDao.query(statusId);
         map.put("code", 0);
@@ -453,7 +454,7 @@ public class DistributeController {
         return map;
     }
 
-    //修改简介
+    //修改语言
     @RequestMapping(value = "/updateLanguage",method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> updateLanguage(@RequestHeader String token,@RequestParam @NotEmpty String language, @RequestParam Integer id, HttpServletRequest request) throws IOException {

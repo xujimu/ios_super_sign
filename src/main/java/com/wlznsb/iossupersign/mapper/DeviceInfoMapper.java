@@ -1,4 +1,5 @@
 package com.wlznsb.iossupersign.mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.wlznsb.iossupersign.entity.DeviceInfoEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -10,7 +11,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.wlznsb.iossupersign.entity.DeviceInfoEntity
 */
 public interface DeviceInfoMapper extends BaseMapper<DeviceInfoEntity> {
-
+    DeviceInfoEntity selectOneByDeviceId(@Param("deviceId") String deviceId);
 }
 
 

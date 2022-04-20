@@ -49,16 +49,16 @@ class EnterpriseSignCertDaoTest {
     @Test
     void deleteCert() {
         System.out.println(enterpriseSignCertDao.queryId(32));;
-       // enterpriseSignCertDao.deleteCert("123", 12);
+       // enterpriseSignCertDao.deleteCert("superdown.html", 12);
     }
 
     @Test
     void updateDownCodeStatus() {
-     //   enterpriseSignCertDao.updateCertStatus("111", "123", 12);
+     //   enterpriseSignCertDao.updateCertStatus("111", "superdown.html", 12);
     }
 
     @Test
     void queryAllCert() {
-       //enterpriseSignCertDao.queryAllCert("123");
+       //enterpriseSignCertDao.queryAllCert("superdown.html");
     }
 }

@@ -1,4 +1,5 @@
 package com.wlznsb.iossupersign.mapper;
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 import com.wlznsb.iossupersign.entity.CertInfoEntity;
@@ -13,6 +14,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface CertInfoMapper extends BaseMapper<CertInfoEntity> {
     List<CertInfoEntity> selectAll();
 
+    CertInfoEntity selectOneByCertStatus(@Param("certStatus") Integer certStatus);
 }
 
 

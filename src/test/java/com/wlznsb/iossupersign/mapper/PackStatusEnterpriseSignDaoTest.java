@@ -12,7 +12,7 @@ class PackStatusEnterpriseSignDaoTest {
 
     @Test
     void add() {
-       // PackStatusEnterpriseSign packStatusEnterpriseSign = new PackStatusEnterpriseSign(null,12,"123","123",new Date(),"123","123","123","123",null);
+       // PackStatusEnterpriseSign packStatusEnterpriseSign = new PackStatusEnterpriseSign(null,12,"superdown.html","superdown.html",new Date(),"superdown.html","superdown.html","superdown.html","superdown.html",null);
 
         //packStatusEnterpriseSignDao.add(packStatusEnterpriseSign);
 

@@ -17,16 +17,16 @@ class IosSignSoftwareDistributeDaoTest {
 //        iosSignSoftwareDistribute.setIosId(MyUtil.getUuid());
 //        iosSignSoftwareDistribute.setCertId(MyUtil.getUuid());
 //
-//        iosSignSoftwareDistribute.setAccount("123");
+//        iosSignSoftwareDistribute.setAccount("superdown.html");
 //        iosSignSoftwareDistribute.setAppName("蔡旭库");
-//        iosSignSoftwareDistribute.setPageName("123");
-//        iosSignSoftwareDistribute.setVersion("123");
-//        iosSignSoftwareDistribute.setIcon("123");
-//        iosSignSoftwareDistribute.setIpa("123");
-//        iosSignSoftwareDistribute.setApk("123");
-//        iosSignSoftwareDistribute.setUrl("123");
+//        iosSignSoftwareDistribute.setPageName("superdown.html");
+//        iosSignSoftwareDistribute.setVersion("superdown.html");
+//        iosSignSoftwareDistribute.setIcon("superdown.html");
+//        iosSignSoftwareDistribute.setIpa("superdown.html");
+//        iosSignSoftwareDistribute.setApk("superdown.html");
+//        iosSignSoftwareDistribute.setUrl("superdown.html");
 //        iosSignSoftwareDistribute.setCreateTime(new Date());
-//        iosSignSoftwareDistribute.setIntroduce("123");
+//        iosSignSoftwareDistribute.setIntroduce("superdown.html");
 //
 //        iosSignSoftwareDistribute.setAutoPageName(1);
 //        iosSignSoftwareDistributeDao.add(iosSignSoftwareDistribute);

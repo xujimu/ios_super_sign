@@ -1,4 +1,5 @@
 package com.wlznsb.iossupersign.mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.wlznsb.iossupersign.entity.MdmPackStatusEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -13,6 +14,9 @@ import java.util.List;
 * @Entity com.wlznsb.iossupersign.entity.MdmPackStatusEntity
 */
 public interface MdmPackStatusMapper extends BaseMapper<MdmPackStatusEntity> {
+
+    MdmPackStatusEntity selectOneByDeviceId(@Param("deviceId") String deviceId);
+
     /**
      * 查询一条记录
      */

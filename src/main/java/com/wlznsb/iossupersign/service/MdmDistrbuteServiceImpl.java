@@ -98,9 +98,9 @@ public class MdmDistrbuteServiceImpl {
                 //log.info("解压命令" + cmd);
                 // log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
                 String name = mapIpa.get("displayName").toString();
-                String url = rootUrl + "mdmdistribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
+                String url = rootUrl + "dis/mdmsuperdown.html?id=" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 MdmDistributeEntity distribute = new MdmDistributeEntity(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"中文");
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"zh");
                 //备份当前目录
                 MyUtil.getIpaImg("./sign/temp/" + user.getAccount() + "/mdmdistribute/" + id  + "/" + id +  ".png","./sign/temp/" + user.getAccount() + "/mdmdistribute/" + id  + "/" + id +  ".png");
 

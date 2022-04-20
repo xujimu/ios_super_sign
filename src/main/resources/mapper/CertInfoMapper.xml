@@ -30,4 +30,11 @@
         <include refid="Base_Column_List"/>
         from cert_info
     </select>
+    <select id="selectOneByCertStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from cert_info
+        where
+        cert_status = #{certStatus,jdbcType=NUMERIC} limit 1
+    </select>
 </mapper>

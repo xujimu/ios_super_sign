@@ -36,7 +36,7 @@ class PackStatusDaoTest {
             packStatusDao.add(packStatus);
         }
        // packStatus.setStatus("分好了");
-        //packStatusDao.update(packStatus,"123");
+        //packStatusDao.update(packStatus,"superdown.html");
 
     }
 

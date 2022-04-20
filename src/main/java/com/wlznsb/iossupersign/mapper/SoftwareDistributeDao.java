@@ -21,7 +21,7 @@ public interface SoftwareDistributeDao {
      */
     @Insert("insert into software_distribute() values(#{softwareDistribute.id},#{softwareDistribute.account},#{softwareDistribute.appName}," +
             "#{softwareDistribute.pageName},#{softwareDistribute.version},#{softwareDistribute.icon}" +
-            ",#{softwareDistribute.ipa},#{softwareDistribute.apk},#{softwareDistribute.url},#{softwareDistribute.createTime},#{softwareDistribute.introduce},#{softwareDistribute.uuid})")
+            ",#{softwareDistribute.ipa},#{softwareDistribute.apk},#{softwareDistribute.url},#{softwareDistribute.createTime},#{softwareDistribute.introduce},#{softwareDistribute.uuid},#{softwareDistribute.language})")
     int add(@Param("softwareDistribute") SoftwareDistribute softwareDistribute);
 
 
@@ -88,5 +88,12 @@ public interface SoftwareDistributeDao {
      */
     @Update("update software_distribute set introduce = #{introduce} where uuid = #{uuid} and account = #{account}")
     int updateIntroduce(String introduce, String uuid,String account);
+
+
+    /**
+     * 修改介绍
+     */
+    @Update("update software_distribute set language = #{language} where uuid = #{uuid} and account = #{account}")
+    int updateLanguage(String language, String uuid,String account);
 }
 

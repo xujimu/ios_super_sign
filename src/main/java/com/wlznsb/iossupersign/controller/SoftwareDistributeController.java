@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotEmpty;
 import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -111,19 +112,17 @@ public class SoftwareDistributeController {
         log.info("ipaurl路径" + ipaUrl);
         String url = rootUrl + "softwareDistribute/down/"  + uuid;
         SoftwareDistribute softwareDistribute = new SoftwareDistribute(null,user.getAccount(),name,mapIpa.get("package").
-                toString(),mapIpa.get("versionName").toString(),iconUrl,plistUrl,null,url,new Date(),"极速下载",uuid);
+                toString(),mapIpa.get("versionName").toString(),iconUrl,plistUrl,null,url,new Date(),"极速下载",uuid,"zh");
         softwareDistributeDao.add(softwareDistribute);
         //备份当前目录
-        String initPath = RuntimeExec.runtimeExec("pwd").get("info").toString();
-        POSIXFactory.getPOSIX().chdir(pyPath);
-        RuntimeExec.runtimeExec("cp -rf ./sign/mode/ipin.py " + pyPath );
-        RuntimeExec.runtimeExec("python ipin.py" );
-        RuntimeExec.runtimeExec("rm -rf ipin.py");
-        POSIXFactory.getPOSIX().chdir(initPath);
+        MyUtil.getIpaImg("./sign/mode/software/" + uuid  + "/" + uuid +  ".png","./sign/mode/software/" + uuid  + "/" + uuid +  ".png");
+
         map.put("code", 0);
         map.put("message", "上传成功");
         return map;
     }
+
+
 
 
     //下载页面
@@ -214,6 +213,18 @@ public class SoftwareDistributeController {
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         softwareDistributeDao.updateIntroduce(introduce,uuid,user.getAccount());
+        map.put("code", 0);
+        map.put("message", "修改成功");
+        return map;
+    }
+
+
+    @RequestMapping(value = "/updateLanguage",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> uploadLanguage(@RequestHeader String token,@RequestParam @Length(max = 200,message = "最多200个字符") String language, @RequestParam String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = userService.getUser(token);
+        softwareDistributeDao.updateLanguage(language,uuid,user.getAccount());
         map.put("code", 0);
         map.put("message", "修改成功");
         return map;

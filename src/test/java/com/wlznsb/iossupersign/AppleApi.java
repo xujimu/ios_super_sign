@@ -87,20 +87,20 @@ public class AppleApi {
 
 //
 //            //p8路径
-            String p8Path = new File("C:\\Users\\Administrator\\Desktop\\123.p8").getAbsolutePath();
+            String p8Path = new File("C:\\Users\\Administrator\\Desktop\\superdown.html.p8").getAbsolutePath();
 //            log.info("p8路径:" + new File(p8Path).getAbsoluteFile());
 //            //key路径
-//            String keyPath = new File("C:\\Users\\xujimu\\Desktop\\123\\my.key").getAbsolutePath();
+//            String keyPath = new File("C:\\Users\\xujimu\\Desktop\\superdown.html\\my.key").getAbsolutePath();
 //            log.info("key路径:" + keyPath);
 //            //创建证书目录
-//            String certRoot = new File("C:\\Users\\xujimu\\Desktop\\123").getAbsolutePath();
+//            String certRoot = new File("C:\\Users\\xujimu\\Desktop\\superdown.html").getAbsolutePath();
 //            new File(certRoot).mkdirs();
             //写入p8这里的new file必须是绝对路径抽象路径无效
             //创建苹果api工具类
             AppleApiUtil appleApiUtil = new AppleApiUtil("0ec3a4b2-9353-4ebe-a88e-8351efd0bd87", "5P7DWTF4R6", p8Path);
             appleApiUtil.init();
 //            //获取证书工作目录
-//            String directoryPath = new File("C:\\Users\\xujimu\\Desktop\\123").getAbsolutePath();
+//            String directoryPath = new File("C:\\Users\\xujimu\\Desktop\\superdown.html").getAbsolutePath();
 //            log.info("证书工作目录:" + directoryPath);
 //
 //            //删除所有证书
@@ -129,7 +129,7 @@ public class AppleApi {
 //        String b = appleApiUtil.addIdentifiers("com.qweqe.qweq", "qqweqwe");
 //        System.out.println("包名id" + b);
 //        System.out.println(appleApiUtil.addProfiles(b,certId,a,"1qwe123qw","C:\\Users\\xujimu\\Desktop"));
-         // Map<String,Object>  a = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\111.ipa", "C:\\Users\\xujimu\\Desktop\\123.png");
+         // Map<String,Object>  a = GetIpaInfoUtil.readIPA("C:\\Users\\xujimu\\Desktop\\111.ipa", "C:\\Users\\xujimu\\Desktop\\superdown.html.png");
         //System.out.println(appleApiUtil.queryDevice("c019313fdb835a842f98941ce0c9bd8801ddeef7"));
        // System.out.println(appleApiUtil.deleProfiles("XKF4326P2L"));
          // System.out.println(a);
@@ -155,7 +155,7 @@ public class AppleApi {
     public void  test7() throws Exception {
 
         //获取HTTP请求的输入流
-        InputStream is = new FileInputStream( new File("C:\\Users\\xujimu\\Desktop\\123.plist"));
+        InputStream is = new FileInputStream( new File("C:\\Users\\xujimu\\Desktop\\superdown.html.plist"));
         //已HTTP请求输入流建立一个BufferedReader对象
         BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
         StringBuilder sb = new StringBuilder();

@@ -22,7 +22,7 @@ public class MyUtil {
 
     /**
      * ipa里面的图片转换
-     * @param inputPath ./data/123.png
+     * @param inputPath ./data/superdown.html.png
      * @param outPath ./data/1.png
      * @return
      * @throws IOException

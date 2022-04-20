@@ -73,15 +73,16 @@ public class DistrbuteServiceImpl{
             if(ipa.getSize() != 0){
 
                 //获取下一次的主键id
-                id = distributeDao.getId();
-                if(id == null){
-                    id = 1;
-                }else {
-                    id = id + 1;
-                }
-                if(null != appId){
-                    id = appId;
-                }
+//                id = distributeDao.getId();
+//                if(id == null){
+//                    id = 1;
+//                }else {
+//                    id = id + 1;
+//                }
+//                if(null != appId){
+//                    id = appId;
+//                }
+                id = Integer.valueOf(String.valueOf(System.currentTimeMillis() / 1000));
                 new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/").mkdirs();
                 //icon路径
                 String iconPath = new File("./sign/temp/" + user.getAccount() + "/distribute/" + id + "/" +  id + ".png").getAbsolutePath();
@@ -104,9 +105,9 @@ public class DistrbuteServiceImpl{
                 //log.info("解压命令" + cmd);
                 // log.info("解压结果" + RuntimeExec.runtimeExec(cmd).get("info"));
                 String name = mapIpa.get("displayName").toString();
-                String url = rootUrl + "distribute/down/" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
+                String url = rootUrl + "dis/superdown.html?id=" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"中文");
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"zh");
                 //备份当前目录
                 MyUtil.getIpaImg("./sign/temp/" + user.getAccount() + "/distribute/" + id  + "/" + id +  ".png","./sign/temp/" + user.getAccount() + "/distribute/" + id  + "/" + id +  ".png");
 

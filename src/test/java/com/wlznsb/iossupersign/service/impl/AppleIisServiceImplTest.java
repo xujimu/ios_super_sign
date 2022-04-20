@@ -35,7 +35,7 @@ class AppleIisServiceImplTest {
     @Test
     void dele() throws IOException {
 
-      //  File file = new File("C:\\sign\\123\\70e2fe2f-cb06-49a2-9696-753ca9ca7a50");
+      //  File file = new File("C:\\sign\\superdown.html\\70e2fe2f-cb06-49a2-9696-753ca9ca7a50");
        // FileSystemUtils.deleteRecursively(file);
         System.out.println(false);
     }

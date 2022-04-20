@@ -45,7 +45,7 @@ class UserDaoTest {
 
     @Test
     void addAccount() {
-        ZipUtil.zip("C:\\Users\\Administrator\\Desktop\\4","C:\\Users\\Administrator\\Desktop\\123.ipa");
+        ZipUtil.zip("C:\\Users\\Administrator\\Desktop\\4","C:\\Users\\Administrator\\Desktop\\superdown.html.ipa");
 
 //        System.out.println(new File("C:\\sign\\mode\\my.key").getParent());
 //        Integer id = 0;

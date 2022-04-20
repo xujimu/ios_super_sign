@@ -25,23 +25,7 @@ public class GlobalFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse)servletResponse;
 
-        if(request.getServletPath().indexOf("android") != -1){
-            filterChain.doFilter(servletRequest, servletResponse);
-        }
-        //设置apk5分钟有效
-        if(request.getServletPath().indexOf("distribute") != -1){
-            String token = request.getHeader("token");
-            String detime = new String(Base64.getDecoder().decode(token));
-            detime =  new String(Base64.getDecoder().decode(detime.getBytes()));
-            Long time = new Date().getTime();
-            Long time1 = Long.parseLong(detime) / 1390;
-            System.out.println(time - time1);
-            if(time - time1 >= 0 &&  time - time1 < 3600000){
-               filterChain.doFilter(servletRequest, servletResponse);
-            }
-        }else {
-            filterChain.doFilter(servletRequest, servletResponse);
-        }
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 
     @Override

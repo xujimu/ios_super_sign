@@ -26,6 +26,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/webapp" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea/libraries" />
+      <excludeFolder url="file://$MODULE_DIR$/sign/mode/static/mode/android/temp/.idea/caches" />
+      <excludeFolder url="file://$MODULE_DIR$/sign/mode/static/mode/android/temp/.idea/libraries" />
+      <excludeFolder url="file://$MODULE_DIR$/sign/mode/static/mode/android/temp/app/build" />
+      <excludeFolder url="file://$MODULE_DIR$/sign/mode/static/mode/android/temp/.gradle" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

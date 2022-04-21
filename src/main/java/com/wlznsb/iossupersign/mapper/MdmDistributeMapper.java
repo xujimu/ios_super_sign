@@ -1,4 +1,5 @@
 package com.wlznsb.iossupersign.mapper;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.wlznsb.iossupersign.entity.Distribute;
 import org.apache.ibatis.annotations.*;
 
@@ -49,7 +50,7 @@ public interface MdmDistributeMapper extends BaseMapper<MdmDistributeEntity> {
      * 修改简介
      * @return
      */
-    @Update("update distribute set language = #{language} where  account = #{account} and id = #{id}")
+    @Update("update mdm_distribute set language = #{language} where  account = #{account} and id = #{id}")
     int updateLanguage(String language,String account,String id);
 
     /**

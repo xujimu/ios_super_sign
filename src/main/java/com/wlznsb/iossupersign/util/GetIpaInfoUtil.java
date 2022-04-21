@@ -1,5 +1,6 @@
 package com.wlznsb.iossupersign.util;
 
+import cn.hutool.core.io.FileUtil;
 import com.dd.plist.NSArray;
 import com.dd.plist.NSDictionary;
 import com.dd.plist.NSString;
@@ -17,13 +18,11 @@ import java.util.zip.ZipInputStream;
 public class GetIpaInfoUtil {
 
     public static void main(String[] args) {
-        String ipaUrl = "C:\\Users\\xujimu\\Desktop\\superdown.html.ipa";
-        String imgPath = "C:\\Users\\xujimu\\Desktop\\aaa.png";
+        String ipaUrl = "C:\\Users\\Administrator\\Desktop\\123.ipa";
+        String imgPath = "C:\\Users\\Administrator\\Desktop\\123.png";
         Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA(ipaUrl,imgPath);
-        System.out.println(mapIpa.get("package"));
-        for (String key : mapIpa.keySet()) {
-            System.out.println(key + ":" + mapIpa.get(key));
-        }
+        FileUtil.del(new File(ipaUrl));
+
     }
     /**
      *
@@ -144,7 +143,7 @@ public class GetIpaInfoUtil {
             infoIs.close();
             is.close();
             zipIns.close();
-
+            is2.close();
         } catch (Exception e) {
             e.printStackTrace();
             map.put("code", "fail");

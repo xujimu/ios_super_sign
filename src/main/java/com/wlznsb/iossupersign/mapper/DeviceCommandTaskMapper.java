@@ -1,5 +1,6 @@
 package com.wlznsb.iossupersign.mapper;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.wlznsb.iossupersign.entity.DeviceCommandTaskEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -9,6 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2022-04-17 21:19:38
 * @Entity com.wlznsb.iossupersign.entity.DeviceCommandTaskEntity
 */
+@DS("mdm")
 public interface DeviceCommandTaskMapper extends BaseMapper<DeviceCommandTaskEntity> {
 
 }

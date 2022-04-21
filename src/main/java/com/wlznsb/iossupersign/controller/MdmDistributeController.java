@@ -144,7 +144,7 @@ public class MdmDistributeController {
             OkHttpClient client = MyUtil.getOkHttpClient();
 
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-            okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "该配置文件帮助用户进行App授权安装" + "&name=" +name+ "&ziName=安装后返回浏览器");
+            okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "该配置文件帮助用户进行App授权安装" + "&name=" +name+ "&ziName=安装后返回浏览器&permission=4096");
             Request request1 = new Request.Builder()
                     .url(mdmUrl + "/mdm/get_mobile_config")
                     .method("POST", body)

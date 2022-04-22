@@ -1,4 +1,5 @@
 package com.wlznsb.iossupersign.service;
+import java.util.Date;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
@@ -64,6 +65,17 @@ public class MdmDistrbuteServiceImpl {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private DeviceInfoMapper deviceInfoMapper;
+
+    @Autowired
+    private MdmPackStatusMapper mdmPackStatusMapper;
+
+
+    @Autowired
+    private MdmSuperUpdateIpaTaskMapper superUpdateIpaTaskMapper;
+
+
     @Transactional
     public MdmDistributeEntity uploadIpa(MultipartFile ipa, User user, String rootUrl, String appId) {
         String id = null;
@@ -106,6 +118,27 @@ public class MdmDistrbuteServiceImpl {
 
                 if(null != appId){
                     distributeDao.updateById(distribute);
+
+                    List<MdmPackStatusEntity> 点击下载 = mdmPackStatusMapper.selectByAppIdAndAccountAndStatusOrderByCreateTime(id, user.getAccount(), "点击下载");
+
+                    List<String> 已处理 = new ArrayList<>();
+
+                    Iterator<MdmPackStatusEntity> iterator = 点击下载.iterator();
+                    while (iterator.hasNext()){
+                        MdmPackStatusEntity next = iterator.next();
+                        if(!已处理.contains(next.getUdid())){
+                            MdmSuperUpdateIpaTaskEntity updateIpaTaskEntity = new MdmSuperUpdateIpaTaskEntity();
+                            updateIpaTaskEntity.setUuid(MyUtil.getUuid());
+                            updateIpaTaskEntity.setTaskId("");
+                            updateIpaTaskEntity.setPackStatusId(next.getId());
+                            updateIpaTaskEntity.setStatus("待处理");
+                            updateIpaTaskEntity.setCreateTime(new Date());
+                            updateIpaTaskEntity.setUpdateTime(new Date());
+                            superUpdateIpaTaskMapper.insert(updateIpaTaskEntity);
+                            已处理.add(next.getUuid());
+                        }
+                    }
+
                 }else {
                     distributeDao.insert(distribute);
                 }
@@ -121,6 +154,9 @@ public class MdmDistrbuteServiceImpl {
             throw  new RuntimeException("上传失败:" + e.getMessage());
         }
     }
+
+
+
 
     /**
      * 合并apk

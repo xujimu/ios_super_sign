@@ -343,9 +343,50 @@ public class MdmDistributeController {
         map.put("code", 0);
         map.put("message", "查询成功");
         map.put("data", packStatus);
+        if(packStatus.getStatus().equals("点击下载")){
+            map.put("install", ServerUtil.getRootUrl(request) + "mdmdistribute/install/" + statusId);
+        }
         return map;
     }
 
+
+
+
+
+
+    @Autowired
+    private DeviceCommandTaskMapper taskMapper;
+
+    //发送下载任务
+    @RequestMapping(value = "/install/{statusId}",method = RequestMethod.GET)
+    @PxCheckLogin(value = false)
+    @ResponseBody
+    public Map<String,Object> install(HttpServletRequest request, @PathVariable String statusId) throws IOException {
+        Map<String,Object> map = new HashMap<>();
+
+        MdmPackStatusEntity mdmPackStatusEntity = packStatusDao.selectById(statusId);
+
+        Date date = new Date();
+        DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
+        taskEntity.setTaskId(MyUtil.getUuid());
+        taskEntity.setDeviceId(mdmPackStatusEntity.getDeviceId());
+        taskEntity.setCmd("InstallApplication");
+        taskEntity.setExecResult("");
+        taskEntity.setCreateTime(date);
+        taskEntity.setExecTime(date);
+        taskEntity.setResultTime(date);
+        taskEntity.setTaskStatus(0);
+        taskEntity.setPushCount(0);
+        taskEntity.setExecResultStatus("");
+        String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
+        cmda = cmda.replace("#plist#",mdmPackStatusEntity.getPlist().replace("itms-services://?action=download-manifest&url=",""));
+        taskEntity.setCmdAppend(cmda);
+        taskMapper.insert(taskEntity);
+
+        map.put("code",0);
+        map.put("message", "成功");
+        return map;
+    }
 
     @Autowired
     private UserServiceImpl userService;

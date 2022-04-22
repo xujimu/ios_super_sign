@@ -40,4 +40,37 @@
         where
         device_id = #{deviceId,jdbcType=VARCHAR}
     </select>
+    <select id="selectByPageNameAndAccountAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mdm_pack_status
+        where
+        page_name = #{pageName,jdbcType=VARCHAR}
+        AND account = #{account,jdbcType=VARCHAR}
+        AND status = #{status,jdbcType=VARCHAR}
+    </select>
+    <select id="selectByAppIdAndAccountAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mdm_pack_status
+        where
+        app_id = #{appId,jdbcType=VARCHAR}
+        AND account = #{account,jdbcType=VARCHAR}
+        AND status = #{status,jdbcType=VARCHAR}
+    </select>
+    <select id="selectByAppIdAndAccountAndStatusOrderByCreateTime" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mdm_pack_status
+        where
+        app_id = #{appId,jdbcType=VARCHAR}
+        AND account = #{account,jdbcType=VARCHAR}
+        AND status = #{status,jdbcType=VARCHAR}
+        order by create_time desc
+    </select>
+    <update id="updateStatusByIis">
+        update mdm_pack_status
+        set status = #{status,jdbcType=VARCHAR}
+        where iis = #{iis,jdbcType=VARCHAR}
+    </update>
 </mapper>

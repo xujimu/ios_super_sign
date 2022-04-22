@@ -18,6 +18,16 @@ public interface PackStatusDao {
 
 
     /**
+     *
+     * @param status
+     * @param iis
+     * @return
+     */
+    @Update("update pack_status set status = #{status}  where iis = #{iis}")
+    int updateIIsStatus(String status,String iis);
+
+
+    /**
      * 查询排队中的记录
      */
     @Select("select * from pack_status where status = #{status}")

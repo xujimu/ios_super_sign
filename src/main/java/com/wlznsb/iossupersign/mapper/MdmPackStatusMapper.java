@@ -17,6 +17,10 @@ public interface MdmPackStatusMapper extends BaseMapper<MdmPackStatusEntity> {
 
     MdmPackStatusEntity selectOneByDeviceId(@Param("deviceId") String deviceId);
 
+
+    int updateStatusByIis(@Param("status") String status, @Param("iis") String iis);
+
+
     /**
      * 查询一条记录
      */
@@ -97,7 +101,26 @@ public interface MdmPackStatusMapper extends BaseMapper<MdmPackStatusEntity> {
      */
     @Select("select * from mdm_pack_status where id = #{id} and account = #{account}")
     MdmPackStatusEntity queryDownCert(String id,String account);
+
+
+    /**
+     * 查询账号某个app
+     * @param pageName
+     * @param account
+     * @param status
+     * @return
+     */
+    List<MdmPackStatusEntity> selectByPageNameAndAccountAndStatus(@Param("pageName") String pageName, @Param("account") String account, @Param("status") String status);
+
+
+    List<MdmPackStatusEntity> selectByAppIdAndAccountAndStatus(@Param("appId") String appId, @Param("account") String account, @Param("status") String status);
+
+
+    List<MdmPackStatusEntity> selectByAppIdAndAccountAndStatusOrderByCreateTime(@Param("appId") String appId, @Param("account") String account, @Param("status") String status);
 }
+
+
+
 
 
 

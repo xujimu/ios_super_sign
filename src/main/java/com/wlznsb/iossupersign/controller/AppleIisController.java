@@ -6,6 +6,8 @@ import com.wlznsb.iossupersign.annotation.PxCheckLogin;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.AppleIis;
 import com.wlznsb.iossupersign.entity.User;
+import com.wlznsb.iossupersign.mapper.MdmPackStatusMapper;
+import com.wlznsb.iossupersign.mapper.PackStatusDao;
 import com.wlznsb.iossupersign.service.AppleIisServiceImpl;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
 import org.hibernate.validator.constraints.Range;
@@ -49,11 +51,21 @@ public class AppleIisController {
         return map;
     }
 
+
+    @Autowired
+    private PackStatusDao packStatusDao;
+
+    @Autowired
+    private MdmPackStatusMapper mdmPackStatusMapper;
+
     @RequestMapping(value = "/deleIis",method = RequestMethod.POST)
     public Map<String,Object> deleIis(@RequestHeader String token,@RequestParam @NotEmpty String iis,HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
         User user = userService.getUser(token);
         appleIisService.dele(iis,user);
+        packStatusDao.updateIIsStatus("证书已被删除",iis);
+        mdmPackStatusMapper.updateStatusByIis("证书已被删除",iis);
+
         map.put("code", 0);
         map.put("message", "删除成功");
         return map;

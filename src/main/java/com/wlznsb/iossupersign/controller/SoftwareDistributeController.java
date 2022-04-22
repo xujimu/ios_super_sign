@@ -103,7 +103,7 @@ public class SoftwareDistributeController {
         //bundle要随机不然有时候没进度条
         plist = plist.replace("bundleRep", uuid);
         plist = plist.replace("versionRep", mapIpa.get("versionName").toString());
-        plist = plist.replace("iconRep", iconPath);
+        plist = plist.replace("iconRep", iconUrl);
         plist = plist.replace("appnameRep",name);
         plist = plist.replace("urlRep", ipaUrl);
         String plistName = uuid + ".plist";

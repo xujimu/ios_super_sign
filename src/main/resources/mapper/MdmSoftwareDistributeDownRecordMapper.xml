@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.MdmSoftwareDistributeDownRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.MdmSoftwareDistributeDownRecordEntity">
+            <id property="deviceId" column="device_id" jdbcType="VARCHAR"/>
+            <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        device_id,app_id,create_time
+    </sql>
+    <select id="selectByAppId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mdm_software_distribute_down_record
+        where
+        app_id = #{appId,jdbcType=VARCHAR}
+    </select>
+</mapper>

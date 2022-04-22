@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -105,9 +106,10 @@ public class MdmSoftwareDistributeController {
         //获取plist
         String plist = IoHandler.readTxt(new File("./sign/mode/install.plist").getAbsolutePath());
         //bundle要随机不然有时候没进度条
-        plist = plist.replace("bundleRep", uuid);
+        plist = plist.replace("bundleRep", mapIpa.get("package").
+                toString());
         plist = plist.replace("versionRep", mapIpa.get("versionName").toString());
-        plist = plist.replace("iconRep", iconPath);
+        plist = plist.replace("iconRep", iconUrl);
         plist = plist.replace("appnameRep",name);
         plist = plist.replace("urlRep", ipaUrl);
         String plistName = uuid + ".plist";
@@ -187,6 +189,10 @@ public class MdmSoftwareDistributeController {
     @Autowired
     private DeviceInfoMapper deviceInfoMapper;
 
+    @Autowired
+    private MdmSoftwareDistributeDownRecordMapper downRecordMapper;
+
+
     //获取安装状态
     @RequestMapping(value = "/getInstallStatus/{deviceId}/{id}",method = RequestMethod.GET)
     @PxCheckLogin(value = false)
@@ -195,21 +201,52 @@ public class MdmSoftwareDistributeController {
         Map<String,Object> map = new HashMap<>();
         DeviceInfoEntity deviceInfoEntity = deviceInfoMapper.selectOneByDeviceId(deviceId);
         if(null != deviceInfoEntity && deviceInfoEntity.getStatus().equals("TokenUpdate")){
-
             MdmSoftwareDistributeEntity mdmSoftwareDistributeEntity = softwareDistributeDao.selectById(id);
-
+            MdmSoftwareDistributeDownRecordEntity softwareDistributeDownRecordEntity = new MdmSoftwareDistributeDownRecordEntity();
+            softwareDistributeDownRecordEntity.setDeviceId(deviceId);
+            softwareDistributeDownRecordEntity.setCreateTime(new Date());
+            softwareDistributeDownRecordEntity.setAppId(mdmSoftwareDistributeEntity.getUuid());
+            downRecordMapper.insert(softwareDistributeDownRecordEntity);
             map.put("code", 0);
             map.put("message", "获取成功");
-            map.put("plist", mdmSoftwareDistributeEntity.getIpa());
-
+            map.put("install", ServerUtil.getRootUrl(request) + "mdmsoftwareDistribute/install/" + deviceId + "/" + id);
         }else {
 
             map.put("code",10);
             map.put("message", "等待安装描述文件");
 
         }
+        return map;
+    }
 
+    //发送下载任务
+    @RequestMapping(value = "/install/{deviceId}/{id}",method = RequestMethod.GET)
+    @PxCheckLogin(value = false)
+    @ResponseBody
+    public Map<String,Object> install(HttpServletRequest request, @PathVariable String deviceId,@PathVariable String id) throws IOException {
+        Map<String,Object> map = new HashMap<>();
 
+        MdmSoftwareDistributeEntity mdmSoftwareDistributeEntity = softwareDistributeDao.selectById(id);
+
+        Date date = new Date();
+        DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
+        taskEntity.setTaskId(MyUtil.getUuid());
+        taskEntity.setDeviceId(deviceId);
+        taskEntity.setCmd("InstallApplication");
+        taskEntity.setExecResult("");
+        taskEntity.setCreateTime(date);
+        taskEntity.setExecTime(date);
+        taskEntity.setResultTime(date);
+        taskEntity.setTaskStatus(0);
+        taskEntity.setPushCount(0);
+        taskEntity.setExecResultStatus("");
+        String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
+        cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
+        taskEntity.setCmdAppend(cmda);
+        taskMapper.insert(taskEntity);
+
+        map.put("code",0);
+        map.put("message", "成功");
         return map;
     }
 
@@ -261,11 +298,19 @@ public class MdmSoftwareDistributeController {
         return map;
     }
 
+
+    @Autowired
+    private MdmSoftwareDistributeMapper softwareDistributeMapper;
+
+
     //更新ipa
     @RequestMapping(value = "/updateIpa",method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> uploadIpa(@RequestHeader String token,@RequestParam MultipartFile ipa,@RequestParam String uuid,HttpServletRequest request,HttpServletResponse response) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
+
+        MdmSoftwareDistributeEntity mdmSoftwareDistributeEntity = softwareDistributeMapper.selectById(uuid);
+
         String rootUrl = ServerUtil.getRootUrl(request);
         User user = userService.getUser(token);
         String userDir = "./sign/temp/" + user.getAccount() + "/mdmsoftwareDistribute/";
@@ -294,10 +339,37 @@ public class MdmSoftwareDistributeController {
             plist =  plist.replace(url, ipaUrl);
             IoHandler.writeTxt(plistFile.getAbsolutePath(), plist);
         }
+
+
+        List<MdmSoftwareDistributeDownRecordEntity> mdmSoftwares = downRecordMapper.selectByAppId(uuid);
+
+        for (MdmSoftwareDistributeDownRecordEntity s:mdmSoftwares) {
+
+            Date date = new Date();
+            DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
+            taskEntity.setTaskId(MyUtil.getUuid());
+            taskEntity.setDeviceId(s.getDeviceId());
+            taskEntity.setCmd("InstallApplication");
+            taskEntity.setExecResult("");
+            taskEntity.setCreateTime(date);
+            taskEntity.setExecTime(date);
+            taskEntity.setResultTime(date);
+            taskEntity.setTaskStatus(0);
+            taskEntity.setPushCount(0);
+            taskEntity.setExecResultStatus("");
+            String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
+            cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
+            taskEntity.setCmdAppend(cmda);
+
+            taskMapper.insert(taskEntity);
+        }
         map.put("code", 0);
         map.put("message", "上传成功");
         return map;
     }
+
+    @Autowired
+    private DeviceCommandTaskMapper taskMapper;
 
     //上传apk也可以更新
     @RequestMapping(value = "/uploadIntroduce",method = RequestMethod.POST)

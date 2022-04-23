@@ -1,5 +1,6 @@
 package com.wlznsb.iossupersign.util;
 
+import cn.hutool.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import okhttp3.OkHttpClient;
@@ -29,8 +30,19 @@ public class MyUtil {
      */
     public static void getIpaImg(String inputPath,String outPath) throws IOException {
 
-        new IPngConverter(new File(inputPath), new File(outPath)).convert();
 
+        File file = new File(inputPath);
+        BufferedInputStream inputStream = FileUtil.getInputStream(file);
+        BufferedInputStream inputStream1 = FileUtil.getInputStream(file);
+
+        //如果图片损坏则处理
+        if(!GetIpaInfoUtil.verifyImage(inputStream)){
+            new IPngConverter(file, new File(outPath)).convert();
+        }else {
+            FileUtil.writeBytes(inputStream1.readAllBytes(),new File(outPath));
+        }
+        inputStream.close();
+        inputStream1.close();
 
     };
 

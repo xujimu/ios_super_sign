@@ -1,14 +1,19 @@
 package com.wlznsb.iossupersign.util;
 
 import cn.hutool.core.io.FileUtil;
-import com.dd.plist.NSArray;
-import com.dd.plist.NSDictionary;
-import com.dd.plist.NSString;
-import com.dd.plist.PropertyListParser;
+import cn.hutool.core.io.file.FileNameUtil;
+import com.dd.plist.*;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.io.*;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -17,140 +22,113 @@ import java.util.zip.ZipInputStream;
 
 public class GetIpaInfoUtil {
 
-    public static void main(String[] args) {
-        String ipaUrl = "C:\\Users\\Administrator\\Desktop\\123.ipa";
-        String imgPath = "C:\\Users\\Administrator\\Desktop\\123.png";
-        Map<String, Object> mapIpa = GetIpaInfoUtil.readIPA(ipaUrl,imgPath);
-        FileUtil.del(new File(ipaUrl));
+    public static void main(String[] args) throws Exception {
+        String a = "C:\\Users\\Administrator\\Desktop\\test1.ipa";
+        File file = new File(a);
+        String c = "C:\\Users\\Administrator\\Desktop\\123123.png";
+        File file1 = new File(c);
+
+        MyUtil.getIpaImg(c,c);
 
     }
-    /**
-     *
-     * @param ipaURL 安装包的绝对路径
-     * @param path 指定图标的存放位置
-     * @return
-     */
-    public static Map<String, Object> readIPA(String ipaURL,String path) {
+
+
+    public static boolean verifyImage(InputStream inputStream) {
+        try (ImageInputStream iis = ImageIO.createImageInputStream(inputStream)) {
+            Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+            if (!iter.hasNext()) {
+
+                return false;
+            }
+            ImageReader reader = iter.next();
+            reader.setInput(iis, true);
+            int width = reader.getWidth(0);
+            //读取完整文件，速度太慢
+            //BufferedImage image = ImageIO.read(inputStream);
+            //int width = image.getWidth();
+            return true;
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+
+    public static Map<String, Object> readIPA(String ipaPath,String iconPath) {
+
         Map<String, Object> map = new HashMap<String, Object>();
+
         try {
-            File file = new File(ipaURL);
-            InputStream is = new FileInputStream(file);
-            String size = is.available() / 1024 / 1024 +"M";
-            InputStream is2 = new FileInputStream(file);
-            ZipInputStream zipIns = new ZipInputStream(is);
-            ZipInputStream zipIns2 = new ZipInputStream(is2);
-            ZipEntry ze;
-            ZipEntry ze2;
-            InputStream infoIs = null;
-            NSDictionary rootDict = null;
-            String icon = null;
+            ArchiveInputStream zipIns = new ZipArchiveInputStream(new
+                    FileInputStream(ipaPath), "UTF-8", false, true);
+
+            ArchiveInputStream zipIns1 = new ZipArchiveInputStream(new
+                    FileInputStream(ipaPath), "UTF-8", false, true);
+
+            String size = zipIns.getBytesRead()  / 1024 / 1024 +"M";
+            ArchiveEntry ze;
+            ArchiveEntry ze1;
             while ((ze = zipIns.getNextEntry()) != null) {
+                //如果不是文件夹
                 if (!ze.isDirectory()) {
                     String name = ze.getName();
-                    if (null != name && name.toLowerCase().contains("info.plist")) {
-                        System.out.println(ze.getName());
-                        if(name.length() -2 != name.replace("/", "").length()){
-                            continue;
-                        }
-                        ByteArrayOutputStream _copy = new ByteArrayOutputStream();
-                        int chunk = 0;
-                        byte[] data = new byte[1024];
-                        while (-1 != (chunk = zipIns.read(data))) {
-                            _copy.write(data, 0, chunk);
-                        }
+                    int length = name.split("/").length;
+                    if (null != name && name.contains("Info.plist") &&  length == 3 ) {
+                        String plistName = FileNameUtil.getName(name);
+                        if(plistName.equals("Info.plist")){
+                            NSDictionary  rootDict = (NSDictionary) PropertyListParser.parse(zipIns.readAllBytes());
+                            NSObject cfBundleDisplayName = rootDict.objectForKey("CFBundleDisplayName");//应用名称
+                            NSObject cfBundleIdentifier = rootDict.objectForKey("CFBundleIdentifier");//包名
+                            NSObject cfBundleShortVersionString = rootDict.objectForKey("CFBundleShortVersionString");//版本号 8.0.20
+                            NSObject cfBundleExecutable = rootDict.objectForKey("CFBundleExecutable");//应用解压路径名
 
-                        infoIs = new ByteArrayInputStream(_copy.toByteArray());
-
-                        rootDict = (NSDictionary) PropertyListParser.parse(infoIs);
-
-                        NSDictionary iconDict = (NSDictionary) rootDict.get("CFBundleIcons");
-
-                       if(iconDict == null){
-                           continue;
-                       }
+                            map.put("package", cfBundleIdentifier);
+                            map.put("versionName", cfBundleShortVersionString);
+                            map.put("versionCode", cfBundleShortVersionString);
+                            map.put("name", cfBundleDisplayName);
+                            map.put("displayName", cfBundleDisplayName);
 
 
-                        //获取图标名称
-                        while (null != iconDict) {
-                            if (iconDict.containsKey("CFBundlePrimaryIcon")) {
-                                NSDictionary CFBundlePrimaryIcon = (NSDictionary) iconDict.get("CFBundlePrimaryIcon");
-                                if (CFBundlePrimaryIcon.containsKey("CFBundleIconFiles")) {
-                                    NSArray CFBundleIconFiles = (NSArray) CFBundlePrimaryIcon.get("CFBundleIconFiles");
-                                    //读取最大的图片
-                                    icon = CFBundleIconFiles.getArray()[CFBundleIconFiles.getArray().length - 1].toString();
-                                    if (icon.contains(".png")) {
-                                        icon = icon.replace(".png", "");
+                            //ipa大小
+                            map.put("size", size);
+
+                            String icon; //图标名字
+                            NSObject iconName = rootDict.get("CFBundleIconFiles");
+
+                            if(null != rootDict.get("CFBundleIconFiles")){
+                                NSArray iconNameArr = (NSArray) iconName;
+                                icon = iconNameArr.getArray()[iconNameArr.getArray().length - 1].toString();
+                            }else {
+                                NSDictionary iconName1 = (NSDictionary) rootDict.get("CFBundleIcons");
+                                iconName1 =  (NSDictionary) iconName1.get("CFBundlePrimaryIcon");
+                                NSArray iconNameArr = (NSArray) iconName1.get("CFBundleIconFiles");
+                                icon = iconNameArr.getArray()[iconNameArr.getArray().length - 1].toString();
+                            }
+
+                            while ((ze1 = zipIns1.getNextEntry()) != null){
+                                if (!ze1.isDirectory()) {
+                                    if(ze1.getName().contains(icon)){
+                                        FileUtil.writeBytes(zipIns1.readAllBytes(),new File(iconPath));
+                                        break;
                                     }
-                                    System.out.println("获取icon名称:" + icon);
-                                    break;
                                 }
                             }
                         }
-                        break;
                     }
                 }
             }
 
-            //根据图标名称下载图标文件到指定位置
-            while ((ze2 = zipIns2.getNextEntry()) != null) {
-                if (!ze2.isDirectory()) {
-                    String name = ze2.getName();
-                    if (icon!=null){
-                        if (name.contains(icon.trim())) {
-                            //图片下载到指定的地方
-                            FileOutputStream fos = new FileOutputStream(new File(path));
-                            int chunk = 0;
-                            byte[] data = new byte[1024];
-                            while (-1 != (chunk = zipIns2.read(data))) {
-                                fos.write(data, 0, chunk);
-                            }
-                            fos.close();
-                            System.out.println("=================下载图片成功");
-                            break;
-                        }
-                    }
-                }
-            }
-
-
-
-            // 应用包名
-            NSString parameters = (NSString) rootDict.get("CFBundleIdentifier");
-
-            map.put("package", parameters.toString());
-            // 应用版本名
-            parameters = (NSString) rootDict.objectForKey("CFBundleShortVersionString");
-            map.put("versionName", parameters.toString());
-            //应用版本号
-            parameters = (NSString) rootDict.get("CFBundleVersion");
-            map.put("versionCode", parameters.toString());
-            //应用名称
-            parameters = (NSString) rootDict.objectForKey("CFBundleExecutable");
-            map.put("name", parameters.toString());
-            //应用展示的名称
-            parameters = (NSString) rootDict.objectForKey("CFBundleDisplayName");
-            if(parameters != null){
-                map.put("displayName", parameters.toString());
-            }else {
-                map.put("displayName", map.get("name"));
-            }
-            //ipa大小
-            map.put("size", size);
-            //应用所需IOS最低版本
-            //parameters = (NSString) rootDict.objectForKey("MinimumOSVersion");
-            //map.put("minIOSVersion", parameters.toString());
-
-            infoIs.close();
-            is.close();
+            zipIns1.close();
             zipIns.close();
-            is2.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        }catch (Exception e){
             map.put("code", "fail");
             map.put("error", "读取ipa文件失败");
         }
+
         return map;
     }
+
 
     /**
      * 创建plist文件

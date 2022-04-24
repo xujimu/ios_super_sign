@@ -17,12 +17,16 @@
             <result property="execResultStatus" column="exec_result_status" jdbcType="VARCHAR"/>
             <result property="cmdAppend" column="cmd_append" jdbcType="VARCHAR"/>
             <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="certId" column="cert_id" jdbcType="VARCHAR"/>
+            <result property="udid" column="udid" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         task_id,device_id,cmd,
         exec_result,create_time,exec_time,
         result_time,task_status,push_count,
-        exec_result_status,cmd_append,remark
+        exec_result_status,cmd_append,remark,
+        cert_id,udid
     </sql>
+
 </mapper>

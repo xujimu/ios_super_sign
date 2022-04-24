@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.annotation.PxCheckLogin;
+import com.wlznsb.iossupersign.constant.RedisKey;
 import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.mapper.*;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
@@ -21,6 +22,7 @@ import okhttp3.Response;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -357,6 +359,9 @@ public class MdmDistributeController {
     @Autowired
     private DeviceCommandTaskMapper taskMapper;
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     //发送下载任务
     @RequestMapping(value = "/install/{statusId}",method = RequestMethod.GET)
     @PxCheckLogin(value = false)
@@ -365,6 +370,8 @@ public class MdmDistributeController {
         Map<String,Object> map = new HashMap<>();
 
         MdmPackStatusEntity mdmPackStatusEntity = packStatusDao.selectById(statusId);
+
+        DeviceInfoEntity deviceInfoEntity = deviceInfoMapper.selectById(mdmPackStatusEntity.getDeviceId());
 
         Date date = new Date();
         DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
@@ -378,10 +385,23 @@ public class MdmDistributeController {
         taskEntity.setTaskStatus(0);
         taskEntity.setPushCount(0);
         taskEntity.setExecResultStatus("");
+        taskEntity.setCertId(deviceInfoEntity.getCertId());
+        taskEntity.setUdid(deviceInfoEntity.getUdid());
         String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
-        cmda = cmda.replace("#plist#",mdmPackStatusEntity.getPlist().replace("itms-services://?action=download-manifest&url=",""));
+        cmda = cmda.replace("#plist#",mdmPackStatusEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
         taskEntity.setCmdAppend(cmda);
-        taskMapper.insert(taskEntity);
+        CertInfoEntity certInfoEntity = certInfoMapper.selectById(deviceInfoEntity.getCertId());
+        if(null == certInfoEntity){
+            map.put("code",1);
+            map.put("message", "证书不存在");
+            return map;
+        }
+        taskEntity.setP12Path(certInfoEntity.getP12Path());
+        taskEntity.setP12Password(certInfoEntity.getP12Password());
+        taskEntity.setToken(deviceInfoEntity.getToken());
+        taskEntity.setMagic(deviceInfoEntity.getMagic());
+
+        stringRedisTemplate.opsForValue().set(String.format(RedisKey.TASK_PUSH,taskEntity.getTaskId()), JSON.toJSONString(taskEntity));
 
         map.put("code",0);
         map.put("message", "成功");

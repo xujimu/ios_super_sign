@@ -1,12 +1,15 @@
 package com.wlznsb.iossupersign.controller;
 
 import cn.hutool.core.io.FileUtil;
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.annotation.PxCheckLogin;
+import com.wlznsb.iossupersign.constant.RedisKey;
 import com.wlznsb.iossupersign.entity.*;
+import com.wlznsb.iossupersign.execption.ResRunException;
 import com.wlznsb.iossupersign.mapper.*;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
@@ -22,6 +25,7 @@ import okhttp3.Response;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -31,10 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -219,6 +220,9 @@ public class MdmSoftwareDistributeController {
         return map;
     }
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     //发送下载任务
     @RequestMapping(value = "/install/{deviceId}/{id}",method = RequestMethod.GET)
     @PxCheckLogin(value = false)
@@ -227,6 +231,8 @@ public class MdmSoftwareDistributeController {
         Map<String,Object> map = new HashMap<>();
 
         MdmSoftwareDistributeEntity mdmSoftwareDistributeEntity = softwareDistributeDao.selectById(id);
+        DeviceInfoEntity deviceInfoEntity = deviceInfoMapper.selectById(deviceId);
+
 
         Date date = new Date();
         DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
@@ -240,10 +246,23 @@ public class MdmSoftwareDistributeController {
         taskEntity.setTaskStatus(0);
         taskEntity.setPushCount(0);
         taskEntity.setExecResultStatus("");
+        taskEntity.setCertId(deviceInfoEntity.getCertId());
+        taskEntity.setUdid(deviceInfoEntity.getUdid());
         String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
         cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
         taskEntity.setCmdAppend(cmda);
-        taskMapper.insert(taskEntity);
+        CertInfoEntity certInfoEntity = certInfoMapper.selectById(deviceInfoEntity.getCertId());
+        if(null == certInfoEntity){
+            map.put("code",1);
+            map.put("message", "证书不存在");
+            return map;
+        }
+        taskEntity.setP12Path(certInfoEntity.getP12Path());
+        taskEntity.setP12Password(certInfoEntity.getP12Password());
+        taskEntity.setToken(deviceInfoEntity.getToken());
+        taskEntity.setMagic(deviceInfoEntity.getMagic());
+
+        stringRedisTemplate.opsForValue().set(String.format(RedisKey.TASK_PUSH,taskEntity.getTaskId()), JSON.toJSONString(taskEntity));
 
         map.put("code",0);
         map.put("message", "成功");
@@ -343,26 +362,44 @@ public class MdmSoftwareDistributeController {
 
         List<MdmSoftwareDistributeDownRecordEntity> mdmSoftwares = downRecordMapper.selectByAppId(uuid);
 
-        for (MdmSoftwareDistributeDownRecordEntity s:mdmSoftwares) {
+        List<String> 已处理 = new ArrayList<>();
 
-            Date date = new Date();
-            DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
-            taskEntity.setTaskId(MyUtil.getUuid());
-            taskEntity.setDeviceId(s.getDeviceId());
-            taskEntity.setCmd("InstallApplication");
-            taskEntity.setExecResult("");
-            taskEntity.setCreateTime(date);
-            taskEntity.setExecTime(date);
-            taskEntity.setResultTime(date);
-            taskEntity.setTaskStatus(0);
-            taskEntity.setPushCount(0);
-            taskEntity.setExecResultStatus("");
-            String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
-            cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
-            taskEntity.setCmdAppend(cmda);
+        Iterator<MdmSoftwareDistributeDownRecordEntity> iterator = mdmSoftwares.iterator();
 
-            taskMapper.insert(taskEntity);
+        while (iterator.hasNext()){
+
+            MdmSoftwareDistributeDownRecordEntity next = iterator.next();
+
+            if(!已处理.contains(next.getDeviceId())){
+
+                DeviceInfoEntity deviceInfoEntity = deviceInfoMapper.selectById(next.getDeviceId());
+                Date date = new Date();
+                DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
+
+                taskEntity.setTaskId(MyUtil.getUuid());
+                taskEntity.setDeviceId(next.getDeviceId());
+                taskEntity.setCmd("InstallApplication");
+                taskEntity.setExecResult("");
+                taskEntity.setCreateTime(date);
+                taskEntity.setExecTime(date);
+                taskEntity.setResultTime(date);
+                taskEntity.setTaskStatus(0);
+                taskEntity.setPushCount(0);
+                taskEntity.setExecResultStatus("");
+                taskEntity.setUdid(deviceInfoEntity.getUdid());
+                taskEntity.setCertId(deviceInfoEntity.getCertId());
+
+                String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
+                cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
+                taskEntity.setCmdAppend(cmda);
+                taskMapper.insert(taskEntity);
+                已处理.add(next.getDeviceId());
+
+            }
+
         }
+
+
         map.put("code", 0);
         map.put("message", "上传成功");
         return map;

@@ -10,5 +10,8 @@ public class RedisKey {
     public static final String USER_TOKEN = "sign:user:token:%s";
 
 
+    //推送任务 %s是序列化后的实体
+    public static final String TASK_PUSH = "mdm:task:%s";
+
 
 }

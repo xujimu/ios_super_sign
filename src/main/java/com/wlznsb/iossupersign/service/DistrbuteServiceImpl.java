@@ -13,8 +13,6 @@ import com.qiniu.util.Auth;
 import com.wlznsb.iossupersign.mapper.*;
 import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.util.*;
-import jnr.ffi.annotations.In;
-import jnr.posix.POSIXFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

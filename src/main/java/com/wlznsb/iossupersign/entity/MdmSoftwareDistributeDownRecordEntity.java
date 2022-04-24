@@ -18,7 +18,7 @@ public class MdmSoftwareDistributeDownRecordEntity implements Serializable {
     /**
      * 
      */
-    @TableId(value = "device_id")
+    @TableField(value = "device_id")
     private String deviceId;
 
     /**

@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 @DS("mdm")
 public interface DeviceInfoMapper extends BaseMapper<DeviceInfoEntity> {
     DeviceInfoEntity selectOneByDeviceId(@Param("deviceId") String deviceId);
+
 }
 
 

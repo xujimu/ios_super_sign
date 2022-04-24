@@ -5,7 +5,7 @@
 <mapper namespace="com.wlznsb.iossupersign.mapper.MdmSoftwareDistributeDownRecordMapper">
 
     <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.MdmSoftwareDistributeDownRecordEntity">
-            <id property="deviceId" column="device_id" jdbcType="VARCHAR"/>
+            <result property="deviceId" column="device_id" jdbcType="VARCHAR"/>
             <result property="appId" column="app_id" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>

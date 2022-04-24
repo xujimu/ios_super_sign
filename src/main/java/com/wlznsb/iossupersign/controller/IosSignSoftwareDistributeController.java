@@ -9,12 +9,13 @@ import com.wlznsb.iossupersign.entity.*;
 import com.wlznsb.iossupersign.service.DistrbuteServiceImpl;
 import com.wlznsb.iossupersign.service.UserServiceImpl;
 import com.wlznsb.iossupersign.util.*;
-import jnr.posix.POSIXFactory;
+
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileSystemUtils;
@@ -109,12 +110,9 @@ public class IosSignSoftwareDistributeController {
                 iconUrl,ipaPath,null,url,certId,new Date(),introduce,1);
         iosSignSoftwareDistributeDao.add(iosSignSoftwareDistribute);
         //备份当前目录
-        String initPath = RuntimeExec.runtimeExec("pwd").get("info").toString();
-        POSIXFactory.getPOSIX().chdir(pyPath);
-        RuntimeExec.runtimeExec("cp -rf ./sign/mode/ipin.py " + pyPath );
-        RuntimeExec.runtimeExec("python ipin.py" );
-        RuntimeExec.runtimeExec("rm -rf ipin.py");
-        POSIXFactory.getPOSIX().chdir(initPath);
+        //备份当前目录
+        MyUtil.getIpaImg(iconPath,iconPath);
+
         map.put("code", 0);
         map.put("message", "上传成功");
         return map;
@@ -252,12 +250,16 @@ public class IosSignSoftwareDistributeController {
         return map;
     }
 
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     @Autowired
     private IosSignSoftwareDistributeStatusDao distributeStatusDao;
     //下载页面
     @RequestMapping(value = "/down/{uuid}",method = RequestMethod.GET)
     @PxCheckLogin(value = false)
-    public String down(Model model,@RequestHeader String token,HttpServletRequest request, @PathVariable String uuid) throws IOException {
+    public String down(Model model,HttpServletRequest request, @PathVariable String uuid) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         IosSignSoftwareDistribute iosSignSoftwareDistribute =  iosSignSoftwareDistributeDao.query(uuid);
         IosSignUdidCert iosSignUdidCert = iosSignUdidCertDao.query(iosSignSoftwareDistribute.getCertId());

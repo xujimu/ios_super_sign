@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.DeviceStatusMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.DeviceStatusEntity">
+        <id property="deviceId" column="device_id" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="udid" column="udid" jdbcType="VARCHAR"/>
+        <result property="certId" column="cert_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        device_id,status,udid,
+        cert_id
+    </sql>
+
+
+    <insert id="insertOrUpdate">
+        insert into device_status
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">device_id,</if>
+            <if test="status != null">status,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">#{deviceId,jdbcType=VARCHAR},</if>
+            <if test="status != null">#{status,jdbcType=INTEGER},</if>
+        </trim>
+        ON DUPLICATE KEY UPDATE
+        <trim suffixOverrides=",">
+            <if test="status != null">`status`=#{status,jdbcType=INTEGER},</if>
+        </trim>
+    </insert>
+</mapper>

@@ -87,6 +87,7 @@ public class GetIpaInfoUtil {
                             map.put("versionCode", cfBundleShortVersionString);
                             map.put("name", cfBundleDisplayName);
                             map.put("displayName", cfBundleDisplayName);
+                            map.put("cfBundleExecutable", cfBundleExecutable);
 
 
                             //ipa大小

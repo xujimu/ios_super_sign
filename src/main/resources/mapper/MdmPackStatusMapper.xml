@@ -73,4 +73,74 @@
         set status = #{status,jdbcType=VARCHAR}
         where iis = #{iis,jdbcType=VARCHAR}
     </update>
+    <select id="selectByUuidCount" resultType="integer">
+        select
+        count(id)
+        from mdm_pack_status
+        where
+        uuid = #{uuid,jdbcType=VARCHAR}
+        <if test="day == 'day'">
+            and to_days(create_time) = to_days(now())
+        </if>
+        <if test="day == 'lastDay'">
+            and TO_DAYS(NOW( )) - TO_DAYS(create_time) = 1
+        </if>
+
+    </select>
+
+    <select id="selectByAccountCount" resultType="integer">
+        select
+        count(id)
+        from mdm_pack_status
+        where
+        account = #{account} and status = '点击下载'
+
+    </select>
+
+    <insert id="insertSelective">
+        insert into mdm_pack_status
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="account != null">account,</if>
+            <if test="pageName != null">page_name,</if>
+            <if test="uuid != null">uuid,</if>
+            <if test="udid != null">udid,</if>
+            <if test="iis != null">iis,</if>
+            <if test="p12Path != null">p12_path,</if>
+            <if test="mobilePath != null">mobile_path,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="ipa != null">ipa,</if>
+            <if test="plist != null">plist,</if>
+            <if test="status != null">status,</if>
+            <if test="signOff != null">sign_off,</if>
+            <if test="appId != null">app_id,</if>
+            <if test="url != null">url,</if>
+            <if test="ip != null">ip,</if>
+            <if test="downCode != null">down_code,</if>
+            <if test="deviceId != null">device_id,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id,jdbcType=VARCHAR},</if>
+            <if test="account != null">#{account,jdbcType=VARCHAR},</if>
+            <if test="pageName != null">#{pageName,jdbcType=VARCHAR},</if>
+            <if test="uuid != null">#{uuid,jdbcType=VARCHAR},</if>
+            <if test="udid != null">#{udid,jdbcType=VARCHAR},</if>
+            <if test="iis != null">#{iis,jdbcType=VARCHAR},</if>
+            <if test="p12Path != null">#{p12Path,jdbcType=VARCHAR},</if>
+            <if test="mobilePath != null">#{mobilePath,jdbcType=VARCHAR},</if>
+            <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+            <if test="ipa != null">#{ipa,jdbcType=VARCHAR},</if>
+            <if test="plist != null">#{plist,jdbcType=VARCHAR},</if>
+            <if test="status != null">#{status,jdbcType=VARCHAR},</if>
+            <if test="signOff != null">#{signOff,jdbcType=INTEGER},</if>
+            <if test="appId != null">#{appId,jdbcType=VARCHAR},</if>
+            <if test="url != null">#{url,jdbcType=VARCHAR},</if>
+            <if test="ip != null">#{ip,jdbcType=VARCHAR},</if>
+            <if test="downCode != null">#{downCode,jdbcType=VARCHAR},</if>
+            <if test="deviceId != null">#{deviceId,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+
 </mapper>

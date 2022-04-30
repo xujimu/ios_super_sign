@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.MdmSoftwareDistributeDownRecordInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.MdmSoftwareDistributeDownRecordInfoEntity">
+            <id property="recordId" column="record_id" jdbcType="VARCHAR"/>
+            <result property="uuid" column="uuid" jdbcType="VARCHAR"/>
+            <result property="appName" column="app_name" jdbcType="VARCHAR"/>
+            <result property="appPageName" column="app_page_name" jdbcType="VARCHAR"/>
+            <result property="udid" column="udid" jdbcType="VARCHAR"/>
+            <result property="ip" column="ip" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="account" column="account" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        record_id,uuid,app_name,
+        app_page_name,udid,ip,
+        create_time,account
+    </sql>
+    <select id="selectByAccount" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mdm_software_distribute_down_record_info
+        where
+        account = #{account,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByUuidCount" resultType="integer">
+        select
+        count(record_id)
+        from mdm_software_distribute_down_record_info
+        where
+        uuid = #{uuid,jdbcType=VARCHAR}
+        <if test="day == 'day'">
+            and to_days(create_time) = to_days(now())
+        </if>
+        <if test="day == 'lastDay'">
+            and TO_DAYS(NOW( )) - TO_DAYS(create_time) = 1
+        </if>
+
+    </select>
+
+    <select id="selectByAccountCount" resultType="integer">
+        select
+        count(record_id)
+        from mdm_software_distribute_down_record_info
+        where
+        account = #{account}
+
+    </select>
+</mapper>

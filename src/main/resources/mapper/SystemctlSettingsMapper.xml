@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.SystemctlSettingsMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.SystemctlSettingsEntity">
+            <result property="mdmSoftNum" column="mdm_soft_num" jdbcType="INTEGER"/>
+            <result property="mdmSoftReCount" column="mdm_soft_re_count" jdbcType="INTEGER"/>
+            <result property="mdmSuperNum" column="mdm_super_num" jdbcType="INTEGER"/>
+            <result property="mdmSuperReCount" column="mdm_super_re_count" jdbcType="INTEGER"/>
+            <result property="superNum" column="super_num" jdbcType="INTEGER"/>
+            <result property="superReCount" column="super_re_count" jdbcType="INTEGER"/>
+            <result property="softNum" column="soft_num" jdbcType="INTEGER"/>
+            <result property="softReCount" column="soft_re_count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        mdm_soft_num,mdm_soft_re_count,mdm_super_num,
+        mdm_super_re_count,super_num,super_re_count,
+        soft_num,soft_re_count
+    </sql>
+</mapper>

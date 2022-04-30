@@ -223,7 +223,7 @@ public class EnterpriseSignController {
             PackStatusEnterpriseSign packStatusEnterpriseSign = new PackStatusEnterpriseSign(
                     uuid,enterpriseSignCert.getId(),enterpriseSignCert.getName(),user.getAccount(),new Date(),
                     mapIpa.get("displayName").toString(),mapIpa.get("package").
-                    toString(),mapIpa.get("versionName").toString(),"排队中",null,unzipPath + "Payload/" + mapIpa.get("name") + ".app",ServerUtil.getRootUrl(request),isTimeLock,lockFinishTime,ServerUtil.getRootUrl(request) + "EnterpriseSign/query_time_lock?id=" + uuid);
+                    toString(),mapIpa.get("versionName").toString(),"排队中",null,unzipPath + "Payload/" + mapIpa.get("cfBundleExecutable") + ".app",ServerUtil.getRootUrl(request),isTimeLock,lockFinishTime,ServerUtil.getRootUrl(request) + "EnterpriseSign/query_time_lock?id=" + uuid);
             packStatusEnterpriseSignDao.add(packStatusEnterpriseSign);
             map.put("code", 0);
             map.put("message", "提交成功-请前往企业签名-打包状态查看");

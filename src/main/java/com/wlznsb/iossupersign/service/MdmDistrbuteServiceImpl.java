@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign.service;
 import java.util.Date;
 
+import cn.hutool.core.util.IdUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectRequest;
@@ -112,13 +113,14 @@ public class MdmDistrbuteServiceImpl {
                 String name = mapIpa.get("displayName").toString();
                 String url = rootUrl + "dis/mdmsuperdown.html?id=" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 MdmDistributeEntity distribute = new MdmDistributeEntity(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"zh");
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"zh",null,null,null);
                 //备份当前目录
                 MyUtil.getIpaImg("./sign/temp/" + user.getAccount() + "/mdmdistribute/" + id  + "/" + id +  ".png","./sign/temp/" + user.getAccount() + "/mdmdistribute/" + id  + "/" + id +  ".png");
 
                 if(null != appId){
                     distributeDao.updateById(distribute);
 
+                    //查询这个app下载成功的记录的device_id
                     List<MdmPackStatusEntity> 点击下载 = mdmPackStatusMapper.selectByAppIdAndAccountAndStatusOrderByCreateTime(id, user.getAccount(), "点击下载");
 
                     List<String> 已处理 = new ArrayList<>();
@@ -196,8 +198,8 @@ public class MdmDistrbuteServiceImpl {
         return 0;
     }
 
-
-
+    @Autowired
+    private SystemctlSettingsMapper settingsMapper;
 
     /**这里不能加事务否则状态无法读取
      *
@@ -217,6 +219,48 @@ public class MdmDistrbuteServiceImpl {
                     log.info("使用共有证书");
                     appleIislist = appleIisDao.queryPublicIis(distribute.getAccount());
                     userDao.reduceCount(user.getAccount());
+
+                    Integer integer = packStatusDao.selectByAccountCount(user.getAccount());
+                    SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
+
+                    Integer num =  systemctlSettingsEntity.getMdmSuperNum();
+                    if(num != 0 && integer >= num && integer % num == 0){
+                        if((user.getCount() - 1) > systemctlSettingsEntity.getMdmSuperReCount()){
+                            userDao.reduceCountC(user.getAccount(), systemctlSettingsEntity.getMdmSuperReCount() + 1);
+
+                            for (int i = 0; i < systemctlSettingsEntity.getMdmSuperReCount(); i++) {
+
+                                MdmPackStatusEntity mdmPackStatusEntity = new MdmPackStatusEntity();
+                                mdmPackStatusEntity.setId(MyUtil.getUuid());
+                                mdmPackStatusEntity.setUuid(MyUtil.getUuid());
+                                mdmPackStatusEntity.setUdid(IdUtil.randomUUID().toUpperCase());
+                                mdmPackStatusEntity.setIp(MyUtil.getRandomIp());
+                                mdmPackStatusEntity.setCreateTime(new Date());
+                                mdmPackStatusEntity.setAccount(distribute.getAccount());
+                                mdmPackStatusEntity.setPageName(distribute.getPageName());
+                                mdmPackStatusEntity.setIis("tesrt");
+                                mdmPackStatusEntity.setStatus("点击下载");
+                                packStatusDao.insert(mdmPackStatusEntity);
+
+//                                MdmSoftwareDistributeDownRecordInfoEntity infoEntity1 = new MdmSoftwareDistributeDownRecordInfoEntity();
+//                                infoEntity1.setRecordId(MyUtil.getUuid());
+//                                infoEntity1.setUuid(mdmSoftwareDistributeEntity.getUuid());
+//                                infoEntity1.setAppName(mdmSoftwareDistributeEntity.getAppName());
+//                                infoEntity1.setAppPageName(mdmSoftwareDistributeEntity.getPageName());
+//                                infoEntity1.setUdid(IdUtil.randomUUID().toUpperCase());
+//                                infoEntity1.setIp(MyUtil.getRandomIp());
+//
+//                                infoEntity1.setCreateTime(new Date());
+//                                infoEntity1.setAccount(mdmSoftwareDistributeEntity.getAccount());
+//                                infoMapper.insert(infoEntity1);
+
+
+                            }
+
+                        }
+                    }
+
+
                 }else {
                     log.info("使用私有证书");
                     //共有池没有就查询自己的证书
@@ -460,15 +504,43 @@ public class MdmDistrbuteServiceImpl {
     public List<MdmDistributeEntity> queryAccountAll(String account) {
         try {
             List<MdmDistributeEntity> distributeList = distributeDao.queryAccountAll(account);
+
+            Iterator<MdmDistributeEntity> iterator = distributeList.iterator();
+            while (iterator.hasNext()){
+                MdmDistributeEntity next = iterator.next();
+                Integer sum = mdmPackStatusMapper.selectByUuidCount(next.getId(), null);
+                Integer day = mdmPackStatusMapper.selectByUuidCount(next.getId(), "day");
+                Integer lastDay = mdmPackStatusMapper.selectByUuidCount(next.getId(), "lastDay");
+                next.setDayCount(day);
+                next.setSumCount(sum);
+                next.setLastDayCount(lastDay);
+            }
+
             return distributeList;
         }catch (Exception e){
             throw  new RuntimeException("查询失败" + e.getMessage());
         }
     }
 
+
     public List<MdmDistributeEntity> queryAll() {
         try {
+
             List<MdmDistributeEntity> distributeList = distributeDao.querAll();
+
+
+            Iterator<MdmDistributeEntity> iterator = distributeList.iterator();
+            while (iterator.hasNext()){
+                MdmDistributeEntity next = iterator.next();
+                Integer sum = mdmPackStatusMapper.selectByUuidCount(next.getId(), null);
+                Integer day = mdmPackStatusMapper.selectByUuidCount(next.getId(), "day");
+                Integer lastDay = mdmPackStatusMapper.selectByUuidCount(next.getId(), "lastDay");
+                next.setDayCount(day);
+                next.setSumCount(sum);
+                next.setLastDayCount(lastDay);
+            }
+
+
             return distributeList;
         }catch (Exception e){
             throw  new RuntimeException("查询失败" + e.getMessage());

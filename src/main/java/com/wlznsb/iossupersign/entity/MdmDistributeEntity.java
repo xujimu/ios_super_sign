@@ -21,73 +21,73 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MdmDistributeEntity implements Serializable {
     /**
-     * 
+     *
      */
     @TableId(value = "id")
     private String id;
 
     /**
-     * 
+     *
      */
     @TableField(value = "account")
     private String account;
 
     /**
-     * 
+     *
      */
     @TableField(value = "app_name")
     private String appName;
 
     /**
-     * 
+     *
      */
     @TableField(value = "page_name")
     private String pageName;
 
     /**
-     * 
+     *
      */
     @TableField(value = "version")
     private String version;
 
     /**
-     * 
+     *
      */
     @TableField(value = "icon")
     private String icon;
 
     /**
-     * 
+     *
      */
     @TableField(value = "ipa")
     private String ipa;
 
     /**
-     * 
+     *
      */
     @TableField(value = "apk")
     private String apk;
 
     /**
-     * 
+     *
      */
     @TableField(value = "url")
     private String url;
 
     /**
-     * 
+     *
      */
     @TableField(value = "create_time")
     private Date createTime;
 
     /**
-     * 
+     *
      */
     @TableField(value = "introduce")
     private String introduce;
 
     /**
-     * 
+     *
      */
     @TableField(value = "images")
     private String images;
@@ -99,16 +99,35 @@ public class MdmDistributeEntity implements Serializable {
     private Integer downCode;
 
     /**
-     * 
+     *
      */
     @TableField(value = "buy_down_code_url")
     private String buyDownCodeUrl;
 
     /**
-     * 
+     *
      */
     @TableField(value = "language")
     private String language;
+
+    /**
+     *
+     */
+    @TableField(exist = false)
+    private Integer sumCount;
+
+    /**
+     *
+     */
+    @TableField(exist = false)
+    private Integer dayCount;
+
+    /**
+     *
+     */
+    @TableField(exist = false)
+    private Integer lastDayCount;
+
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

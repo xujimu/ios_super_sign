@@ -28,7 +28,7 @@ public class GetIpaInfoUtil {
         String c = "C:\\Users\\Administrator\\Desktop\\123123.png";
         File file1 = new File(c);
 
-        MyUtil.getIpaImg(c,c);
+        GetIpaInfoUtil.readIPA(a,c);
 
     }
 
@@ -93,18 +93,33 @@ public class GetIpaInfoUtil {
                             //ipa大小
                             map.put("size", size);
 
-                            String icon; //图标名字
-                            NSObject iconName = rootDict.get("CFBundleIconFiles");
 
-                            if(null != rootDict.get("CFBundleIconFiles")){
-                                NSArray iconNameArr = (NSArray) iconName;
-                                icon = iconNameArr.getArray()[iconNameArr.getArray().length - 1].toString();
-                            }else {
+
+                            String icon; //图标名字
+//                            NSObject iconName = rootDict.get("CFBundleIconFiles");
+
+                            NSObject iconName = rootDict.get("CFBundleIcons");
+
+                            if(null != iconName){
                                 NSDictionary iconName1 = (NSDictionary) rootDict.get("CFBundleIcons");
                                 iconName1 =  (NSDictionary) iconName1.get("CFBundlePrimaryIcon");
                                 NSArray iconNameArr = (NSArray) iconName1.get("CFBundleIconFiles");
                                 icon = iconNameArr.getArray()[iconNameArr.getArray().length - 1].toString();
+                            }else {
+                                NSArray iconNameArr = (NSArray) rootDict.get("CFBundleIconFiles");
+                                icon = iconNameArr.getArray()[iconNameArr.getArray().length - 1].toString();
                             }
+
+
+//                            if(null != rootDict.get("CFBundleIconFiles")){
+//                                NSArray iconNameArr = (NSArray) iconName;
+//                                icon = iconNameArr.getArray()[iconNameArr.getArray().length - 1].toString();
+//                            }else {
+//                                NSDictionary iconName1 = (NSDictionary) rootDict.get("CFBundleIcons");
+//                                iconName1 =  (NSDictionary) iconName1.get("CFBundlePrimaryIcon");
+//                                NSArray iconNameArr = (NSArray) iconName1.get("CFBundleIconFiles");
+//                                icon = iconNameArr.getArray()[iconNameArr.getArray().length - 1].toString();
+//                            }
 
                             while ((ze1 = zipIns1.getNextEntry()) != null){
                                 if (!ze1.isDirectory()) {

@@ -22,14 +22,6 @@ import java.text.ParseException;
 public class Test {
 
     public static void main(String[] args) throws PropertyListFormatException, ParserConfigurationException, SAXException, ParseException, IOException {
-        BufferedInputStream inputStream = FileUtil.getInputStream(new File("C:\\Users\\Administrator\\Desktop\\123.plist"));
-
-        String s = FileUtil.readUtf8String(new File("C:\\Users\\Administrator\\Desktop\\123.plist"));
-        String b = FileUtil.readUtf8String(new File("C:\\Users\\Administrator\\Desktop\\Info.plist"));
-        NSDictionary rootDict = (NSDictionary) PropertyListParser.parse(inputStream.readAllBytes());
-
-
-
 
 
 

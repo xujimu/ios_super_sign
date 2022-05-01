@@ -8,6 +8,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.annotation.PxCheckAdmin;
 import com.wlznsb.iossupersign.entity.CertInfoEntity;
+import com.wlznsb.iossupersign.entity.SystemctlSettingsEntity;
 import com.wlznsb.iossupersign.execption.ResRunException;
 import com.wlznsb.iossupersign.mapper.*;
 import com.wlznsb.iossupersign.entity.Domain;
@@ -62,6 +63,25 @@ public class AdminController {
 
     @Resource
     private DeviceInfoMapper deviceInfoMapper;
+
+
+
+    @Autowired
+    private SystemctlSettingsMapper settingsMapper;
+
+    /**
+     * 系统设置
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/system_settings",method = RequestMethod.POST)
+    public Map<String,Object> system_settings(SystemctlSettingsEntity req, HttpServletRequest request){
+        Map<String,Object> map = new HashMap<String, Object>();
+        settingsMapper.update(req,null);
+        map.put("code", 0);
+        map.put("message", "操作成功");
+        return map;
+    }
 
 
     /**

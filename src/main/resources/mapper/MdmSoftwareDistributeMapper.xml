@@ -70,4 +70,5 @@
         where uuid = #{uuid,jdbcType=VARCHAR}
           AND account = #{account,jdbcType=VARCHAR}
     </update>
+
 </mapper>

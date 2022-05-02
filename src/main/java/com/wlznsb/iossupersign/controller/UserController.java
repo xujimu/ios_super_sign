@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wlznsb.iossupersign.annotation.PxCheckLogin;
 import com.wlznsb.iossupersign.mapper.DomainDao;
+import com.wlznsb.iossupersign.mapper.MdmPackStatusMapper;
 import com.wlznsb.iossupersign.mapper.PackStatusDao;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.User;
@@ -128,5 +129,24 @@ public class UserController {
         map.put("total", page.getTotal());
         return map;
     }
+
+    @Autowired
+    private MdmPackStatusMapper packStatusMapper;
+
+    //查询下载记录
+    @RequestMapping(value = "/querySuperMdmDown",method = RequestMethod.GET)
+    public Map<String,Object> querySuperMdmDown(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = userService.getUser(token);
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page =  (Page) packStatusMapper.queryDown(user.getAccount());
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
+        return map;
+    }
+
 
 }

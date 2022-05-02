@@ -511,6 +511,8 @@ public class MdmDistributeController {
             PageHelper.startPage(pageNum,pageSize);
             page =  (Page) distrbuteService.queryAll();
         }
+
+
         map.put("code", 0);
         map.put("message", "查询成功");
         map.put("data", page.getResult());

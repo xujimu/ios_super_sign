@@ -15,6 +15,23 @@ import java.util.List;
 */
 public interface MdmPackStatusMapper extends BaseMapper<MdmPackStatusEntity> {
 
+    int insertSelective(MdmPackStatusEntity mdmPackStatusEntity);
+
+    /**
+     * lastDay 昨天 day 昨天 null 总量
+     * @param uuid
+     * @return
+     */
+    Integer selectByUuidCount(@Param("uuid") String uuid,@Param("day") String day);
+
+
+    /**
+     * lastDay
+     * @param uuid
+     * @return
+     */
+    Integer selectByAccountCount(@Param("account") String account);
+
     MdmPackStatusEntity selectOneByDeviceId(@Param("deviceId") String deviceId);
 
 

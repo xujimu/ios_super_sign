@@ -92,6 +92,26 @@ public class MdmSoftwareDistributeEntity implements Serializable {
     @TableField(value = "language")
     private String language;
 
+
+    /**
+     *
+     */
+    @TableField(exist = false)
+    private Integer sumCount;
+
+    /**
+     *
+     */
+    @TableField(exist = false)
+    private Integer dayCount;
+
+    /**
+     *
+     */
+    @TableField(exist = false)
+    private Integer lastDayCount;
+
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

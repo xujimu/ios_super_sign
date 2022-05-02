@@ -15,6 +15,16 @@ import lombok.Data;
 @TableName(value ="device_info")
 @Data
 public class DeviceInfoEntity implements Serializable {
+
+
+    /**
+     * 设备状态 Authenticate注册中 TokenUpdate更新 可控制  CheckOut不可控制
+     **/
+    public static final String Authenticate = "Authenticate";
+    public static final String TokenUpdate = "TokenUpdate";
+    public static final String CheckOut = "CheckOut";
+
+
     /**
      * 设备唯一id
      */

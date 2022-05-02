@@ -17,6 +17,7 @@ public interface UserDao {
     User queryAccount(String account);
 
 
+
     /**
      * 查询所有用户
      * @return
@@ -40,6 +41,14 @@ public interface UserDao {
      */
     @Update("update user set count = count - 1 where account = #{account}")
     int reduceCount(String account);
+
+    /**
+     * 减少一次
+     * @param account
+     * @return
+     */
+    @Update("update user set count = count - #{count} where account = #{account}")
+    int reduceCountC(@Param("account") String account,@Param("count") Integer count);
 
     /**
      * 减少次数

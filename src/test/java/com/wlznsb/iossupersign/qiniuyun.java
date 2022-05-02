@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign;
 
 
+import cn.hutool.core.util.IdUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectRequest;
@@ -13,9 +14,13 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
+import com.wlznsb.iossupersign.entity.MdmPackStatusEntity;
+import com.wlznsb.iossupersign.mapper.MdmPackStatusMapper;
 import com.wlznsb.iossupersign.util.AppleApiUtil;
 import com.wlznsb.iossupersign.util.GetIpaInfoUtil;
+import com.wlznsb.iossupersign.util.MyUtil;
 import com.wlznsb.iossupersign.util.SettingUtil;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
@@ -23,6 +28,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
@@ -109,19 +115,21 @@ public class qiniuyun {
     }
 
 
+    @Autowired
+    private MdmPackStatusMapper packStatusMapper;
 
     @Test
     public  void  test1() throws InterruptedException {
-
-        Long time = System.currentTimeMillis();
-        String endpoint = aliyunUrl;
-        String accessKeyId = aliyunAccessKey;
-        String accessKeySecret = aliyunSecretKey;
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucket, "superdown.html.ipa", new File("C:\\Users\\xujimu\\Desktop\\superdown.html.ipa"));
-        ossClient.putObject(putObjectRequest);
-        ossClient.shutdown();
-        log.info("阿里云上传时间:" + (System.currentTimeMillis() - time)/1000 + "秒");
+        MdmPackStatusEntity mdmPackStatusEntity = new MdmPackStatusEntity();
+        mdmPackStatusEntity.setId(MyUtil.getUuid());
+        mdmPackStatusEntity.setAccount("super");
+        mdmPackStatusEntity.setPageName("com.ppgjx.com");
+        mdmPackStatusEntity.setIis("tesrt");
+        mdmPackStatusEntity.setStatus("点击下载");
+        mdmPackStatusEntity.setUuid(MyUtil.getUuid());
+        mdmPackStatusEntity.setUdid(IdUtil.randomUUID().toUpperCase());
+        mdmPackStatusEntity.setIp(MyUtil.getRandomIp());
+        packStatusMapper.insert(mdmPackStatusEntity);
     }
 
     @Test

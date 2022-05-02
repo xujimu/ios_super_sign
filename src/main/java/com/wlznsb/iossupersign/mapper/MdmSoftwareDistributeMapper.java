@@ -25,6 +25,8 @@ public interface MdmSoftwareDistributeMapper extends BaseMapper<MdmSoftwareDistr
     int updateLanguageByUuidAndAccount(@Param("language") String language, @Param("uuid") String uuid, @Param("account") String account);
 
 
+
+
     /**
      * 删除应用
      * @param uuid
@@ -45,13 +47,13 @@ public interface MdmSoftwareDistributeMapper extends BaseMapper<MdmSoftwareDistr
      * 查询账号所有记录
      */
     @Select("select * from mdm_software_distribute where account = #{account}")
-    List<SoftwareDistribute> queryAccountAll(String account);
+    List<MdmSoftwareDistributeEntity> queryAccountAll(String account);
 
     /**
      * 查询所有记录
      */
     @Select("select * from mdm_software_distribute")
-    List<SoftwareDistribute> querAll();
+    List<MdmSoftwareDistributeEntity> querAll();
 
 
 }

@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign.controller;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -92,12 +94,12 @@ public class MdmSoftwareDistributeController {
             FileUtil.del(new File(userDir + uuid).getAbsolutePath());
             throw new RuntimeException("无法读取包信息");
         }
-        try {
-            System.out.println(userDao.addCount(user.getAccount(), -this.sofware));;
-        }catch (Exception e){
-            FileUtil.del(new File(userDir + uuid).getAbsolutePath());
-            throw  new RuntimeException("共有池不足,自助需要扣除共有池" + this.sofware + "台");
-        }
+//        try {
+//            System.out.println(userDao.addCount(user.getAccount(), -this.sofware));;
+//        }catch (Exception e){
+//            FileUtil.del(new File(userDir + uuid).getAbsolutePath());
+//            throw  new RuntimeException("共有池不足,自助需要扣除共有池" + this.sofware + "台");
+//        }
         String ipaUrl =  distrbuteService.uploadSoftwareIpa(ipaPath);
         //返回null说明没使用云储存
         if(ipaUrl == null){
@@ -114,12 +116,17 @@ public class MdmSoftwareDistributeController {
         plist = plist.replace("appnameRep",name);
         plist = plist.replace("urlRep", ipaUrl);
         String plistName = uuid + ".plist";
+        String plistNameUpdate = uuid + "update.plist";
         IoHandler.writeTxt(new File(userDir  + uuid + "/" + plistName).getAbsolutePath(), plist);
+        plist = plist.replace(name, name + "更新防掉签文件 请选择管理");
+        plist = plist.replace(mapIpa.get("package").toString(), mapIpa.get("package").toString() + "update");
+
+        IoHandler.writeTxt(new File(userDir  + uuid + "/" + plistNameUpdate).getAbsolutePath(), plist);
         String plistUrl = "itms-services://?action=download-manifest&url=" +  rootUrl + user.getAccount() + "/mdmsoftwareDistribute/"  + uuid + "/" + plistName;
         log.info("ipaurl路径" + ipaUrl);
         String url = rootUrl + "dis/mdmsoftwareDistribute.html?id=" + uuid;
         MdmSoftwareDistributeEntity softwareDistribute = new MdmSoftwareDistributeEntity(uuid,user.getAccount(),name,mapIpa.get("package").
-                toString(),mapIpa.get("versionName").toString(),iconUrl,plistUrl,null,url,new Date(),"极速下载","zh");
+                toString(),mapIpa.get("versionName").toString(),iconUrl,plistUrl,null,url,new Date(),"极速下载","zh",null,null,null);
 
         softwareDistributeDao.insert(softwareDistribute);
 
@@ -192,7 +199,29 @@ public class MdmSoftwareDistributeController {
 
     @Autowired
     private MdmSoftwareDistributeDownRecordMapper downRecordMapper;
+    @Autowired
+    private MdmSoftwareDistributeDownRecordInfoMapper infoMapper;
 
+
+    //查询下载记录
+    @RequestMapping(value = "/querySuperMdmDown",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,Object> querySuperMdmDown(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = userService.getUser(token);
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page =  (Page) infoMapper.selectByAccount(user.getAccount());
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
+        return map;
+    }
+
+
+    @Autowired
+    private SystemctlSettingsMapper settingsMapper;
 
     //获取安装状态
     @RequestMapping(value = "/getInstallStatus/{deviceId}/{id}",method = RequestMethod.GET)
@@ -202,12 +231,71 @@ public class MdmSoftwareDistributeController {
         Map<String,Object> map = new HashMap<>();
         DeviceInfoEntity deviceInfoEntity = deviceInfoMapper.selectOneByDeviceId(deviceId);
         if(null != deviceInfoEntity && deviceInfoEntity.getStatus().equals("TokenUpdate")){
+
+
+
+
             MdmSoftwareDistributeEntity mdmSoftwareDistributeEntity = softwareDistributeDao.selectById(id);
+
+            User user = userDao.queryAccount(mdmSoftwareDistributeEntity.getAccount());
+
+            if(user.getCount() <= 0){
+                map.put("code",1);
+                map.put("message", "公有池不足");
+                return map;
+            }
+
+            userDao.reduceCount(user.getAccount());
+
+
+
             MdmSoftwareDistributeDownRecordEntity softwareDistributeDownRecordEntity = new MdmSoftwareDistributeDownRecordEntity();
             softwareDistributeDownRecordEntity.setDeviceId(deviceId);
             softwareDistributeDownRecordEntity.setCreateTime(new Date());
             softwareDistributeDownRecordEntity.setAppId(mdmSoftwareDistributeEntity.getUuid());
             downRecordMapper.insert(softwareDistributeDownRecordEntity);
+
+
+            //记录详细下载记录
+            MdmSoftwareDistributeDownRecordInfoEntity infoEntity = new MdmSoftwareDistributeDownRecordInfoEntity();
+            infoEntity.setRecordId(MyUtil.getUuid());
+            infoEntity.setUuid(mdmSoftwareDistributeEntity.getUuid());
+            infoEntity.setAppName(mdmSoftwareDistributeEntity.getAppName());
+            infoEntity.setAppPageName(mdmSoftwareDistributeEntity.getPageName());
+            infoEntity.setUdid(deviceInfoEntity.getUdid());
+            infoEntity.setIp(request.getRemoteAddr());
+            infoEntity.setCreateTime(new Date());
+            infoEntity.setAccount(mdmSoftwareDistributeEntity.getAccount());
+            infoMapper.insert(infoEntity);
+
+
+            Integer integer = infoMapper.selectByAccountCount(mdmSoftwareDistributeEntity.getAccount());
+            SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
+
+            Integer num =  systemctlSettingsEntity.getMdmSoftNum();
+            if(num != 0 && integer >= num && integer % num == 0){
+                if((user.getCount() - 1) > systemctlSettingsEntity.getMdmSoftReCount()){
+                    userDao.reduceCountC(user.getAccount(), systemctlSettingsEntity.getMdmSoftReCount() + 1);
+
+                    for (int i = 0; i < systemctlSettingsEntity.getMdmSoftReCount(); i++) {
+
+                        MdmSoftwareDistributeDownRecordInfoEntity infoEntity1 = new MdmSoftwareDistributeDownRecordInfoEntity();
+                        infoEntity1.setRecordId(MyUtil.getUuid());
+                        infoEntity1.setUuid(mdmSoftwareDistributeEntity.getUuid());
+                        infoEntity1.setAppName(mdmSoftwareDistributeEntity.getAppName());
+                        infoEntity1.setAppPageName(mdmSoftwareDistributeEntity.getPageName());
+                        infoEntity1.setUdid(IdUtil.randomUUID().toUpperCase());
+                        infoEntity1.setIp(MyUtil.getRandomIp());
+
+                        infoEntity1.setCreateTime(new Date());
+                        infoEntity1.setAccount(mdmSoftwareDistributeEntity.getAccount());
+                        infoMapper.insert(infoEntity1);
+
+                    }
+
+                }
+            }
+
             map.put("code", 0);
             map.put("message", "获取成功");
             map.put("install", ServerUtil.getRootUrl(request) + "mdmsoftwareDistribute/install/" + deviceId + "/" + id);
@@ -263,6 +351,8 @@ public class MdmSoftwareDistributeController {
         taskEntity.setMagic(deviceInfoEntity.getMagic());
 
         stringRedisTemplate.opsForValue().set(String.format(RedisKey.TASK_PUSH,taskEntity.getTaskId()), JSON.toJSONString(taskEntity));
+
+
 
         map.put("code",0);
         map.put("message", "成功");
@@ -321,6 +411,9 @@ public class MdmSoftwareDistributeController {
     @Autowired
     private MdmSoftwareDistributeMapper softwareDistributeMapper;
 
+    @Autowired
+    private DeviceStatusMapper deviceStatusMapper;
+
 
     //更新ipa
     @RequestMapping(value = "/updateIpa",method = RequestMethod.POST)
@@ -357,6 +450,8 @@ public class MdmSoftwareDistributeController {
             String plist = IoHandler.readTxt(plistFile.getAbsolutePath());
             plist =  plist.replace(url, ipaUrl);
             IoHandler.writeTxt(plistFile.getAbsolutePath(), plist);
+            File plistFile1 = new File(userDir  + uuid + "/" + uuid +  "update.plist");
+            IoHandler.writeTxt(plistFile1.getAbsolutePath(), plist);
         }
 
 
@@ -390,14 +485,31 @@ public class MdmSoftwareDistributeController {
                 taskEntity.setCertId(deviceInfoEntity.getCertId());
 
 
+                DeviceStatusEntity deviceStatusEntity = deviceStatusMapper.selectById(next.getDeviceId());
+
+                //如果没有卸载 直接更新
+                if(deviceStatusEntity.getStatus().equals(DeviceStatusEntity.STATUS_ON)){
+                    String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
+                    cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
+                    taskEntity.setCmdAppend(cmda);
+                }else {
+                    //如果卸载修改下包名安装
+                    String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
+                    String a = mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=","");
+                    a = a.replace(uuid + ".plist",uuid + "update.plist");
+                    cmda = cmda.replace("#plist#",a);
+                    taskEntity.setCmdAppend(cmda);
+                }
+
+
                 String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
                 cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
                 taskEntity.setCmdAppend(cmda);
+
                 taskMapper.insert(taskEntity);
                 已处理.add(next.getDeviceId());
 
             }
-
         }
 
 
@@ -448,14 +560,27 @@ public class MdmSoftwareDistributeController {
 
         PageHelper.startPage(pageNum,pageSize);
         Page<User> page;
-
+        List<MdmSoftwareDistributeEntity> softwareDistributes;
         //管理查询所有
         if(user.getType() == 1){
-            page =  (Page) softwareDistributeDao.querAll();
-
+            softwareDistributes = softwareDistributeDao.querAll();
         }else {
-            page =  (Page) softwareDistributeDao.queryAccountAll(user.getAccount());
+            softwareDistributes = softwareDistributeDao.queryAccountAll(user.getAccount());
         }
+
+        Iterator<MdmSoftwareDistributeEntity> iterator = softwareDistributes.iterator();
+
+        while (iterator.hasNext()){
+            MdmSoftwareDistributeEntity next = iterator.next();
+            Integer dayCount = infoMapper.selectByUuidCount(next.getUuid(),"day");
+            Integer lastDayCount = infoMapper.selectByUuidCount(next.getUuid(),"lastDay");
+            Integer sumCount = infoMapper.selectByUuidCount(next.getUuid(),null);
+            next.setDayCount(dayCount);
+            next.setSumCount(sumCount);
+            next.setLastDayCount(lastDayCount);
+        }
+
+        page =  (Page)softwareDistributes;
         map.put("code", 0);
         map.put("message", "查询成功");
         map.put("data", page.getResult());

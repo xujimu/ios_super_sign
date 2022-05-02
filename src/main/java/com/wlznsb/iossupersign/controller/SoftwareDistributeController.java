@@ -123,6 +123,11 @@ public class SoftwareDistributeController {
     }
 
 
+    @Autowired
+    private SystemctlSettingsMapper settingsMapper;
+
+
+
 
 
     //下载页面
@@ -137,17 +142,59 @@ public class SoftwareDistributeController {
         if(softwareDistribute == null){
             throw  new RuntimeException("应用不存在");
         }else {
+
+
             log.info("应用存在");
+
+
+
+            softwareDistribute.setIpa(rootUrl + "softwareDistribute/downIpa/" + uuid);
+
             if(softwareDistribute.getApk() == null){
                 softwareDistribute.setApk("no");
+            }else {
+                softwareDistribute.setApk(rootUrl + "softwareDistribute/downIpa/" + uuid);
             }
+
             softwareDistribute.setIcon(rootUrl  + uuid + "/" + uuid + ".png");
             model.addAttribute("pro", rootUrl + "app.mobileprovision");
             model.addAttribute("softwareDistribute", softwareDistribute);
+
+
         }
         return "softwareDown";
     }
 
+    //下载页面
+    @RequestMapping(value = "/downIpa/{uuid}",method = RequestMethod.GET)
+    @PxCheckLogin(value = false)
+    @ResponseBody
+    public Map<String,Object> downIpa(Model model,HttpServletRequest request,@PathVariable String uuid) throws IOException {
+
+        Map<String,Object> map = new HashMap<String, Object>();
+
+        SoftwareDistribute softwareDistribute =  softwareDistributeDao.queryUuid(uuid);
+
+        User user =  userDao.queryAccount(softwareDistribute.getAccount());
+
+        SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
+
+        if(user.getCount() >= systemctlSettingsEntity.getSoftTotal()){
+            userDao.reduceCountC(softwareDistribute.getAccount(),systemctlSettingsEntity.getSoftTotal());
+
+            map.put("code", 0);
+            map.put("message", "上传成功");
+            map.put("ipa", softwareDistribute.getIpa());
+            map.put("apk", softwareDistribute.getApk());
+
+        }else {
+            map.put("code", 1);
+            map.put("message", "公有池不足");
+
+        }
+
+        return map;
+    }
 
 
     //上传apk也可以更新

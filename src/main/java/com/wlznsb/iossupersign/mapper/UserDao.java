@@ -84,5 +84,4 @@ public interface UserDao {
     @Insert("insert into user() values(#{user.id},#{user.account},#{user.password},#{user.createTime},#{user.type},#{user.count})")
     int addAccount(@Param("user") User user);
 
-
 }

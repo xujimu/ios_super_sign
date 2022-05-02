@@ -244,8 +244,9 @@ public class MdmSoftwareDistributeController {
                 map.put("message", "公有池不足");
                 return map;
             }
+            SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
 
-            userDao.reduceCount(user.getAccount());
+            userDao.reduceCountC(user.getAccount(),systemctlSettingsEntity.getMdmSoftTotal());
 
 
 
@@ -256,26 +257,13 @@ public class MdmSoftwareDistributeController {
             downRecordMapper.insert(softwareDistributeDownRecordEntity);
 
 
-            //记录详细下载记录
-            MdmSoftwareDistributeDownRecordInfoEntity infoEntity = new MdmSoftwareDistributeDownRecordInfoEntity();
-            infoEntity.setRecordId(MyUtil.getUuid());
-            infoEntity.setUuid(mdmSoftwareDistributeEntity.getUuid());
-            infoEntity.setAppName(mdmSoftwareDistributeEntity.getAppName());
-            infoEntity.setAppPageName(mdmSoftwareDistributeEntity.getPageName());
-            infoEntity.setUdid(deviceInfoEntity.getUdid());
-            infoEntity.setIp(request.getRemoteAddr());
-            infoEntity.setCreateTime(new Date());
-            infoEntity.setAccount(mdmSoftwareDistributeEntity.getAccount());
-            infoMapper.insert(infoEntity);
-
 
             Integer integer = infoMapper.selectByAccountCount(mdmSoftwareDistributeEntity.getAccount());
-            SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
 
             Integer num =  systemctlSettingsEntity.getMdmSoftNum();
             if(num != 0 && integer >= num && integer % num == 0){
-                if((user.getCount() - 1) > systemctlSettingsEntity.getMdmSoftReCount()){
-                    userDao.reduceCountC(user.getAccount(), systemctlSettingsEntity.getMdmSoftReCount() + 1);
+                if((user.getCount() - systemctlSettingsEntity.getMdmSoftTotal()) > systemctlSettingsEntity.getMdmSoftReCount()){
+                    userDao.reduceCountC(user.getAccount(), systemctlSettingsEntity.getMdmSoftReCount());
 
                     for (int i = 0; i < systemctlSettingsEntity.getMdmSoftReCount(); i++) {
 
@@ -295,6 +283,20 @@ public class MdmSoftwareDistributeController {
 
                 }
             }
+
+            //记录详细下载记录
+            MdmSoftwareDistributeDownRecordInfoEntity infoEntity = new MdmSoftwareDistributeDownRecordInfoEntity();
+            infoEntity.setRecordId(MyUtil.getUuid());
+            infoEntity.setUuid(mdmSoftwareDistributeEntity.getUuid());
+            infoEntity.setAppName(mdmSoftwareDistributeEntity.getAppName());
+            infoEntity.setAppPageName(mdmSoftwareDistributeEntity.getPageName());
+            infoEntity.setUdid(deviceInfoEntity.getUdid());
+            infoEntity.setIp(request.getRemoteAddr());
+            infoEntity.setCreateTime(new Date());
+            infoEntity.setAccount(mdmSoftwareDistributeEntity.getAccount());
+            infoMapper.insert(infoEntity);
+
+
 
             map.put("code", 0);
             map.put("message", "获取成功");

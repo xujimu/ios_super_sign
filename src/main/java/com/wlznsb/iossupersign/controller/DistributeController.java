@@ -142,7 +142,8 @@ public class DistributeController {
         //已签名
         String moblicSignPath = new File("./sign/mode/temp/" + round + ".mobileconfig").getAbsolutePath();
         String cmd =" openssl smime -sign -in " + moblicNoSignPath + " -out " + moblicSignPath + " -signer " + serverPath + " -inkey " + keyPath + " -certfile " + rootPath + " -outform der -nodetach ";
-        RuntimeExec.runtimeExec(cmd);
+        Map<String, Object> stringObjectMap = RuntimeExec.runtimeExec(cmd);
+        log.info(stringObjectMap.get("status").toString());
         //写入map
         tempUuid.put(uuid, id);
         log.info(uuid);

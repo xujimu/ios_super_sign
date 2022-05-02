@@ -62,6 +62,30 @@ public class SystemctlSettingsEntity implements Serializable {
     @TableField(value = "soft_re_count")
     private Integer softReCount;
 
+    /**
+     * 超级签所需公有池
+     */
+    @TableField(value = "super_total")
+    private Integer superTotal;
+
+    /**
+     * mdm超级签共有池
+     */
+    @TableField(value = "mdm_super_total")
+    private Integer mdmSuperTotal;
+
+    /**
+     * 企业分发公有池
+     */
+    @TableField(value = "soft_total")
+    private Integer softTotal;
+
+    /**
+     * mdm企业分发公有池
+     */
+    @TableField(value = "mdm_soft_total")
+    private Integer mdmSoftTotal;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

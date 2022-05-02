@@ -388,7 +388,7 @@ public class MdmDistributeController {
         taskEntity.setCertId(deviceInfoEntity.getCertId());
         taskEntity.setUdid(deviceInfoEntity.getUdid());
         String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
-        cmda = cmda.replace("#plist#",mdmPackStatusEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
+        cmda = cmda.replace("#plist#",mdmPackStatusEntity.getPlist().replace("itms-services://?action=download-manifest&url=",""));
         taskEntity.setCmdAppend(cmda);
         CertInfoEntity certInfoEntity = certInfoMapper.selectById(deviceInfoEntity.getCertId());
         if(null == certInfoEntity){

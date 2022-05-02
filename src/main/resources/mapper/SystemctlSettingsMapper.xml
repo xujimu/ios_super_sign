@@ -13,11 +13,16 @@
             <result property="superReCount" column="super_re_count" jdbcType="INTEGER"/>
             <result property="softNum" column="soft_num" jdbcType="INTEGER"/>
             <result property="softReCount" column="soft_re_count" jdbcType="INTEGER"/>
+            <result property="superTotal" column="super_total" jdbcType="INTEGER"/>
+            <result property="mdmSuperTotal" column="mdm_super_total" jdbcType="INTEGER"/>
+            <result property="softTotal" column="soft_total" jdbcType="INTEGER"/>
+            <result property="mdmSoftTotal" column="mdm_soft_total" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         mdm_soft_num,mdm_soft_re_count,mdm_super_num,
         mdm_super_re_count,super_num,super_re_count,
-        soft_num,soft_re_count
+        soft_num,soft_re_count,super_total,
+        mdm_super_total,soft_total,mdm_soft_total
     </sql>
 </mapper>

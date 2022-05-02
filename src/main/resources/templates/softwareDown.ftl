@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="email=no">
-    <script type="text/javascript" src="${path}/js/jquery.js "></script>
+    <script type="text/javascript" src="${path}/js/jquery.js"></script>
     <link rel="stylesheet" type="text/css" href="${path}/css/index.css">
     <link rel="stylesheet" href="${path}/css/swiper-bundle.min.css">
     <link rel="stylesheet" href="${path}/css/layui/css/layui.css">
@@ -307,23 +307,54 @@
         //auto_download()
 
         function DownSoft() {
+            var that = this
             //复制
             //copytoclip();
             var s = 'https:' == document.location.protocol ? true : false;
             var pid = iphoneos ? iosplace : androidplace;
 
             if (iphoneos) {
-                window.location.href = iosurl;
 
-                <#--setTimeout(function () {-->
-                <#--    location.href = '${pro}'-->
-                <#--}, 3000)-->
+                $.ajax({
+                    url:  iosurl,
+                    type: 'GET',
+                }).success(function (res) {
+
+                    console.log("获取状态成功")
+                    if(res.code === 0){
+
+                        window.location.href = res.ipa
+                    }else {
+                        alert(res.message)
+                    }
+
+                }).error(function (err){
+                    console.log("获取状态失败")
+                    //alert(err.status)
+                })
 
             } else {
                 console.log(andurl);
-                if(andurl == 'no'){
+                if(andurl === 'no'){
                     alert("暂无安卓版本")
                 }else {
+                    $.ajax({
+                        url:  andurl,
+                        type: 'GET',
+                    }).success(function (res) {
+                        console.log("获取状态成功")
+
+                        if(res.code === 0){
+                            window.location.href = res.apk
+                        }else {
+                            alert(res.message)
+                        }
+
+                    }).error(function (err){
+                        console.log("获取状态失败")
+                        //alert(err.status)
+                    })
+
                     window.location.href = andurl;
                 }
                 // doLocation(andurl);

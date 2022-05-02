@@ -17,6 +17,16 @@ public interface PackStatusDao {
     PackStatus query(String id);
 
 
+
+    /**
+     * lastDay
+     * @param uuid
+     * @returnid
+     */
+    @Select("select count(id) from pack_status where account = #{account} and status = '点击下载'")
+    Integer selectByAccountCount(@Param("account") String account);
+
+
     /**
      *
      * @param status

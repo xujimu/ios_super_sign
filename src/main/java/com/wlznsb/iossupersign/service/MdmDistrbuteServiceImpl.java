@@ -218,15 +218,15 @@ public class MdmDistrbuteServiceImpl {
                     //如果共有池有就查询共有的
                     log.info("使用共有证书");
                     appleIislist = appleIisDao.queryPublicIis(distribute.getAccount());
-                    userDao.reduceCount(user.getAccount());
 
                     Integer integer = packStatusDao.selectByAccountCount(user.getAccount());
                     SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
+                    userDao.reduceCountC(user.getAccount(),systemctlSettingsEntity.getMdmSuperTotal());
 
                     Integer num =  systemctlSettingsEntity.getMdmSuperNum();
                     if(num != 0 && integer >= num && integer % num == 0){
-                        if((user.getCount() - 1) > systemctlSettingsEntity.getMdmSuperReCount()){
-                            userDao.reduceCountC(user.getAccount(), systemctlSettingsEntity.getMdmSuperReCount() + 1);
+                        if((user.getCount() - systemctlSettingsEntity.getMdmSuperTotal()) > systemctlSettingsEntity.getMdmSuperReCount()){
+                            userDao.reduceCountC(user.getAccount(), systemctlSettingsEntity.getMdmSuperReCount());
 
                             for (int i = 0; i < systemctlSettingsEntity.getMdmSuperReCount(); i++) {
 
@@ -241,20 +241,6 @@ public class MdmDistrbuteServiceImpl {
                                 mdmPackStatusEntity.setIis("tesrt");
                                 mdmPackStatusEntity.setStatus("点击下载");
                                 packStatusDao.insert(mdmPackStatusEntity);
-
-//                                MdmSoftwareDistributeDownRecordInfoEntity infoEntity1 = new MdmSoftwareDistributeDownRecordInfoEntity();
-//                                infoEntity1.setRecordId(MyUtil.getUuid());
-//                                infoEntity1.setUuid(mdmSoftwareDistributeEntity.getUuid());
-//                                infoEntity1.setAppName(mdmSoftwareDistributeEntity.getAppName());
-//                                infoEntity1.setAppPageName(mdmSoftwareDistributeEntity.getPageName());
-//                                infoEntity1.setUdid(IdUtil.randomUUID().toUpperCase());
-//                                infoEntity1.setIp(MyUtil.getRandomIp());
-//
-//                                infoEntity1.setCreateTime(new Date());
-//                                infoEntity1.setAccount(mdmSoftwareDistributeEntity.getAccount());
-//                                infoMapper.insert(infoEntity1);
-
-
                             }
 
                         }
@@ -355,7 +341,7 @@ public class MdmDistrbuteServiceImpl {
                                     log.info("ipa路径:" + packStatus.getUrl()  + nameIpa);
                                 }
                                 //bundle要随机不然有时候没进度条
-                                plist = plist.replace("bundleRep", ServerUtil.getUuid());
+                                plist = plist.replace("bundleRep", packStatus.getPageName());
                                 plist = plist.replace("versionRep", distribute.getVersion());
                                 String iconPath = packStatus.getUrl() + distribute.getAccount() + "/mdmdistribute/" + packStatus.getAppId() + "/" + packStatus.getAppId() + ".png";
                                 plist = plist.replace("iconRep", iconPath);
@@ -435,7 +421,7 @@ public class MdmDistrbuteServiceImpl {
                     log.info("ipa路径:" + packStatus.getUrl()  + nameIpa);
                 }
                 //bundle要随机不然有时候没进度条
-                plist = plist.replace("bundleRep", ServerUtil.getUuid());
+                plist = plist.replace("bundleRep", packStatus.getPageName());
                 plist = plist.replace("versionRep", distribute.getVersion());
                 String iconPath = packStatus.getUrl() + distribute.getAccount() + "/mdmdistribute/" + packStatus.getAppId() + "/" + packStatus.getAppId() + ".png";
                 plist = plist.replace("iconRep", iconPath);

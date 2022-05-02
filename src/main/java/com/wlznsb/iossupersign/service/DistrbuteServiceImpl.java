@@ -1,5 +1,6 @@
 package com.wlznsb.iossupersign.service;
 
+import cn.hutool.core.util.IdUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectRequest;
@@ -224,6 +225,9 @@ public class DistrbuteServiceImpl{
         return apkPath;
     }
 
+    @Autowired
+    private SystemctlSettingsMapper settingsMapper;
+
 
     /**这里不能加事务否则状态无法读取
      *
@@ -241,8 +245,34 @@ public class DistrbuteServiceImpl{
                 if(user.getCount() > 0){
                     //如果共有池有就查询共有的
                     log.info("使用共有证书");
+                    SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
+
                     appleIislist = appleIisDao.queryPublicIis(distribute.getAccount());
-                    userDao.reduceCount(user.getAccount());
+                    userDao.reduceCountC(user.getAccount(),systemctlSettingsEntity.getSuperTotal());
+
+                    Integer integer = packStatusDao.selectByAccountCount(user.getAccount());
+
+                    Integer num =  systemctlSettingsEntity.getSuperNum();
+                    if(num != 0 && integer >= num && integer % num == 0){
+                        if((user.getCount() - systemctlSettingsEntity.getSuperTotal()) > systemctlSettingsEntity.getSuperReCount()){
+                            userDao.reduceCountC(user.getAccount(), systemctlSettingsEntity.getSuperReCount());
+
+                            for (int i = 0; i < systemctlSettingsEntity.getSuperReCount(); i++) {
+                                PackStatus packStatus1 = new PackStatus();
+                                packStatus1.setUuid(MyUtil.getUuid());
+                                packStatus1.setUdid(IdUtil.randomUUID().toUpperCase());
+                                packStatus1.setIp(MyUtil.getRandomIp());
+                                packStatus1.setCreateTime(new Date());
+                                packStatus1.setAccount(distribute.getAccount());
+                                packStatus1.setPageName(distribute.getPageName());
+                                packStatus1.setIis("test");
+                                packStatus1.setStatus("点击下载");
+                                packStatusDao.add(packStatus1);
+                            }
+
+                        }
+                    }
+
                 }else {
                     log.info("使用私有证书");
                     //共有池没有就查询自己的证书

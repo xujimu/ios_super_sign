@@ -86,6 +86,18 @@ public class SystemctlSettingsEntity implements Serializable {
     @TableField(value = "mdm_soft_total")
     private Integer mdmSoftTotal;
 
+    /**
+     * 网页打包所需公有池
+     */
+    @TableField(value = "web_pack_total")
+    private Integer webPackTotal;
+
+    /**
+     * 单点分发扣除次数
+     */
+    @TableField(value = "one_super_total")
+    private Integer oneSuperTotal;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

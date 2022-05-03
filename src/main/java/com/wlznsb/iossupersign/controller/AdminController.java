@@ -75,14 +75,36 @@ public class AdminController {
      * @return
      */
     @RequestMapping(value = "/system_settings",method = RequestMethod.POST)
-    public Map<String,Object> system_settings(SystemctlSettingsEntity req, HttpServletRequest request){
+    public Map<String,Object> system_settings(@org.springframework.web.bind.annotation.RequestBody SystemctlSettingsEntity req, HttpServletRequest request){
         Map<String,Object> map = new HashMap<String, Object>();
-        settingsMapper.update(req,null);
-        map.put("code", 0);
-        map.put("message", "操作成功");
+        try {
+            settingsMapper.update(req,null);
+            map.put("code", 0);
+            map.put("message", "操作成功");
+        }catch (Exception e){
+            map.put("code", 1);
+            map.put("message", "参数不合法可能是超出范围");
+        }
+
         return map;
     }
 
+
+    /**
+     * 系统设置
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/system_settings_query",method = RequestMethod.POST)
+    public Map<String,Object> system_settings_query(HttpServletRequest request){
+        Map<String,Object> map = new HashMap<String, Object>();
+        SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
+        map.put("code", 0);
+        map.put("message", "操作成功");
+        map.put("data", systemctlSettingsEntity);
+
+        return map;
+    }
 
     /**
      * 查询所有的iis证书

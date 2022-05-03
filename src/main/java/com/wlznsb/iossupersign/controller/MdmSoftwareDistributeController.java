@@ -574,6 +574,7 @@ public class MdmSoftwareDistributeController {
 
         while (iterator.hasNext()){
             MdmSoftwareDistributeEntity next = iterator.next();
+            next.setIcon(ServerUtil.getRootUrl(request) + next.getAccount() + "/mdmsoftwareDistribute/" + next.getUuid() + "/" + next.getUuid() + ".png");
             Integer dayCount = infoMapper.selectByUuidCount(next.getUuid(),"day");
             Integer lastDayCount = infoMapper.selectByUuidCount(next.getUuid(),"lastDay");
             Integer sumCount = infoMapper.selectByUuidCount(next.getUuid(),null);

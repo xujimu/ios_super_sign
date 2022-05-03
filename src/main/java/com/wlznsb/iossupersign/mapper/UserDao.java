@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign.mapper;
 
 import com.wlznsb.iossupersign.entity.User;
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,8 @@ public interface UserDao {
     User queryAccount(String account);
 
 
+    @Select("select count(*) from user")
+    Integer queryCount();
 
     /**
      * 查询所有用户

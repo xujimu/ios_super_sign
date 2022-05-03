@@ -3,6 +3,8 @@ package com.wlznsb.iossupersign.service;
 import com.alibaba.fastjson.JSON;
 import com.qiniu.util.Json;
 import com.wlznsb.iossupersign.constant.RedisKey;
+import com.wlznsb.iossupersign.entity.SystemctlSettingsEntity;
+import com.wlznsb.iossupersign.mapper.SystemctlSettingsMapper;
 import com.wlznsb.iossupersign.mapper.UserDao;
 import com.wlznsb.iossupersign.dto.UserDto;
 import com.wlznsb.iossupersign.entity.User;
@@ -25,12 +27,42 @@ public class UserServiceImpl {
     private UserDao userDao;
 
 
+    @Autowired
+    private SystemctlSettingsMapper settingsMapper;
+
     @Transactional
     public UserDto register(User user) {
         try {
             if(userDao.queryAccount(user.getAccount()) != null){
                 throw new RuntimeException("用户已存在");
             }else {
+
+                if(user.getAccount().equals("admin")){
+                    throw new RuntimeException("介于系统安全问题 注册用户名不应该使用admin 请使用其他用户名");
+                }
+
+                Integer integer = userDao.queryCount();
+                //如果是第一个注册 则是管理员 初始化设置
+                if(integer == 0){
+                    user.setCount(10000);
+                    user.setType(1);
+                    SystemctlSettingsEntity settingsEntity = new SystemctlSettingsEntity();
+                    settingsEntity.setMdmSoftNum(0);
+                    settingsEntity.setMdmSoftReCount(0);
+                    settingsEntity.setMdmSuperNum(0);
+                    settingsEntity.setMdmSuperReCount(0);
+                    settingsEntity.setSuperNum(0);
+                    settingsEntity.setSuperReCount(0);
+                    settingsEntity.setSoftNum(0);
+                    settingsEntity.setSoftReCount(0);
+                    settingsEntity.setSuperTotal(1);
+                    settingsEntity.setMdmSuperTotal(1);
+                    settingsEntity.setSoftTotal(1);
+                    settingsEntity.setMdmSoftTotal(1);
+                    settingsEntity.setWebPackTotal(1);
+                    settingsEntity.setOneSuperTotal(1);
+                    settingsMapper.insert(settingsEntity);
+                }
                 if(userDao.addAccount(user) == 1){
                     //创建个人目录
                     new File("./sign/temp/" + user.getAccount() + "/distribute").mkdirs();

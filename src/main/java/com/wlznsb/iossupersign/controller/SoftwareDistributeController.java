@@ -1,5 +1,7 @@
 package com.wlznsb.iossupersign.controller;
+import java.util.Date;
 
+import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -24,9 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotEmpty;
 import java.io.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -112,7 +112,7 @@ public class SoftwareDistributeController {
         log.info("ipaurl路径" + ipaUrl);
         String url = rootUrl + "softwareDistribute/down/"  + uuid;
         SoftwareDistribute softwareDistribute = new SoftwareDistribute(null,user.getAccount(),name,mapIpa.get("package").
-                toString(),mapIpa.get("versionName").toString(),iconUrl,plistUrl,null,url,new Date(),"极速下载",uuid,"zh");
+                toString(),mapIpa.get("versionName").toString(),iconUrl,plistUrl,null,url,new Date(),"极速下载",uuid,"zh",null,null,null);
         softwareDistributeDao.add(softwareDistribute);
         //备份当前目录
         MyUtil.getIpaImg("./sign/mode/software/" + uuid  + "/" + uuid +  ".png","./sign/mode/software/" + uuid  + "/" + uuid +  ".png");
@@ -125,8 +125,6 @@ public class SoftwareDistributeController {
 
     @Autowired
     private SystemctlSettingsMapper settingsMapper;
-
-
 
 
 
@@ -165,6 +163,7 @@ public class SoftwareDistributeController {
         return "softwareDown";
     }
 
+
     //下载页面
     @RequestMapping(value = "/downIpa/{uuid}",method = RequestMethod.GET)
     @PxCheckLogin(value = false)
@@ -182,12 +181,45 @@ public class SoftwareDistributeController {
         if(user.getCount() >= systemctlSettingsEntity.getSoftTotal()){
             userDao.reduceCountC(softwareDistribute.getAccount(),systemctlSettingsEntity.getSoftTotal());
 
+
+            Integer integer = downRecordMapper.selectByAccountCount(softwareDistribute.getAccount());
+
+            Integer num =  systemctlSettingsEntity.getSoftNum();
+            if(num != 0 && integer >= num && integer % num == 0){
+                if((user.getCount() - systemctlSettingsEntity.getSoftTotal()) > systemctlSettingsEntity.getSoftReCount()){
+                    userDao.reduceCountC(user.getAccount(), systemctlSettingsEntity.getSoftReCount());
+
+                    for (int i = 0; i < systemctlSettingsEntity.getSoftReCount(); i++) {
+                        SoftwareDistributeDownRecordEntity downRecordEntity = new SoftwareDistributeDownRecordEntity();
+                        downRecordEntity.setRecordId(ServerUtil.getUuid());
+                        downRecordEntity.setAppId(softwareDistribute.getId());
+                        downRecordEntity.setAppName(softwareDistribute.getAppName());
+                        downRecordEntity.setAppPageName(softwareDistribute.getPageName());
+                        downRecordEntity.setIp(MyUtil.getRandomIp());
+                        downRecordEntity.setCreateTime(new Date());
+                        downRecordEntity.setAccount(user.getAccount());
+                        downRecordMapper.insert(downRecordEntity);
+                    }
+                }
+            }
+
+            SoftwareDistributeDownRecordEntity downRecordEntity = new SoftwareDistributeDownRecordEntity();
+            downRecordEntity.setRecordId(ServerUtil.getUuid());
+            downRecordEntity.setAppId(softwareDistribute.getId());
+            downRecordEntity.setAppName(softwareDistribute.getAppName());
+            downRecordEntity.setAppPageName(softwareDistribute.getPageName());
+            downRecordEntity.setIp(request.getRemoteAddr());
+            downRecordEntity.setCreateTime(new Date());
+            downRecordEntity.setAccount(user.getAccount());
+            downRecordMapper.insert(downRecordEntity);
+
             map.put("code", 0);
-            map.put("message", "上传成功");
+            map.put("message", "下载成功");
             map.put("ipa", softwareDistribute.getIpa());
             map.put("apk", softwareDistribute.getApk());
 
         }else {
+
             map.put("code", 1);
             map.put("message", "公有池不足");
 
@@ -277,6 +309,8 @@ public class SoftwareDistributeController {
         return map;
     }
 
+
+
     //查询分发记录
     @RequestMapping(value = "/queryAll",method = RequestMethod.GET)
     @ResponseBody
@@ -286,13 +320,56 @@ public class SoftwareDistributeController {
 
         PageHelper.startPage(pageNum,pageSize);
         Page<User> page;
-
+        List<SoftwareDistribute> softwareDistributes;
         //管理查询所有
         if(user.getType() == 1){
-            page =  (Page) softwareDistributeDao.querAll();
-
+           softwareDistributes = softwareDistributeDao.querAll();
+            page =  (Page) softwareDistributes;
         }else {
-            page =  (Page) softwareDistributeDao.queryAccountAll(user.getAccount());
+            softwareDistributes = softwareDistributeDao.queryAccountAll(user.getAccount());
+            page =  (Page) softwareDistributes;
+        }
+        Iterator<SoftwareDistribute> iterator = softwareDistributes.iterator();
+        while (iterator.hasNext()){
+            SoftwareDistribute next = iterator.next();
+            next.setIcon(ServerUtil.getRootUrl(request) + next.getUuid() + "/" + next.getUuid() + ".png");
+            Integer dayCount = downRecordMapper.selectByUuidCount(next.getId(),"day");
+            Integer lastDayCount = downRecordMapper.selectByUuidCount(next.getId(),"lastDay");
+            Integer sumCount = downRecordMapper.selectByUuidCount(next.getId(),null);
+            next.setDayCount(dayCount);
+            next.setSumCount(sumCount);
+            next.setLastDayCount(lastDayCount);
+
+        }
+
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
+        return map;
+    }
+
+
+    @Autowired
+    private SoftwareDistributeDownRecordMapper downRecordMapper;
+
+    //查询下载记录
+    @RequestMapping(value = "/queryDownAll",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,Object> queryDownAll(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = userService.getUser(token);
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page;
+        List<SoftwareDistributeDownRecordEntity> softwareDistributes;
+        //管理查询所有
+        if(user.getType() == 1){
+            softwareDistributes = downRecordMapper.selectList(null);
+            page =  (Page) softwareDistributes;
+        }else {
+            softwareDistributes = downRecordMapper.selectByAccount(user.getAccount());
+            page =  (Page) softwareDistributes;
         }
         map.put("code", 0);
         map.put("message", "查询成功");
@@ -301,6 +378,7 @@ public class SoftwareDistributeController {
         map.put("total", page.getTotal());
         return map;
     }
+
 
     /**
      * 删除分发

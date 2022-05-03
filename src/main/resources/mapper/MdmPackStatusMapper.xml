@@ -78,13 +78,14 @@
         count(id)
         from mdm_pack_status
         where
-        uuid = #{uuid,jdbcType=VARCHAR}
+        app_id = #{uuid,jdbcType=VARCHAR}
         <if test="day == 'day'">
             and to_days(create_time) = to_days(now())
         </if>
         <if test="day == 'lastDay'">
             and TO_DAYS(NOW( )) - TO_DAYS(create_time) = 1
         </if>
+        and status = '点击下载'
 
     </select>
 

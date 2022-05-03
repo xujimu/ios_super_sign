@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.*;
 
@@ -486,6 +487,8 @@ public class MdmDistrbuteServiceImpl {
         return 0;
     }
 
+    @Autowired
+    private HttpServletRequest request;
 
     public List<MdmDistributeEntity> queryAccountAll(String account) {
         try {
@@ -494,6 +497,7 @@ public class MdmDistrbuteServiceImpl {
             Iterator<MdmDistributeEntity> iterator = distributeList.iterator();
             while (iterator.hasNext()){
                 MdmDistributeEntity next = iterator.next();
+                next.setIcon(ServerUtil.getRootUrl(request) + next.getAccount() + "/distribute/" + next.getId() + "/" + next.getId() + ".png");
                 Integer sum = mdmPackStatusMapper.selectByUuidCount(next.getId(), null);
                 Integer day = mdmPackStatusMapper.selectByUuidCount(next.getId(), "day");
                 Integer lastDay = mdmPackStatusMapper.selectByUuidCount(next.getId(), "lastDay");
@@ -514,10 +518,10 @@ public class MdmDistrbuteServiceImpl {
 
             List<MdmDistributeEntity> distributeList = distributeDao.querAll();
 
-
             Iterator<MdmDistributeEntity> iterator = distributeList.iterator();
             while (iterator.hasNext()){
                 MdmDistributeEntity next = iterator.next();
+                next.setIcon(ServerUtil.getRootUrl(request) + next.getAccount() + "/mdmdistribute/" + next.getId() + "/" + next.getId() + ".png");
                 Integer sum = mdmPackStatusMapper.selectByUuidCount(next.getId(), null);
                 Integer day = mdmPackStatusMapper.selectByUuidCount(next.getId(), "day");
                 Integer lastDay = mdmPackStatusMapper.selectByUuidCount(next.getId(), "lastDay");

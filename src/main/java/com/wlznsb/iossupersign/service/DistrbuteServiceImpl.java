@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.*;
 
@@ -106,7 +107,7 @@ public class DistrbuteServiceImpl{
                 String name = mapIpa.get("displayName").toString();
                 String url = rootUrl + "dis/superdown.html?id=" + Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
                 Distribute distribute = new Distribute(id,user.getAccount(),name,mapIpa.get("package").
-                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"zh");
+                        toString(),mapIpa.get("versionName").toString(),iconPath,ipaPath,null,url,new Date(),"极速下载",null,0,null,"zh",null,null,null);
                 //备份当前目录
                 MyUtil.getIpaImg("./sign/temp/" + user.getAccount() + "/distribute/" + id  + "/" + id +  ".png","./sign/temp/" + user.getAccount() + "/distribute/" + id  + "/" + id +  ".png");
 
@@ -498,9 +499,27 @@ public class DistrbuteServiceImpl{
     }
 
 
+    @Autowired
+    private PackStatusMapper packStatusMapper;
+
+    @Autowired
+    private HttpServletRequest request;
+
     public List<Distribute> queryAccountAll(String account) {
         try {
+
             List<Distribute> distributeList = distributeDao.queryAccountAll(account);
+            Iterator<Distribute> iterator = distributeList.iterator();
+            while (iterator.hasNext()){
+                Distribute next = iterator.next();
+                next.setIcon(ServerUtil.getRootUrl(request) + next.getAccount() + "/distribute/" + next.getId() + "/" + next.getId() + ".png");
+                Integer sum = packStatusMapper.selectByUuidCount(String.valueOf(next.getId()), null);
+                Integer day = packStatusMapper.selectByUuidCount(String.valueOf(next.getId()), "day");
+                Integer lastDay = packStatusMapper.selectByUuidCount(String.valueOf(next.getId()), "lastDay");
+                next.setDayCount(day);
+                next.setSumCount(sum);
+                next.setLastDayCount(lastDay);
+            }
             return distributeList;
         }catch (Exception e){
             throw  new RuntimeException("查询失败" + e.getMessage());
@@ -510,6 +529,18 @@ public class DistrbuteServiceImpl{
     public List<Distribute> queryAll() {
         try {
             List<Distribute> distributeList = distributeDao.querAll();
+            Iterator<Distribute> iterator = distributeList.iterator();
+            while (iterator.hasNext()){
+                Distribute next = iterator.next();
+                next.setIcon(ServerUtil.getRootUrl(request) + next.getAccount() + "/distribute/" + next.getId() + "/" + next.getId() + ".png");
+
+                Integer sum = packStatusMapper.selectByUuidCount(String.valueOf(next.getId()), null);
+                Integer day = packStatusMapper.selectByUuidCount(String.valueOf(next.getId()), "day");
+                Integer lastDay = packStatusMapper.selectByUuidCount(String.valueOf(next.getId()), "lastDay");
+                next.setDayCount(day);
+                next.setSumCount(sum);
+                next.setLastDayCount(lastDay);
+            }
             return distributeList;
         }catch (Exception e){
             throw  new RuntimeException("查询失败" + e.getMessage());

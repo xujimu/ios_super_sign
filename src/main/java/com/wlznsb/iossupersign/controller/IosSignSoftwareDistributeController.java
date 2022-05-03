@@ -94,13 +94,6 @@ public class IosSignSoftwareDistributeController {
             new File(mkdir).delete();
             throw new RuntimeException("无法读取包信息");
         }
-        try {
-            System.out.println(userDao.addCount(user.getAccount(), -this.iosSignSofware));;
-        }catch (Exception e){
-            new File(ipaPath).delete();
-            new File(mkdir + uuid).delete();
-            throw  new RuntimeException("共有池不足,IOS分发自助需要扣除共有池" + this.iosSignSofware + "台");
-        }
 
         String name = mapIpa.get("displayName").toString();
 
@@ -254,6 +247,27 @@ public class IosSignSoftwareDistributeController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+
+
+    @Autowired
+    private IosSignSoftwareDistributeStatusMapper softwareDistributeStatusMapper;
+
+    //查询下载记录
+    @RequestMapping(value = "/queryDown",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,Object> queryDown(@RequestHeader String token,HttpServletRequest request,@RequestParam  Integer pageNum,@RequestParam  Integer pageSize){
+        Map<String,Object> map = new HashMap<String, Object>();
+        User user = userService.getUser(token);
+        PageHelper.startPage(pageNum,pageSize);
+        Page<User> page =  (Page) softwareDistributeStatusMapper.selectByAccount(user.getAccount());
+        map.put("code", 0);
+        map.put("message", "查询成功");
+        map.put("data", page.getResult());
+        map.put("pages", page.getPages());
+        map.put("total", page.getTotal());
+        return map;
+    }
+
     @Autowired
     private IosSignSoftwareDistributeStatusDao distributeStatusDao;
     //下载页面
@@ -276,38 +290,7 @@ public class IosSignSoftwareDistributeController {
                     iosSignSoftwareDistribute.getVersion(),"","排队中",new Date(),new Date());
             distributeStatusDao.add(ios);
             log.info("应用存在");
-//            if(iosSignSoftwareDistribute.getApk() == null){
-//                iosSignSoftwareDistribute.setApk("no");
-//            }
-//            String plist = IoHandler.readTxt(new File("./sign/mode/install.plist").getAbsolutePath());
-//            //bundle要随机不然有时候没进度条
-//            plist = plist.replace("bundleRep", uuid);
-//            plist = plist.replace("versionRep", iosSignSoftwareDistribute.getVersion());
-//            plist = plist.replace("iconRep", iosSignUdidCert.getP12Path());
-//            plist = plist.replace("appnameRep",iosSignSoftwareDistribute.getAppName());
-//            //对ipa签名
-//            String uuidTemp = MyUtil.getUuid();
-//            String signPath = "./sign/mode/temp/" + uuidTemp +".ipa";
-//            String cmd = "./sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa();
-//
-//            if(iosSignSoftwareDistribute.getAutoPageName() == 1){
-//                log.info("随机包名");
-//                cmd = "./sign/mode/zsign -k " + iosSignUdidCert.getP12Path() + " -p " + iosSignUdidCert.getP12Password() + " -m " + iosSignUdidCert.getMobileprovisionPath() + " -o " + signPath + " -z 1 " + iosSignSoftwareDistribute.getIpa() + " -b " + new Date().getTime();
-//            }
-//            log.info("开始签名" + cmd);
-//            Map<String,Object>  map1 =  RuntimeExec.runtimeExec(cmd);
-//            log.info("签名结果" + map1.get("status").toString());
-//            log.info("签名反馈" + map1.get("info").toString());
-//            log.info("签名命令" + cmd);
-//            //上传云端
-//            String ipaUrl = distrbuteService.uploadSoftwareIpa(signPath);
-//            if(null == ipaUrl){
-//                ipaUrl = rootUrl + uuidTemp + ".ipa";
-//            }
-//            plist = plist.replace("urlRep", ipaUrl);
-//            String plistName = uuidTemp + ".plist";
-//            IoHandler.writeTxt(new File("./sign/mode/temp/" +  plistName).getAbsolutePath(), plist);
-//            String plistUrl = "itms-services://?action=download-manifest&url=" +  rootUrl + plistName;
+
             iosSignSoftwareDistribute.setUrl("");
 
             model.addAttribute("uuid", packUuid);

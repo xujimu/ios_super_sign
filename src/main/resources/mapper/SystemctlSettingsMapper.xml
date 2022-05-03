@@ -17,12 +17,15 @@
             <result property="mdmSuperTotal" column="mdm_super_total" jdbcType="INTEGER"/>
             <result property="softTotal" column="soft_total" jdbcType="INTEGER"/>
             <result property="mdmSoftTotal" column="mdm_soft_total" jdbcType="INTEGER"/>
+            <result property="webPackTotal" column="web_pack_total" jdbcType="INTEGER"/>
+            <result property="oneSuperTotal" column="one_super_total" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         mdm_soft_num,mdm_soft_re_count,mdm_super_num,
         mdm_super_re_count,super_num,super_re_count,
         soft_num,soft_re_count,super_total,
-        mdm_super_total,soft_total,mdm_soft_total
+        mdm_super_total,soft_total,mdm_soft_total,
+        web_pack_total,one_super_total
     </sql>
 </mapper>

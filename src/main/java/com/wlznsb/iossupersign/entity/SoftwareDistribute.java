@@ -29,5 +29,11 @@ public class SoftwareDistribute {
     private String uuid;
     private String language;
 
+    private Integer sumCount;
+
+    private Integer dayCount;
+
+    private Integer lastDayCount;
+
 
 }

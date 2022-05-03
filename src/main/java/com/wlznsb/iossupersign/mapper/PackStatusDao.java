@@ -10,6 +10,10 @@ import java.util.List;
 @Component
 public interface PackStatusDao {
 
+
+
+
+
     /**
      * 查询一条记录
      */

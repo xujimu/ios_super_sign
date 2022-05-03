@@ -1,6 +1,7 @@
 package com.wlznsb.iossupersign.entity;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,6 +34,11 @@ public class Distribute {
     private String buyDownCodeUrl;
     private String language;
 
+    private Integer sumCount;
+
+    private Integer dayCount;
+
+    private Integer lastDayCount;
 
 
 }

@@ -125,8 +125,10 @@ public class AdminController {
     }
 
 
-    @Value("${mdmUrl}")
-    private String mdmUrl;
+
+
+    @Autowired
+    private SystemctlSettingsMapper systemctlSettingsMapper;
 
     /**
      * mdm证书上传
@@ -134,30 +136,66 @@ public class AdminController {
      * @return
      */
     @RequestMapping(value = "/uploadMdmCert",method = RequestMethod.POST)
-    public Map<String,Object> uploadMdmCert(@RequestParam MultipartFile p12, @RequestParam  String password,@RequestParam  String remark) throws IOException {
+    public Map<String,Object> uploadMdmCert(@RequestParam MultipartFile p12,MultipartFile pem,MultipartFile key, @RequestParam  String password,@RequestParam  String remark) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
 
 
+        boolean isPem = false;
         OkHttpClient client = MyUtil.getOkHttpClient();
 
         File filePath = new File("./sign/mdm/" + MyUtil.getUuid() + ".p12");
 
         MyUtil.MultipartFileWrite(p12,filePath.getAbsolutePath());
-
+        File filePemPath = null;
+        File fileKeyPath = null;
+        if(null != pem && pem.getBytes().length > 0 && null != key && key.getBytes().length > 0){
+            filePemPath = new File("./sign/mdm/" + MyUtil.getUuid() + ".pem");
+            fileKeyPath = new File("./sign/mdm/" + MyUtil.getUuid() + ".key");
+            MyUtil.MultipartFileWrite(pem,filePemPath.getAbsolutePath());
+            MyUtil.MultipartFileWrite(key,fileKeyPath.getAbsolutePath());
+            isPem = true;
+        }
 
         MediaType mediaType = MediaType.parse("text/plain");
-        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("p12",filePath.getAbsolutePath(),
-                        RequestBody.create(MediaType.parse("application/octet-stream"),
-                                filePath))
-                .addFormDataPart("password",password)
-                .addFormDataPart("remark",remark)
-                .build();
+        RequestBody body;
+        if(isPem){
+            body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                    .addFormDataPart("p12",filePath.getAbsolutePath(),
+                            RequestBody.create(MediaType.parse("application/octet-stream"),
+                                    filePath))
+                    .addFormDataPart("password",password)
+                    .addFormDataPart("remark",remark)
+                    .addFormDataPart("pem",filePath.getAbsolutePath(),
+                            RequestBody.create(MediaType.parse("application/octet-stream"),
+                                    filePemPath))
+                    .addFormDataPart("key",filePath.getAbsolutePath(),
+                            RequestBody.create(MediaType.parse("application/octet-stream"),
+                                    fileKeyPath))
+                    .build();
+        }else {
+            body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                    .addFormDataPart("p12",filePath.getAbsolutePath(),
+                            RequestBody.create(MediaType.parse("application/octet-stream"),
+                                    filePath))
+                    .addFormDataPart("password",password)
+                    .addFormDataPart("remark",remark)
+                    .build();
+        }
+
+        SystemctlSettingsEntity systemctlSettingsEntity = systemctlSettingsMapper.selectOne(null);
+
+        if(systemctlSettingsEntity.getMdmDomain().equals("www.xxx.com")){
+            map.put("code", 1);
+            map.put("message", "请先前往系统设置-常规设置-填写mdm域名");
+            return map;
+        }
+
         Request request = new Request.Builder()
-                .url( mdmUrl + "/cert/upload_cert")
+                .url("https://" + systemctlSettingsEntity.getMdmDomain() + "/cert/upload_cert")
                 .method("POST", body)
                 .build();
         Response response = client.newCall(request).execute();
+
 
         //序列化返回
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
@@ -183,10 +221,18 @@ public class AdminController {
 
         OkHttpClient client = MyUtil.getOkHttpClient();
 
+        SystemctlSettingsEntity systemctlSettingsEntity = systemctlSettingsMapper.selectOne(null);
+
+        if(systemctlSettingsEntity.getMdmDomain().equals("www.xxx.com")){
+            map.put("code", 1);
+            map.put("message", "请先前往系统设置-常规设置-填写mdm域名");
+            return map;
+        }
+
         MediaType mediaType = MediaType.parse("text/plain");
         RequestBody requestBody = RequestBody.create(mediaType, "");
         Request request = new Request.Builder()
-                .url(mdmUrl + "/cert/deleteCert?certId=" + certId)
+                .url("https://" + systemctlSettingsEntity.getMdmDomain() + "/cert/deleteCert?certId=" + certId)
                 .method("POST", requestBody)
                 .build();
         Response response = client.newCall(request).execute();

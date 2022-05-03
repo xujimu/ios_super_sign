@@ -19,6 +19,8 @@
             <result property="mdmSoftTotal" column="mdm_soft_total" jdbcType="INTEGER"/>
             <result property="webPackTotal" column="web_pack_total" jdbcType="INTEGER"/>
             <result property="oneSuperTotal" column="one_super_total" jdbcType="INTEGER"/>
+            <result property="mqDomain" column="mq_domain" jdbcType="VARCHAR"/>
+            <result property="mdmDomain" column="mdm_domain" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -26,6 +28,7 @@
         mdm_super_re_count,super_num,super_re_count,
         soft_num,soft_re_count,super_total,
         mdm_super_total,soft_total,mdm_soft_total,
-        web_pack_total,one_super_total
+        web_pack_total,one_super_total,mq_domain,
+        mdm_domain
     </sql>
 </mapper>

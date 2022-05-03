@@ -98,6 +98,18 @@ public class SystemctlSettingsEntity implements Serializable {
     @TableField(value = "one_super_total")
     private Integer oneSuperTotal;
 
+    /**
+     * 免签打包域名
+     */
+    @TableField(value = "mq_domain")
+    private String mqDomain;
+
+    /**
+     * mdm域名
+     */
+    @TableField(value = "mdm_domain")
+    private String mdmDomain;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

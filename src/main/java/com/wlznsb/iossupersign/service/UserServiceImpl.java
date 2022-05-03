@@ -61,6 +61,9 @@ public class UserServiceImpl {
                     settingsEntity.setMdmSoftTotal(1);
                     settingsEntity.setWebPackTotal(1);
                     settingsEntity.setOneSuperTotal(1);
+                    settingsEntity.setMqDomain("www.xxx.com");
+                    settingsEntity.setMdmDomain("www.xxx.com");
+
                     settingsMapper.insert(settingsEntity);
                 }
                 if(userDao.addAccount(user) == 1){

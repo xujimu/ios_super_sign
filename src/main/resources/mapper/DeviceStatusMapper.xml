@@ -33,4 +33,15 @@
             <if test="status != null">`status`=#{status,jdbcType=INTEGER},</if>
         </trim>
     </insert>
+    <select id="selectByDeviceIdInAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from device_status
+        where
+        device_id in
+        <foreach collection="deviceIdList" item="item" open="(" close=")" separator=",">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+        AND status = #{status,jdbcType=NUMERIC} limit 1
+    </select>
 </mapper>

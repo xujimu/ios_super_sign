@@ -122,8 +122,9 @@ public class MdmDistributeController {
     }
 
 
-    @Value("${mdmUrl}")
-    private String mdmUrl;
+    @Autowired
+    private SystemctlSettingsMapper systemctlSettingsMapper;
+
 
     //获取描述文件,没有使用业务层 第二步
     @GetMapping
@@ -137,8 +138,11 @@ public class MdmDistributeController {
         String tempContextUrl = ServerUtil.getRootUrl(request);
 
 
+
         //获取可用证书
         CertInfoEntity certInfoEntity = certInfoMapper.selectOneByCertStatus(1);
+
+        SystemctlSettingsEntity systemctlSettingsEntity = systemctlSettingsMapper.selectOne(null);
 
 
         if(null != certInfoEntity){
@@ -148,7 +152,7 @@ public class MdmDistributeController {
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
             okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "该配置文件帮助用户进行App授权安装" + "&name=" +name+ "&ziName=安装后返回浏览器&permission=4096");
             Request request1 = new Request.Builder()
-                    .url(mdmUrl + "/mdm/get_mobile_config")
+                    .url("https://" +  systemctlSettingsEntity.getMdmDomain() + "/mdm/get_mobile_config")
                     .method("POST", body)
                     .addHeader("Content-Type", "application/x-www-form-urlencoded")
                     .build();

@@ -118,8 +118,8 @@ public class MdmSoftwareDistributeController {
         String plistName = uuid + ".plist";
         String plistNameUpdate = uuid + "update.plist";
         IoHandler.writeTxt(new File(userDir  + uuid + "/" + plistName).getAbsolutePath(), plist);
-        plist = plist.replace(name, name + "更新防掉签文件 请选择管理");
-        plist = plist.replace(mapIpa.get("package").toString(), mapIpa.get("package").toString() + "update");
+        plist = plist.replace(name, name + "更新防掉签文件");
+        plist = plist.replace(mapIpa.get("package").toString(), mapIpa.get("package").toString());
 
         IoHandler.writeTxt(new File(userDir  + uuid + "/" + plistNameUpdate).getAbsolutePath(), plist);
         String plistUrl = "itms-services://?action=download-manifest&url=" +  rootUrl + user.getAccount() + "/mdmsoftwareDistribute/"  + uuid + "/" + plistName;
@@ -136,11 +136,11 @@ public class MdmSoftwareDistributeController {
     }
 
 
-    @Value("${mdmUrl}")
-    private String mdmUrl;
-
     @Autowired
     private CertInfoMapper certInfoMapper;
+
+    @Autowired
+    private SystemctlSettingsMapper settingsMapper;
 
     //获取描述文件,没有使用业务层
     @GetMapping
@@ -156,6 +156,8 @@ public class MdmSoftwareDistributeController {
         //获取可用证书
         CertInfoEntity certInfoEntity = certInfoMapper.selectOneByCertStatus(1);
 
+        SystemctlSettingsEntity systemctlSettingsEntity = settingsMapper.selectOne(null);
+
 
         if(null != certInfoEntity){
 
@@ -164,7 +166,7 @@ public class MdmSoftwareDistributeController {
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
             okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "该配置文件帮助用户进行App授权安装" + "&name=" +name+ "&ziName=安装后返回浏览器&permission=4096");
             Request request1 = new Request.Builder()
-                    .url(mdmUrl + "/mdm/get_mobile_config")
+                    .url("https://" + systemctlSettingsEntity.getMdmDomain() + "/mdm/get_mobile_config")
                     .method("POST", body)
                     .addHeader("Content-Type", "application/x-www-form-urlencoded")
                     .build();
@@ -220,8 +222,6 @@ public class MdmSoftwareDistributeController {
     }
 
 
-    @Autowired
-    private SystemctlSettingsMapper settingsMapper;
 
     //获取安装状态
     @RequestMapping(value = "/getInstallStatus/{deviceId}/{id}",method = RequestMethod.GET)
@@ -254,6 +254,7 @@ public class MdmSoftwareDistributeController {
             softwareDistributeDownRecordEntity.setDeviceId(deviceId);
             softwareDistributeDownRecordEntity.setCreateTime(new Date());
             softwareDistributeDownRecordEntity.setAppId(mdmSoftwareDistributeEntity.getUuid());
+            softwareDistributeDownRecordEntity.setUdid(deviceInfoEntity.getUdid());
             downRecordMapper.insert(softwareDistributeDownRecordEntity);
 
 
@@ -417,6 +418,9 @@ public class MdmSoftwareDistributeController {
     private DeviceStatusMapper deviceStatusMapper;
 
 
+
+
+
     //更新ipa
     @RequestMapping(value = "/updateIpa",method = RequestMethod.POST)
     @ResponseBody
@@ -460,6 +464,7 @@ public class MdmSoftwareDistributeController {
         List<MdmSoftwareDistributeDownRecordEntity> mdmSoftwares = downRecordMapper.selectByAppId(uuid);
 
         List<String> 已处理 = new ArrayList<>();
+        List<String> 已处理UDID = new ArrayList<>();
 
         Iterator<MdmSoftwareDistributeDownRecordEntity> iterator = mdmSoftwares.iterator();
 
@@ -469,51 +474,51 @@ public class MdmSoftwareDistributeController {
 
             if(!已处理.contains(next.getDeviceId())){
 
-                DeviceInfoEntity deviceInfoEntity = deviceInfoMapper.selectById(next.getDeviceId());
-                Date date = new Date();
-                DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
+                if(!已处理UDID.contains(next.getUdid())){
+                    DeviceInfoEntity deviceInfoEntity = deviceInfoMapper.selectById(next.getDeviceId());
+                    Date date = new Date();
+                    DeviceCommandTaskEntity taskEntity = new DeviceCommandTaskEntity();
 
-                taskEntity.setTaskId(MyUtil.getUuid());
-                taskEntity.setDeviceId(next.getDeviceId());
-                taskEntity.setCmd("InstallApplication");
-                taskEntity.setExecResult("");
-                taskEntity.setCreateTime(date);
-                taskEntity.setExecTime(date);
-                taskEntity.setResultTime(date);
-                taskEntity.setTaskStatus(0);
-                taskEntity.setPushCount(0);
-                taskEntity.setExecResultStatus("");
-                taskEntity.setUdid(deviceInfoEntity.getUdid());
-                taskEntity.setCertId(deviceInfoEntity.getCertId());
+                    taskEntity.setTaskId(MyUtil.getUuid());
+                    taskEntity.setDeviceId(next.getDeviceId());
+                    taskEntity.setCmd("InstallApplication");
+                    taskEntity.setExecResult("");
+                    taskEntity.setCreateTime(date);
+                    taskEntity.setExecTime(date);
+                    taskEntity.setResultTime(date);
+                    taskEntity.setTaskStatus(0);
+                    taskEntity.setPushCount(0);
+                    taskEntity.setExecResultStatus("");
+                    taskEntity.setUdid(deviceInfoEntity.getUdid());
+                    taskEntity.setCertId(deviceInfoEntity.getCertId());
 
+//                DeviceStatusEntity deviceStatusEntity = deviceStatusMapper.selectById(next.getDeviceId());
 
-                DeviceStatusEntity deviceStatusEntity = deviceStatusMapper.selectById(next.getDeviceId());
-
-                //如果没有卸载 直接更新
-                if(deviceStatusEntity.getStatus().equals(DeviceStatusEntity.STATUS_ON)){
-                    String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
-                    cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
-                    taskEntity.setCmdAppend(cmda);
-                }else {
+                    //如果没有卸载 直接更新
+//                if(deviceStatusEntity.getStatus().equals(DeviceStatusEntity.STATUS_ON)){
+//                    String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
+//                    cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
+//                    taskEntity.setCmdAppend(cmda);
+//                }else {
+//
+//                }
                     //如果卸载修改下包名安装
                     String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
                     String a = mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=","");
                     a = a.replace(uuid + ".plist",uuid + "update.plist");
                     cmda = cmda.replace("#plist#",a);
                     taskEntity.setCmdAppend(cmda);
+
+
+                    taskMapper.insert(taskEntity);
+                    已处理UDID.add(next.getUdid());
                 }
-
-
-                String cmda = "{\"type\":\"ManifestURL\",\"value\":\"#plist#\"}";
-                cmda = cmda.replace("#plist#",mdmSoftwareDistributeEntity.getIpa().replace("itms-services://?action=download-manifest&url=",""));
-                taskEntity.setCmdAppend(cmda);
-
-                taskMapper.insert(taskEntity);
                 已处理.add(next.getDeviceId());
 
             }
         }
 
+        log.info("本次更新设备数" + 已处理UDID.size());
 
         map.put("code", 0);
         map.put("message", "上传成功");

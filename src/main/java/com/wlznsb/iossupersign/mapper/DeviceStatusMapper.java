@@ -1,4 +1,7 @@
 package com.wlznsb.iossupersign.mapper;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import java.util.Collection;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -14,6 +17,10 @@ import com.wlznsb.iossupersign.entity.DeviceStatusEntity;
 public interface DeviceStatusMapper extends BaseMapper<DeviceStatusEntity> {
 
     int insertOrUpdate(DeviceStatusEntity deviceStatusEntity);
+
+
+    DeviceStatusEntity selectByDeviceIdInAndStatus(@Param("deviceIdList") List<String> deviceIdList, @Param("status") Integer status);
+
 
 }
 

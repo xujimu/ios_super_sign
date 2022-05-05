@@ -247,11 +247,12 @@ CREATE TABLE IF NOT EXISTS `mdm_software_distribute` (
 CREATE TABLE IF NOT EXISTS `mdm_software_distribute_down_record` (
   `device_id` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `app_id` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-  `create_time` datetime NOT NULL
+  `create_time` datetime NOT NULL,
+  `udid` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Table structure for mdm_software_distribute_down_record_info
+-- Table structure for mdm_software_distribute_down_record_info1
 -- ----------------------------
 
 CREATE TABLE IF NOT EXISTS `mdm_software_distribute_down_record_info` (

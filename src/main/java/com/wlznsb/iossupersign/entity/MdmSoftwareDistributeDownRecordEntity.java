@@ -33,6 +33,12 @@ public class MdmSoftwareDistributeDownRecordEntity implements Serializable {
     @TableField(value = "create_time")
     private Date createTime;
 
+    /**
+     * 
+     */
+    @TableField(value = "udid")
+    private String udid;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

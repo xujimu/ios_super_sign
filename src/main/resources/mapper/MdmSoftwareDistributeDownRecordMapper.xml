@@ -8,10 +8,12 @@
             <result property="deviceId" column="device_id" jdbcType="VARCHAR"/>
             <result property="appId" column="app_id" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="udid" column="udid" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        device_id,app_id,create_time
+        device_id,app_id,create_time,
+        udid
     </sql>
     <select id="selectByAppId" resultMap="BaseResultMap">
         select
@@ -19,5 +21,14 @@
         from mdm_software_distribute_down_record
         where
         app_id = #{appId,jdbcType=VARCHAR}
+    </select>
+    <select id="selectByAppIdAndUdid" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mdm_software_distribute_down_record
+        where
+        app_id = #{appId,jdbcType=VARCHAR}
+        AND udid = #{udid,jdbcType=VARCHAR}
+        order by create_time desc limit 1
     </select>
 </mapper>

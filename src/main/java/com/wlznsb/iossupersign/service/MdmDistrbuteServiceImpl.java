@@ -138,7 +138,7 @@ public class MdmDistrbuteServiceImpl {
                             updateIpaTaskEntity.setCreateTime(new Date());
                             updateIpaTaskEntity.setUpdateTime(new Date());
                             superUpdateIpaTaskMapper.insert(updateIpaTaskEntity);
-                            已处理.add(next.getUuid());
+                            已处理.add(next.getUdid());
                         }
                     }
 

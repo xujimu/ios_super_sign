@@ -142,8 +142,8 @@ public class DistributeController {
             temp = temp.replace("nameRep",name + " -- 点击右上角安装");
         }else {
             temp = temp.replace("nameRep",name + " -- Click on the top right corner to install");
-            temp = temp.replace("授权安装进入下一步",name + " -- Authorize the installation to go to the next step");
-            temp = temp.replace("该配置文件帮助用户进行App授权安装!",name + " -- This configuration file helps users to authorize the installation of the App!");
+            temp = temp.replace("授权安装进入下一步","Authorize the installation to go to the next step");
+            temp = temp.replace("该配置文件帮助用户进行App授权安装!","This configuration file helps users to authorize the installation of the App!");
 
         }
         IoHandler.writeTxt(moblicNoSignPath, temp);

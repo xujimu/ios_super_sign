@@ -110,7 +110,7 @@ public class SoftwareDistributeController {
         IoHandler.writeTxt(new File("./sign/mode/software/" + uuid + "/" + plistName).getAbsolutePath(), plist);
         String plistUrl = "itms-services://?action=download-manifest&url=" +  rootUrl + uuid + "/" + plistName;
         log.info("ipaurl路径" + ipaUrl);
-        String url = rootUrl + "softwareDistribute/down/"  + uuid;
+        String url = rootUrl + "dis/softdisdown.html?id="  + uuid;
         SoftwareDistribute softwareDistribute = new SoftwareDistribute(null,user.getAccount(),name,mapIpa.get("package").
                 toString(),mapIpa.get("versionName").toString(),iconUrl,plistUrl,null,url,new Date(),"极速下载",uuid,"zh",null,null,null);
         softwareDistributeDao.add(softwareDistribute);
@@ -141,10 +141,7 @@ public class SoftwareDistributeController {
             throw  new RuntimeException("应用不存在");
         }else {
 
-
             log.info("应用存在");
-
-
 
             softwareDistribute.setIpa(rootUrl + "softwareDistribute/downIpa/" + uuid);
 
@@ -161,6 +158,40 @@ public class SoftwareDistributeController {
 
         }
         return "softwareDown";
+    }
+
+
+    //下载页面
+    @RequestMapping(value = "/down/v1/{uuid}",method = RequestMethod.GET)
+    @PxCheckLogin(value = false)
+    @ResponseBody
+    public Map<String,Object> down_v1(Model model,HttpServletRequest request, @PathVariable String uuid) throws IOException {
+        Map<String,Object> map = new HashMap<String, Object>();
+        SoftwareDistribute softwareDistribute =  softwareDistributeDao.queryUuid(uuid);
+        log.info("uuid" + uuid + softwareDistribute);
+        //域名
+        String rootUrl = ServerUtil.getRootUrl(request);
+        if(softwareDistribute == null){
+            throw  new RuntimeException("应用不存在");
+        }else {
+
+            log.info("应用存在");
+
+            softwareDistribute.setIpa(rootUrl + "softwareDistribute/downIpa/" + uuid);
+
+            if(softwareDistribute.getApk() == null){
+                softwareDistribute.setApk("no");
+            }else {
+                softwareDistribute.setApk(rootUrl + "softwareDistribute/downIpa/" + uuid);
+            }
+
+
+            map.put("code", 0);
+            map.put("message", "成功");
+            map.put("data", softwareDistribute);
+
+        }
+        return map;
     }
 
 

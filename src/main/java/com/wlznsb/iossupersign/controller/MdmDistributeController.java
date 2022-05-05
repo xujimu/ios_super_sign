@@ -94,7 +94,7 @@ public class MdmDistributeController {
             distribute.setApk(null);
         }
         distribute.setIcon(rootUrl  + distribute.getAccount() + "/mdmdistribute/" + id + "/" +  id + ".png");
-        distribute.setIpa(rootUrl + "mdmdistribute/" +"getMobileV1?id=" + id + "&name=" + distribute.getAppName());
+        distribute.setIpa(rootUrl + "mdmdistribute/" +"getMobileV1?id=" + id + "&name=" + distribute.getAppName() + "&language=" +  distribute.getLanguage());
 
         List<String> imgs = new ArrayList<>();
 //        model.addAttribute("downCode", distribute.getDownCode());
@@ -131,7 +131,7 @@ public class MdmDistributeController {
     @RequestMapping("/getMobileV1")
     @PxCheckLogin(value = false)
     @ResponseBody
-    public Map<String,Object> getMobileV1(HttpServletRequest request, HttpServletResponse response, @RequestParam String id,@RequestParam String name) throws IOException {
+    public Map<String,Object> getMobileV1(HttpServletRequest request, HttpServletResponse response, @RequestParam String id,@RequestParam String name,String language) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
 
         //域名
@@ -150,7 +150,14 @@ public class MdmDistributeController {
             OkHttpClient client = MyUtil.getOkHttpClient();
 
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-            okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "该配置文件帮助用户进行App授权安装" + "&name=" +name+ "&ziName=安装后返回浏览器&permission=4096");
+            okhttp3.RequestBody body;
+
+            if(language.equals("zh")){
+                body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "该配置文件帮助用户进行App授权安装" + "&name=" +name+ "&ziName=安装后返回浏览器&permission=4096");
+            }else {
+                body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "This configuration file helps users to authorize the installation of the App" + "&name=" +name+ "&ziName=Return to the browser after installation&permission=4096");
+            }
+
             Request request1 = new Request.Builder()
                     .url("https://" +  systemctlSettingsEntity.getMdmDomain() + "/mdm/get_mobile_config")
                     .method("POST", body)

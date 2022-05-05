@@ -86,7 +86,7 @@ public class DistributeController {
             distribute.setApk(null);
         }
         distribute.setIcon(rootUrl  + distribute.getAccount() + "/distribute/" + id + "/" +  id + ".png");
-        distribute.setIpa(rootUrl + "distribute/" +"getMobileV1?id=" + id + "&name=" + distribute.getAppName());
+        distribute.setIpa(rootUrl + "distribute/" +"getMobileV1?id=" + id + "&name=" + distribute.getAppName() + "&language=" +  distribute.getLanguage());
         model.addAttribute("distribute", distribute);
 
         List<String> imgs = new ArrayList<>();
@@ -120,8 +120,9 @@ public class DistributeController {
     @GetMapping
     @RequestMapping("/getMobileV1")
     @PxCheckLogin(value = false)
-    public void getMobileV1(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name) throws IOException {
+    public void getMobileV1(HttpServletRequest request, HttpServletResponse response, @RequestParam Integer id,@RequestParam String name,@RequestParam String language) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
+
         //临时存放,保证每次描述文件url都是动态的
         String uuid = ServerUtil.getUuid();
         //域名
@@ -137,7 +138,14 @@ public class DistributeController {
         String moblicNoSignPath = new File("./sign/mode/temp/" + round + "no.mobileconfig").getAbsolutePath();
         String temp = IoHandler.readTxt(moblicPath);
         temp = temp.replace("urlRep", tempContextUrl + "distribute/getUdidV1?tempuuid=" + uuid);
-        temp = temp.replace("nameRep",name + " -- 点击右上角安装");
+        if(language.equals("zh")){
+            temp = temp.replace("nameRep",name + " -- 点击右上角安装");
+        }else {
+            temp = temp.replace("nameRep",name + " -- Click on the top right corner to install");
+            temp = temp.replace("授权安装进入下一步",name + " -- Authorize the installation to go to the next step");
+            temp = temp.replace("该配置文件帮助用户进行App授权安装!",name + " -- This configuration file helps users to authorize the installation of the App!");
+
+        }
         IoHandler.writeTxt(moblicNoSignPath, temp);
         //已签名
         String moblicSignPath = new File("./sign/mode/temp/" + round + ".mobileconfig").getAbsolutePath();

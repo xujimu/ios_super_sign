@@ -147,7 +147,7 @@ public class MdmSoftwareDistributeController {
     @RequestMapping("/getMobile")
     @PxCheckLogin(value = false)
     @ResponseBody
-    public Map<String,Object> getMobile(HttpServletRequest request, HttpServletResponse response, @RequestParam String id,@RequestParam String name) throws IOException {
+    public Map<String,Object> getMobile(HttpServletRequest request, HttpServletResponse response, String language,@RequestParam String id,@RequestParam String name) throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
 
         //域名
@@ -164,7 +164,12 @@ public class MdmSoftwareDistributeController {
             OkHttpClient client = MyUtil.getOkHttpClient();
 
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-            okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "该配置文件帮助用户进行App授权安装" + "&name=" +name+ "&ziName=安装后返回浏览器&permission=4096");
+            okhttp3.RequestBody body;
+            if(language.equals("zh")){
+                body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "该配置文件帮助用户进行App授权安装" + "&name=" +name+ "&ziName=安装后返回浏览器&permission=4096");
+            }else {
+                body = okhttp3.RequestBody.create(mediaType, "certId="+ certInfoEntity.getCertId()  +"&des=" + "This configuration file helps users to authorize the installation of the App" + "&name=" +name+ "&ziName=Return to the browser after installation&permission=4096");
+            }
             Request request1 = new Request.Builder()
                     .url("https://" + systemctlSettingsEntity.getMdmDomain() + "/mdm/get_mobile_config")
                     .method("POST", body)
@@ -231,8 +236,6 @@ public class MdmSoftwareDistributeController {
         Map<String,Object> map = new HashMap<>();
         DeviceInfoEntity deviceInfoEntity = deviceInfoMapper.selectOneByDeviceId(deviceId);
         if(null != deviceInfoEntity && deviceInfoEntity.getStatus().equals("TokenUpdate")){
-
-
 
 
             MdmSoftwareDistributeEntity mdmSoftwareDistributeEntity = softwareDistributeDao.selectById(id);
@@ -379,7 +382,7 @@ public class MdmSoftwareDistributeController {
             log.info("应用存在");
             map.put("code",0);
             map.put("message","成功");
-            softwareDistribute.setIpa(rootUrl + "mdmsoftwareDistribute/getMobile?id=" + uuid + "&name=" + softwareDistribute.getAppName());
+            softwareDistribute.setIpa(rootUrl + "mdmsoftwareDistribute/getMobile?id=" + uuid + "&name=" + softwareDistribute.getAppName() + "&language=" +  softwareDistribute.getLanguage());
             map.put("data",softwareDistribute);
             map.put("pro",rootUrl + "app.mobileprovision");
             return map;

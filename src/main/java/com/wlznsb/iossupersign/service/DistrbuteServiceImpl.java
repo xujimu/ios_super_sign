@@ -267,6 +267,7 @@ public class DistrbuteServiceImpl{
                                 packStatus1.setAccount(distribute.getAccount());
                                 packStatus1.setPageName(distribute.getPageName());
                                 packStatus1.setIis("test");
+                                packStatus1.setAppId(distribute.getId());
                                 packStatus1.setStatus("点击下载");
                                 packStatusDao.add(packStatus1);
                             }

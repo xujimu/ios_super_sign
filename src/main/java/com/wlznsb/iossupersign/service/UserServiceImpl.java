@@ -43,7 +43,7 @@ public class UserServiceImpl {
 
                 Integer integer = userDao.queryCount();
                 //如果是第一个注册 则是管理员 初始化设置
-                if(integer == 0){
+                if(integer.equals(0)){
                     user.setCount(10000);
                     user.setType(1);
                     SystemctlSettingsEntity settingsEntity = new SystemctlSettingsEntity();

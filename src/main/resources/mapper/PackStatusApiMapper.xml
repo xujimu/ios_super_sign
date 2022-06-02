@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlznsb.iossupersign.mapper.PackStatusApiMapper">
+
+    <resultMap id="BaseResultMap" type="com.wlznsb.iossupersign.entity.PackStatusApiEntity">
+            <id property="taskId" column="task_id" jdbcType="VARCHAR"/>
+            <result property="account" column="account" jdbcType="VARCHAR"/>
+            <result property="udid" column="udid" jdbcType="VARCHAR"/>
+            <result property="appId" column="app_id" jdbcType="INTEGER"/>
+            <result property="ipaUrl" column="ipa_url" jdbcType="VARCHAR"/>
+            <result property="plistUrl" column="plist_url" jdbcType="VARCHAR"/>
+            <result property="installUrl" column="install_url" jdbcType="VARCHAR"/>
+            <result property="statusLog" column="status_log" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
+            <result property="certId" column="cert_id" jdbcType="INTEGER"/>
+            <result property="certDownUrl" column="cert_down_url" jdbcType="VARCHAR"/>
+            <result property="ip" column="ip" jdbcType="VARCHAR"/>
+            <result property="callbackUrl" column="callback_url" jdbcType="VARCHAR"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="callbackStatus" column="callback_status" jdbcType="INTEGER"/>
+            <result property="signType" column="sign_type" jdbcType="INTEGER"/>
+            <result property="restartSignTaskId" column="restart_sign_task_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        task_id,account,udid,
+        app_id,ipa_url,plist_url,
+        install_url,status_log,create_time,
+        end_time,status,cert_id,
+        cert_down_url,ip,callback_url,
+        remark,callback_status,sign_type,
+        restart_sign_task_id
+    </sql>
+</mapper>

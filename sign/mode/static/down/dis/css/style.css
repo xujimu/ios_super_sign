@@ -1,0 +1,642 @@
+#__bs_notify__ {
+    display: none !important;
+}
+
+[class*=tell] {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+[class*=dt] {
+    display: table;
+    width: 100%;
+}
+
+[class*=fw] {
+    float: left;
+    width: 100%;
+}
+
+[class*=item] ul {
+    display: table;
+    width: 100%;
+}
+
+[class*=item] ul li {
+    width: 100%;
+}
+
+[class*=item] ul li:last-child {
+    border-bottom: none;
+}
+
+.toutu img {
+    width: 100%;
+    vertical-align: bottom;
+}
+
+.mobile-wrap {
+    position: relative;
+    min-height: 100vh;
+}
+
+main {
+    width: 100%;
+    padding: 0.3rem 5%;
+}
+
+.appItem {
+    width: 100%;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding-bottom: 0.4rem;
+}
+
+.appItem .left {
+    width: 2.3rem;
+    height: 2.3rem;
+    -webkit-border-radius: 0.1rem;
+    border-radius: 0.1rem;
+    overflow: hidden;
+}
+
+.appItem .left img {
+    width: 100%;
+    min-height: 100%;
+}
+
+.appItem .right {
+    width: -webkit-calc(100% - 2.6rem);
+    width: calc(100% - 2.6rem);
+}
+
+.appItem .right strong {
+    color: #111;
+    font-size: 0.4rem;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.appItem .right strong span {
+    color: #8e8e93;
+    font-size: 0.24rem;
+    -webkit-border-radius: 0.08rem;
+    border-radius: 0.08rem;
+    padding: 0.02rem 0.1rem;
+    border: 1px solid #8e8e93;
+    vertical-align: middle;
+    margin-left: 0.1rem;
+}
+
+.appItem .right p {
+    font-size: 0.28rem;
+    line-height: 1.4;
+    color: #8e8e93;
+}
+
+.appItem .right .installBox {
+    padding-top: 0.4rem;
+    width: 100%;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+}
+
+.appItem .right .installBox a {
+    display: inline-block;
+}
+
+.appItem .right .installBox a:active {
+    opacity: 0.85;
+}
+
+.appItem .right .installBox .down {
+    min-width: 2.6rem;
+    background-color: #017afe;
+    -webkit-border-radius: 0.3rem;
+    border-radius: 0.35rem;
+    text-align: center;
+    color: #fff;
+    font-size: 0.36rem;
+    padding: 0 0.3rem;
+    height: 0.72rem;
+    line-height: 0.72rem;
+}
+
+.appItem .right .installBox .doubt {
+    width: 0.62rem;
+    height: 0.62rem;
+    line-height: 0.62rem;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    background-color: #017afe;
+    color: #fff;
+    font-size: 0.28rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.appItem .appTip {
+    width: 100%;
+    padding-top: 0.4rem;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+}
+
+.appItem .appTip .score {
+    line-height: 1.2;
+}
+
+#kai {
+    display: block;
+    overflow-y: auto;
+    height: 85vh;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 0 5%;
+}
+
+.appItem .appTip .score .star {
+    color: #8e8e93;
+    font-weight: bold;
+    font-size: 0.34rem;
+}
+
+.appItem .appTip .score .star var {
+    width: 1.6rem;
+    height: 0.32rem;
+    background: url("../img/star.jpg") 0 0;
+    -webkit-background-size: 0.32rem 0.72rem;
+    background-size: 0.32rem 0.72rem;
+    display: inline-block;
+}
+
+.appItem .appTip .score p {
+    color: #d8d8d8;
+    font-size: 0.24rem;
+    line-height: 1.6;
+}
+
+.appItem .appTip .centerBox {
+    color: #8e8e93;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.appItem .appTip .centerBox b {
+    font-size: 0.34rem;
+    display: block;
+}
+
+.appItem .appTip .centerBox p {
+    color: #d8d8d8;
+    font-size: 0.24rem;
+}
+
+.appItem .appTip .age {
+    color: #8e8e93;
+    line-height: 1.2;
+    text-align: right;
+}
+
+.appItem .appTip .age b {
+    font-size: 0.34rem;
+    display: block;
+}
+
+.appItem .appTip .age p {
+    color: #d8d8d8;
+    font-size: 0.24rem;
+}
+
+.comment {
+    width: 100%;
+    padding: 0.34rem 0;
+    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.comment .left {
+    text-align: center;
+    padding-left: 0.2rem;
+}
+
+.comment .left b {
+    font-size: 1.2rem;
+    color: #4c4c50;
+    line-height: 1.1;
+}
+
+.comment .left p {
+    font-size: 0.28rem;
+    color: #8e8e93;
+    font-weight: bold;
+}
+
+.comment .right {
+    -webkit-box-flex: 0.9;
+    -webkit-flex-grow: 0.9;
+    -ms-flex-positive: 0.9;
+    flex-grow: 0.9;
+}
+
+.comment .right p {
+    font-size: 0.28rem;
+    color: #8e8e93;
+    line-height: 1.4;
+    text-align: right;
+}
+
+.comment .right .star_row {
+    width: 100%;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.comment .right .star_row span {
+    width: 1.2rem;
+    height: 0.24rem;
+    display: inline-block;
+    text-align: right;
+}
+
+.comment .right .star_row span i {
+    height: 0.16rem;
+    display: inline-block;
+    background: url("../img/star.jpg") 0 0;
+    -webkit-background-size: 0.18rem 0.34rem;
+    background-size: 0.18rem 0.34rem;
+}
+
+.comment .right .star_row span.s1 i {
+    width: 0.9rem;
+}
+
+.comment .right .star_row span.s2 i {
+    width: 0.72rem;
+}
+
+.comment .right .star_row span.s3 i {
+    width: 0.54rem;
+}
+
+.comment .right .star_row span.s4 i {
+    width: 0.36rem;
+}
+
+.comment .right .star_row span.s5 i {
+    width: 0.18rem;
+}
+
+.comment .right .star_row .lineBox {
+    width: -webkit-calc(100% - 1.6rem);
+    width: calc(100% - 1.6rem);
+    height: 0.05rem;
+    -webkit-border-radius: 0.3rem;
+    border-radius: 0.3rem;
+    background-color: #e5e5e5;
+    overflow: hidden;
+}
+
+.comment .right .star_row .lineBox var {
+    height: 100%;
+    -webkit-border-radius: 0 0.3rem 0.3rem 0;
+    border-radius: 0 0.3rem 0.3rem 0;
+    background-color: #8e8e93;
+    float: left;
+}
+
+.comment .right .star_row .lineBox var.v1 {
+    width: 90%;
+}
+
+.comment .right .star_row .lineBox var.v2 {
+    width: 10%;
+}
+
+.comment .right .star_row .lineBox var.v3 {
+    width: 4%;
+}
+
+.comment .right .star_row .lineBox var.v4 {
+    width: 2%;
+}
+
+.comment .right .star_row .lineBox var.v5 {
+    width: 1%;
+}
+
+.publicTitle {
+    width: 100%;
+    font-size: 0.4rem;
+    line-height: 1.2;
+    letter-spacing: 0.02rem;
+    margin-bottom: 0.3rem;
+    display: block;
+}
+
+.newFunction {
+    width: 100%;
+    padding: 0.34rem 0;
+    border-bottom: 1px solid #e5e5e5;
+    line-height: 1.4;
+}
+
+.newFunction p {
+    font-size: 0.3rem;
+    color: #333;
+}
+
+.appInfo {
+    width: 100%;
+    padding: 0.34rem 0;
+}
+
+.appInfo .box ul li {
+    width: 100%;
+    line-height: 1.4;
+    padding: 0.15rem 0;
+    float: none;
+    border-bottom: 1px solid #e5e5e5;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+}
+
+.appInfo .box ul li:last-child {
+    border-bottom: none;
+}
+
+.appInfo .box ul li span {
+    -webkit-box-flex: 0.1;
+    -webkit-flex-grow: 0.1;
+    -ms-flex-positive: 0.1;
+    flex-grow: 0.1;
+    font-size: 0.24rem;
+    color: #8e8e93;
+    white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+}
+
+.appInfo .box ul li p {
+    width: 80%;
+    color: #333;
+    font-size: 0.24rem;
+    text-align: right;
+    display: inline-block;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    word-wrap: break-word;
+}
+
+.footer {
+    width: 100%;
+    padding: 0.15rem 3%;
+    background-color: #eee;
+    color: #a9a9a9;
+    line-height: 1.6;
+}
+
+.footer p {
+    font-size: 0.2rem;
+}
+
+.footer p.p2 {
+    text-indent: 0.4rem;
+}
+
+.pup {
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+}
+
+.guide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width: 80%;
+    -webkit-border-radius: 0.1rem;
+    border-radius: 0.1rem;
+    overflow: hidden;
+    background-color: #fff;
+    padding-bottom: 0.2rem;
+}
+
+.guide .colse {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    width: 0.7rem;
+    height: 0.7rem;
+    background: url("../img/31cb4_4_200_200.png") no-repeat;
+    -webkit-background-size: 100% 100%;
+    background-size: 100%;
+}
+
+.guide .pics {
+    width: 100%;
+    height: 5.5rem;
+}
+
+.guide .pic {
+    width: 100%;
+    height: 4.2rem;
+    overflow: hidden;
+}
+
+.guide .pic img {
+    width: 100%;
+    min-height: 100%;
+}
+
+.guide .text {
+    padding: 0.15rem;
+    color: #1e93ff;
+    font-size: 0.26rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.guide .swiper-container {
+    height: 100%;
+}
+
+.guide .swiper-pagination {
+    bottom: 0 !important;
+}
+
+.guide .swiper-pagination span {
+    background-color: #def1ff;
+    opacity: 1;
+}
+
+.guide .swiper-pagination span.swiper-pagination-bullet-active {
+    background-color: #70c2fe;
+    opacity: 1;
+}
+
+.guide .smallTip {
+    text-align: center;
+    line-height: 1.4;
+    padding-top: 0.3rem;
+}
+
+.guide .smallTip a {
+    color: #1daafc;
+    font-size: 0.24rem;
+}
+
+.pupPic {
+    position: fixed;
+    z-index: 11;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.pupPic img {
+    width: 100%;
+    height: 100%;
+}
+
+
+/*# sourceMappingURL=style.css.map */
+
+.downCode-pop {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, .6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.downCode {
+    background: #fff;
+    width: 80vw;
+}
+
+.downCode .input {
+    padding: 5% 15%;
+    background: rgba(49, 63, 89, 1);
+}
+
+.downCode .input input {
+    background: #fff;
+    padding: 10px 5px;
+    padding-left: 10px;
+    width: 100%;
+}
+
+.downCode .btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
+
+.downCode .btns button {
+    width: 100px;
+    height: 30px;
+    background: rgb(69, 157, 254);
+    color: #fff;
+    font-weight: 500;
+}
+
+.downCode .btns button:last-of-type {
+    margin-left: 20px;
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #333;
+}

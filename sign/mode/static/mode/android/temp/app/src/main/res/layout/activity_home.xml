@@ -1,0 +1,52 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/frame_web_video"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <com.tencent.smtt.sdk.WebView
+        android:id="@+id/x5"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent">
+
+    </com.tencent.smtt.sdk.WebView>
+    <FrameLayout
+        android:id="@+id/startHome"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/startImageHome"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/start"
+            ></ImageView>
+
+
+        <Button
+            android:id="@+id/buttonHome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="跳过 3"
+            android:textSize="20dp"
+            android:textColor="#FFFF"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20sp"
+            android:background="@drawable/skip_image"
+            android:layout_gravity="right"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            >
+
+        </Button>
+
+    </FrameLayout>
+</RelativeLayout>

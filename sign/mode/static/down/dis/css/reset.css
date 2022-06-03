@@ -1,0 +1,148 @@
+body,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+li,
+span,
+i,
+ul,
+img,
+a,
+strong,
+input,
+button,
+textarea,
+select,
+dl,
+dd,
+dt {
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    font-family: "microsoft yahei", "Arial";
+    font-size: .24rem;
+    line-height: 1;
+    -webkit-user-select: none;
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+    -moz-text-size-adjust: 100% !important;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+* {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+[class|="ico"] {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+li {
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+    outline: none;
+}
+
+img {
+    border: none;
+}
+
+i,
+var,
+em {
+    font-style: normal;
+}
+
+button {
+    font-family: "microsoft yahei", "Arial";
+    outline: none;
+    cursor: pointer;
+    font-size: .24rem;
+    border: none;
+}
+
+iframe {
+    border: none;
+}
+
+input,
+select,
+textarea {
+    outline: none;
+    font-family: "microsoft yahei", "Arial";
+    font-size: .24rem;
+    border-radius: 0;
+    border: none;
+    background: none;
+}
+
+input:disabled {
+    opacity: 1;
+    color: #333;
+}
+
+input[type="submit"],
+input[type="reset"],
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="button"],
+button,
+input[type="date"],
+textarea {
+    -webkit-appearance: none;
+    border: none;
+    background: none;
+}
+
+textarea {
+    resize: none;
+}
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+.clear {
+    clear: both;
+}
+
+.hide {
+    display: none !important;
+}
+
+.column{
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: flex;
+}
+
+.column > * {
+    column-count:1;
+    flex-grow:1;
+    flex-shrink 0;
+    text-align: center;
+}

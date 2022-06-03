@@ -1,0 +1,102 @@
+debug: false
+spring:
+  redis:
+    database: 0
+    # Redis服务器地址
+    host: 127.0.0.1
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    password: Mysql666..
+  servlet:
+    multipart:
+      max-file-size: 64000MB
+      max-request-size: 6400MB
+  datasource:
+    initialization-mode: always
+    schema:
+      - classpath:ios_super_sign.sql
+    dynamic:
+      primary: ios_super_sign
+      strict: false
+      datasource:
+        #主数据库
+        ios_super_sign:
+          username: root
+          password: Mysql666..
+          url: jdbc:mysql://127.0.0.1:3306/ios_super_sign?useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        #mdm服务数据库
+        mdm:
+          username: root
+          password: Mysql666..
+          url: jdbc:mysql://127.0.0.1:3306/mdm?useUnicode=true&characterEncoding=utf8&createDatabaseIfNotExist=true&serverTimezone=Asia/Shanghai&useSSL=false
+          driver-class-name: com.mysql.cj.jdbc.Driver
+  resources:
+    static-locations: file:./sign/mode/static/down,file:./sign/temp,file:./sign/mode/software,file:./sign/mode/temp,file:./sign/mode/config,file:./sign/public,classpath:/static,classpath:/resources,classpath:/META-INF/resources
+  freemarker:
+    suffix: .ftl
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+server:
+  port: 10802
+  #tomcat证书和密码
+  #   ssl:
+  #    key-store: ../sign/mode/cert.jks
+  #    key-password: D6s4YRwc
+  servlet:
+    context-path: /
+
+mybatis-plus:
+  config-location: classpath:mybatis-config.xml
+
+#七牛云的参数,如果不使用请所有都留空
+qiniuyun:
+  accessKey:
+  secretKey:
+  bucket:
+  url: https://
+  #内网地区 huadong 或者 huabei 不填则不用内网
+  reg:
+
+
+#阿里云的参数,如果不使用请所有都留空
+aliyun:
+  accessKey:
+  secretKey:
+  bucket:
+  #  上传url
+  url: https://
+  #  下载url
+  downUrl: https://
+
+thread: 20
+
+
+mdmUrl: https://
+
+logging:
+  level:
+    root: info
+    com.wlznsb.iossupersign.mapper: debug
+  file:
+    path: spring.log
+#域名用于免签封装
+domain: https:///
+#上传安卓扣除设备数
+apkCount: 0
+#免签封装扣除设备数
+signCount: 0
+
+#上传证书扣除设备数
+uploadCertCount: 0
+
+#自助分发需要扣除设备数
+sofware: 10
+
+#ios自助分发需要扣除设备数
+iosSignSofware: 10
+
+#免签封装证书密码
+mqpassword: 3tx

